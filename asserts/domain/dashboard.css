@@ -1,0 +1,403 @@
+/* start focus module */
+
+#page-focus .item-inner {
+  background-image: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  -webkit-align-items: flex-start;
+  -webkit-box-align: start;
+  margin-left: 0.75rem;
+}
+
+.focus-title {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+}
+
+.focus-description {
+  margin-bottom: 0.2rem;
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.list-block {
+  margin: 0.8rem 0;
+}
+
+.bar {
+  background: #f9f9f9;
+}
+
+.bar .searchbar {
+  margin: 0%;
+}
+
+.searchbar {
+  background: #f9f9f9 !important;
+}
+
+.list-block li {
+  height: 3.25rem;
+}
+
+.list-block .item-content {
+  min-height: 3.25rem;
+}
+
+.list-block .item-inner {
+  min-height: 3.25rem;
+}
+
+/* end focus module */
+
+/* start login module */
+
+.input-contain {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 2.5rem;
+}
+
+.input-contain input {
+  width: 100%;
+  border: transparent;
+  background-color: #f9f9f9;
+  height: 2rem;
+  margin-left: 1rem;
+  color: #bbb;
+}
+
+.email-input {
+  background-color: #f9f9f9;
+  border-radius: 0.2rem;
+  padding: 0.25rem 1rem;
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.email-input input {
+  font-size: 0.7rem;
+}
+
+.password-input {
+  bottom: 20%;
+  background-color: #f9f9f9;
+  border-radius: 0.2rem;
+  padding: 0.25rem 1rem;
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.icon-account,
+.icon-my {
+  line-height: 2rem;
+}
+
+.icon-password {
+  transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+}
+
+.email-input,
+.password-input i {
+  flex: 0 0 1.25rem;
+  font-size: 1.25rem;
+  line-height: 2rem !important;
+}
+
+.binding-btn {
+  bottom: 10%;
+}
+
+/* end login module */
+
+/* start health module */
+
+#page-health .content {
+  /* background-image: linear-gradient(to bottom, #0092ff 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.2) 98%, #b0ddff 100%);*/
+  background-image: -moz-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
+  background-image: -webkit-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
+  background-image: -ms-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
+}
+
+#page-health .content-inner {
+  height: 100%;
+}
+
+.health-company {
+  height: 3.1rem;
+  vertical-align: middle;
+  color: #fff;
+  text-align: center;
+}
+
+.health-company span {
+  font-size: 0.8rem;
+  font-weight: bold;
+  line-height: 3.1rem;
+}
+
+.health-horizone-divide {
+  height: 0.05rem;
+  border: transparent;
+  background-image: -moz-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+  background-image: -webkit-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+  background-image: -ms-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+}
+
+.health-contain {
+  display: flex;
+  height: 80%;
+}
+
+.health-overrun {
+  flex: 1 1 50%;
+  position: relative;
+}
+
+.health-vertical-divide {
+  width: 0.05rem;
+  border: transparent;
+  background-image: -moz-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+  background-image: -webkit-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+  background-image: -ms-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+}
+
+.health-communication {
+  flex: 1 1 50%;
+  position: relative;
+}
+
+.overrun-header,
+.communication-header {
+  text-align: center;
+  height: 3.25rem;
+  line-height: 3.25rem;
+  color: #fff;
+}
+
+.health-cycle {
+  height: 7rem;
+  width: 8rem;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.overrun-data,
+.communication-data {
+  color: #fff;
+  font-size: 0.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.overrun-data div span:nth-child(2),
+.communication-data div span:nth-child(2) {
+  font-weight: bold;
+}
+
+.health-data-margin {
+  margin-bottom: 0.75rem;
+  margin-left: 20%;
+}
+
+.health-data-last-margin {
+  margin-left: 20%;
+}
+
+.health-more {
+  color: #fff;
+  margin-left: 20%;
+}
+
+.health-data-score {
+  font-size: 2.5rem;
+  display: inline-block;
+  margin-top: -0.7rem;
+  color: #fff;
+}
+
+.score-fail {
+  color: #fffc00;
+}
+
+.health-data-unit {
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+/* end health module */
+
+/* start report module */
+
+#page-report ul {
+  background: transparent;
+}
+
+#page-report .list-block {
+  margin: 0.3rem 0;
+}
+
+.report-li {
+  height: 4.5rem !important;
+  background: #f9f9f9;
+  margin: 0.3rem;
+  border-radius: 0.3rem;
+}
+
+.report-header {
+  width: 0.4rem;
+  height: 4.5rem;
+  border-radius: 0.3rem 0 0 0.3rem;
+  background: #a1c2e1;
+  margin-left: -0.75rem;
+  margin-right: 0.5rem;
+}
+
+.report-li .item-inner {
+  background-image: none !important;
+  flex-direction: column;
+  height: 4.5rem;
+  margin-left: 0.75rem;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+.title-top {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+}
+
+.inner-description {
+  position: relative;
+  width: 100%;
+}
+
+.title-bottom {
+  margin-bottom: 0.7rem;
+  font-size: 0.65rem;
+  color: #666;
+  width: calc(100% - 3rem);
+}
+
+.title-bottom-date {
+  color: #bbb;
+  font-size: 0.65rem;
+  position: absolute;
+  right: -0.9rem;
+  top: 0;
+}
+
+/* end report module */
+
+/* start about module */
+
+#page-about .content-inner {
+  height: 100%;
+}
+
+.unbind-contain {
+  background-color: rgb(74, 174, 251);
+  line-height: 2.5rem;
+  width: 50%;
+  text-align: center;
+  color: #fff;
+  border-radius: 1.65rem;
+  position: absolute;
+  left: 50%;
+  -moz-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate( -50%, -50%);
+  font-size: 0.9rem;
+}
+
+.company-logon {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 3rem;
+  position: absolute;
+  top: 4%;
+  left: 5%;
+}
+
+.set_up {
+  color: #333;
+  font-size: 1.2rem;
+  position: absolute;
+  right: 0.4rem;
+  top: 2.4rem;
+}
+
+.icon-set_up:before {
+  color: #333;
+}
+
+.company-contain {
+  position: absolute;
+  top: 6%;
+  left: 28%;
+}
+
+.company-name {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 10rem;
+}
+
+.company-description {
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 10rem;
+}
+
+.about-contain {
+  background-color: #f9f9f9;
+}
+
+.about-contain .list-block {
+  margin: 0.5rem 0;
+}
+
+.about-contain ul {
+  background-color: #f9f9f9;
+}
+
+.about-contain ul li .item-inner {
+  margin-left: 0.75rem;
+}
+
+.company-feedback-contain {
+  height: 4rem;
+  background: #f9f9f9;
+  margin-top: -0.05rem;
+  display: flex;
+}
+
+.feed-back-function {
+  flex: 1;
+  align-items: center;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.feed-back-function span {
+  line-height: 5rem;
+}
+
+/* end about module */

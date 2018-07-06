@@ -1,0 +1,360 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('../fonts/icomoon.eot?xdb1d8');
+  src: url('../fonts/icomoon.eot?xdb1d8#iefix') format('embedded-opentype'), url('../fonts/icomoon.ttf?xdb1d8') format('truetype'), url('../fonts/icomoon.woff?xdb1d8') format('woff'), url('../fonts/icomoon.svg?xdb1d8#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+}
+
+.icon-pie_chart:before {
+  content: "\e900";
+  color: #bbb;
+}
+
+.icon-columnar:before {
+  content: "\e906";
+  color: #bbb;
+}
+
+.icon-nav:before {
+  content: "\e908";
+  color: #bbb;
+}
+
+.icon-tick:before {
+  content: "\e90f";
+  color: #bbb;
+}
+
+.icon-add_to:before {
+  content: "\e91f";
+  color: #bbb;
+}
+
+.icon-password:before {
+  content: "\e920";
+  color: #bbb;
+}
+
+.icon-switch:before {
+  content: "\e921";
+  color: #bbb;
+}
+
+.icon-account:before {
+  content: "\e922";
+  color: #bbb;
+}
+
+.icon-fold-line:before {
+  content: "\e923";
+  color: #bbb;
+}
+
+.icon-home:before {
+  content: "\e911";
+  color: #bbb;
+}
+
+.icon-report:before {
+  content: "\e902";
+  color: #999;
+}
+
+.icon-healthy:before {
+  content: "\e903";
+  color: #999;
+}
+
+.icon-my:before {
+  content: "\e904";
+  color: #999;
+}
+
+.icon-follow:before {
+  content: "\e905";
+  color: #999;
+  font-size: 1.5rem;
+}
+
+.icon-electric:before {
+  content: "\e907";
+  color: #999;
+}
+
+.icon-gas:before {
+  content: "\e909";
+  color: #999;
+}
+
+.icon-water:before {
+  content: "\e90a";
+  color: #999;
+}
+
+.icon-search:before {
+  content: "\e90b";
+  color: #bbb;
+}
+
+.icon-jump:before {
+  content: "\e90c";
+  color: #ddd;
+}
+
+.icon-top:before {
+  content: "\e90d";
+  color: #bbb;
+}
+
+.icon-address:before {
+  content: "\e914";
+  color: #bbb;
+}
+
+.icon-telephone:before {
+  content: "\e915";
+  color: #bbb;
+}
+
+.icon-official_network:before {
+  content: "\e916";
+  color: #bbb;
+}
+
+.icon-mobile_phone:before {
+  content: "\e917";
+  color: #bbb;
+}
+
+.icon-maibox:before {
+  content: "\e918";
+  color: #ccc;
+}
+
+.icon-agreement:before {
+  content: "\e919";
+  color: #bbb;
+}
+
+.icon-about_us:before {
+  content: "\e91a";
+  color: #bbb;
+}
+
+.icon-contact_us:before {
+  content: "\e91b";
+  color: #bbb;
+}
+
+.icon-cache:before {
+  content: "\e91c";
+  color: #bbb;
+}
+
+.icon-set_up:before {
+  content: "\e91d";
+  color: #bbb;
+}
+
+.icon-privacy:before {
+  content: "\e91e";
+  color: #bbb;
+}
+
+.active .icon:before {
+  color: #0894ec;
+}
+
+.login-backgroud {
+  background-image: url(/asserts/img/dl/dlbj.jpg);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+}
+
+.login {
+  position: relative;
+  top: 10%;
+  left: 50%;
+  height: 4.5rem;
+  width: 4.5rem;
+  transform: translateX(-50%);
+  border-radius: 4.5rem;
+}
+
+.login-company-icon {
+  background-image: url(/asserts/img/dl/logo.png);
+  background-color: #f9f9f9;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.login-description {
+  position: relative;
+  top: 12%;
+  left: 50%;
+  color: #fff;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+  font-size: 0.7rem;
+}
+
+::-webkit-input-placeholder {
+  color: #bbb;
+  font-size: 0.7rem;
+}
+
+:-moz-placeholder {
+  color: #bbb;
+  font-size: 0.7rem;
+}
+
+::-moz-placeholder {
+  color: #bbb;
+  font-size: 0.7rem;
+}
+
+:-ms-input-placeholder {
+  color: #bbb;
+  font-size: 0.7rem;
+}
+
+.icon-year-month {
+  background-image: url(/asserts/img/bb/n.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-month-day {
+  background-image: url(/asserts/img/bb/y.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-bz {
+  background-image: url(/asserts/img/bb/bz.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-fgp {
+  background-image: url(/asserts/img/bb/fgp.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-lhs {
+  background-image: url(/asserts/img/bb/lhs.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-rcb {
+  background-image: url(/asserts/img/bb/rcb.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-hb {
+  background-image: url(/asserts/img/bb/h.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-tb {
+  background-image: url(/asserts/img/bb/t.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-rksjhw {
+  background-image: url(/asserts/img/bb/rkb.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-sjdcb {
+  background-image: url(/asserts/img/bb/sjd.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-welcome {
+  background-image: url(/asserts/img/welcome.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.icon-about-me {
+  background-image: url(/asserts/img/wd/bj.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 25%;
+}
+
+.icon-company-logon {
+  background-image: url(/asserts/img/wd/Logo.png);
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+}
