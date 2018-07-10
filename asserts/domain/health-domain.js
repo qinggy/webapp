@@ -2,7 +2,7 @@ $(function () {
   'use strict';
 
   var cycleloader = function (percentageLoader, width, height, progress) {
-    var $loader = $j(percentageLoader).percentageLoader({
+    var $loader = $jQuery(percentageLoader).percentageLoader({
       width: width,
       height: height,
       progress: progress

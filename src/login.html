@@ -20,6 +20,12 @@
   <link rel="stylesheet" href="/asserts/domain/dashboard.css">
 
   <link rel="apple-touch-icon-precomposed" href="/assets/img/apple-touch-icon-114x114.png">
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    var $jQuery = jQuery.noConflict();
+  </script>
+  <script src="/dist/common/jquery.namespace.js" type="text/javascript"></script>
+  <script src="/dist/common/esdpec.common.js" type="text/javascript"></script>
   <script src="/dist/sui/js/zepto.js" type="text/javascript"></script>
   <script src="/dist/sui/js/config.js" type="text/javascript"></script>
 </head>
@@ -34,11 +40,11 @@
       <div class="input-contain">
         <div class="email-input">
           <i class="icon-my"></i>
-          <input type="email" placeholder="Account">
+          <input type="email" placeholder="Account" id="account">
         </div>
         <div class="password-input">
           <i class="icon-password"></i>
-          <input type="password" placeholder="Password">
+          <input type="password" placeholder="Password" id="password">
         </div>
         <div class="binding-btn">
           <a href="#" id="login-btn" class="button button-big button-fill button-success">绑定微信登录</a>

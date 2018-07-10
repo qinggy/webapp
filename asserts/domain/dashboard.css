@@ -367,19 +367,33 @@
 }
 
 .about-contain {
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
 }
 
 .about-contain .list-block {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.about-contain .list-block ul {
+  background: transparent;
 }
 
 .about-contain ul {
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
+}
+
+.about-me-li {
+  height: 3.25rem;
+  background: #f9f9f9;
+  margin-bottom: 0.25rem;
 }
 
 .about-contain ul li .item-inner {
   margin-left: 0.75rem;
+}
+
+.about-contain ul li .item-inner:after {
+  content: none;
 }
 
 .company-feedback-contain {

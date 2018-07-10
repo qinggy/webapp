@@ -1,6 +1,5 @@
 $(function () {
   'use strict';
-  var api = "localhost:3003/api/";
   //下拉刷新页面
   $(document).on("pageInit", "#page-ptr", function (e, id, page) {
     var $content = $(page).find(".content").on('refresh', function (e) {
@@ -342,7 +341,7 @@ $(function () {
   });
 
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
-    $.get(api + "news", function (response) {
+    esdpec.framework.core.getJsonResult("news", function (response) {
       $.alert(response);
     });
 
