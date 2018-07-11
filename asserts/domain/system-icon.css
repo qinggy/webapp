@@ -17,176 +17,132 @@
   line-height: 1;
 }
 
-[class^="icon-"],
-[class*=" icon-"] {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'icomoon' !important;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-}
-
 .icon-pie_chart:before {
   content: "\e900";
-  color: #bbb;
 }
-
-.icon-columnar:before {
-  content: "\e906";
-  color: #bbb;
-}
-
-.icon-nav:before {
-  content: "\e908";
-  color: #bbb;
-}
-
-.icon-tick:before {
-  content: "\e90f";
-  color: #bbb;
-}
-
-.icon-add_to:before {
-  content: "\e91f";
-  color: #bbb;
-}
-
-.icon-password:before {
-  content: "\e920";
-  color: #bbb;
-}
-
-.icon-switch:before {
-  content: "\e921";
-  color: #bbb;
-}
-
-.icon-account:before {
-  content: "\e922";
-  color: #bbb;
-}
-
-.icon-fold-line:before {
-  content: "\e923";
-  color: #bbb;
-}
-
-.icon-home:before {
-  content: "\e911";
-  color: #bbb;
-}
-
 .icon-report:before {
   content: "\e902";
-  color: #999;
 }
-
 .icon-healthy:before {
   content: "\e903";
-  color: #999;
 }
-
 .icon-my:before {
   content: "\e904";
-  color: #999;
 }
-
 .icon-follow:before {
   content: "\e905";
-  color: #999;
-  font-size: 1.5rem;
 }
-
+.icon-columnar:before {
+  content: "\e906";
+}
 .icon-electric:before {
   content: "\e907";
-  color: #999;
 }
-
+.icon-nav:before {
+  content: "\e908";
+}
 .icon-gas:before {
   content: "\e909";
-  color: #999;
 }
-
 .icon-water:before {
   content: "\e90a";
-  color: #999;
 }
-
 .icon-search:before {
   content: "\e90b";
-  color: #bbb;
 }
-
 .icon-jump:before {
   content: "\e90c";
-  color: #ddd;
 }
-
 .icon-top:before {
   content: "\e90d";
-  color: #bbb;
 }
-
+.icon-tick:before {
+  content: "\e90f";
+}
+.icon-home:before {
+  content: "\e911";
+}
 .icon-address:before {
   content: "\e914";
-  color: #bbb;
 }
-
 .icon-telephone:before {
   content: "\e915";
-  color: #bbb;
 }
-
 .icon-official_network:before {
   content: "\e916";
-  color: #bbb;
 }
-
 .icon-mobile_phone:before {
   content: "\e917";
-  color: #bbb;
 }
-
 .icon-maibox:before {
   content: "\e918";
-  color: #ccc;
 }
-
 .icon-agreement:before {
   content: "\e919";
-  color: #bbb;
 }
-
 .icon-about_us:before {
   content: "\e91a";
-  color: #bbb;
-  font-size: 1rem;
 }
-
 .icon-contact_us:before {
   content: "\e91b";
-  color: #bbb;
 }
-
 .icon-cache:before {
   content: "\e91c";
-  color: #bbb;
 }
-
 .icon-set_up:before {
   content: "\e91d";
-  color: #bbb;
 }
-
 .icon-privacy:before {
   content: "\e91e";
+}
+.icon-password:before {
+  content: "\e920";
+}
+.icon-switch:before {
+  content: "\e921";
+}
+.icon-account:before {
+  content: "\e922";
+}
+.icon-fold-line:before {
+  content: "\e923";
+}
+.icon-reduce:before {
+  content: "\e912";
+  color: #bbb;
+}
+.icon-add_to:before {
+  content: "\e913";
+  color: #bbb;
+}
+.icon-mobile_data:before {
+  content: "\e910";
+  color: #bbb;
+}
+.icon-arrow:before {
+  content: "\e901";
+  color: #bbb;
+}
+.icon-wechat:before {
+  content: "\e90e";
   color: #bbb;
 }
 
 .active .icon:before {
   color: #0894ec;
+}
+
+.icon-about_us:before {
+  font-size: 1.1rem;
+}
+
+.icon-follow:before {
+  font-size: 1.6rem;
+}
+
+.icon-mobile_data:before {
+  color: #00c1de;
+  font-size: 6rem;
 }
 
 .login-backgroud {
@@ -249,8 +205,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-month-day {
@@ -258,8 +214,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-bz {
@@ -267,8 +223,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-fgp {
@@ -276,8 +232,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-lhs {
@@ -285,8 +241,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-rcb {
@@ -294,8 +250,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-hb {
@@ -303,8 +259,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-tb {
@@ -312,8 +268,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-rksjhw {
@@ -321,8 +277,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-sjdcb {
@@ -330,8 +286,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-welcome {
@@ -339,8 +295,8 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.5rem
 }
 
 .icon-about-me {
@@ -357,4 +313,52 @@
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
+}
+
+.icon-background-attribute {
+  background-repeat: no-repeat;
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  height: 2.5rem;
+  width: 3rem;
+}
+
+.icon-commnunicate {
+  background-image: url(/asserts/img/gz/communication.png);
+}
+
+.icon-electronic-meter {
+  background-image: url(/asserts/img/gz/electronicmeter.png);
+}
+
+.icon-electronic-pk {
+  background-image: url(/asserts/img/gz/electronicpk.png);
+}
+
+.icon-energy-efficient {
+  background-image: url(/asserts/img/gz/energy-efficient.png);
+}
+
+.icon-gas-meter {
+  background-image: url(/asserts/img/gz/gasmeter.png);
+}
+
+.icon-gas-pk {
+  background-image: url(/asserts/img/gz/gaspk.png);
+}
+
+.icon-over-run {
+  background-image: url(/asserts/img/gz/overrun.png);
+}
+
+.icon-water-meter {
+  background-image: url(/asserts/img/gz/watermeter.png);
+}
+
+.icon-water-pk {
+  background-image: url(/asserts/img/gz/waterpk.png);
+}
+
+.icon-focus-other {
+  background-image: url(/asserts/img/gz/other.png);
 }

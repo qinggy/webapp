@@ -20,6 +20,13 @@
   <link rel="stylesheet" href="/asserts/domain/dashboard.css">
 
   <link rel="apple-touch-icon-precomposed" href="/assets/img/apple-touch-icon-114x114.png">
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    var $jQuery = jQuery.noConflict();
+  </script>
+  <script src="/dist/common/jquery.namespace.js" type="text/javascript"></script>
+  <script src="/dist/common/esdpec.common.js" type="text/javascript"></script>
+  <script src="/dist/arttemplate-3.0/lib/template-web.js" type="text/javascript"></script>
   <script src="/dist/sui/js/zepto.js"></script>
   <script src="/dist/sui/js/config.js"></script>
 </head>
@@ -56,66 +63,42 @@
       </nav>
       <div class="content">
         <div class="content-inner">
-          <div class="list-block">
-            <ul>
-              <li class="report-li">
-                <a href="bar/index.html" class="item-link item-content">
-                  <div class="report-header"></div>
-                  <div class="icon-year-month"></div>
-                  <div class="item-inner">
-                    <div class="item-title title-top">友联船厂年报表</div>
-                    <div class="inner-description">
-                      <div class="item-title title-bottom">美国环境保护局局长辞职 曾连爆负面消息令白宫头疼</div>
-                      <div class="title-bottom-date">09:25:14</div>
-                    </div>
-                  </div>
-                </a>
-              </li>
-              <li class="report-li">
-                <a href="bar/index.html" class="item-link item-content">
-                  <div class="report-header"></div>
-                  <div class="icon-month-day"></div>
-                  <div class="item-inner">
-                    <div class="item-title title-top">班组能耗报表</div>
-                    <div class="inner-description">
-                      <div class="item-title title-bottom">“数说”北京楼市2018年上半场 二手房市场触底反弹</div>
-                      <div class="title-bottom-date">2018-07-05</div>
-                    </div>
-                  </div>
-                </a>
-              </li>
-              <li class="report-li">
-                <a href="bar/index.html" class="item-link item-content">
-                  <div class="report-header"></div>
-                  <div class="icon-bz"></div>
-                  <div class="item-inner">
-                    <div class="item-title title-top">峰谷平报表</div>
-                    <div class="inner-description">
-                      <div class="item-title title-bottom">警方回应“交警索贿改酒驾血样”：涉案人涉诈骗罪</div>
-                      <div class="title-bottom-date">2018-07-03</div>
-                    </div>
-                  </div>
-                </a>
-              </li>
-              <li class="report-li">
-                <a href="bar/index.html" class="item-link item-content">
-                  <div class="report-header"></div>
-                  <div class="icon-fgp"></div>
-                  <div class="item-inner">
-                    <div class="item-title title-top">日抄表报表</div>
-                    <div class="inner-description">
-                      <div class="item-title title-bottom">快递新规实施仅两个月 “通达系”快递不上门渐成潜规则</div>
-                      <div class="title-bottom-date">2018-07-01</div>
-                    </div>
-                  </div>
-                </a>
-              </li>
-            </ul>
+          <div class="list-block" id="report-list-container">
           </div>
         </div>
       </div>
     </div>
   </div>
+  <script type="text/html" id="report-list-template">
+    <ul>
+      {{if reportList.length > 0}} {{each reportList report index}}
+      <li class="report-li">
+        <a href="bar/index.html" class="item-link item-content">
+          <div class="report-header"></div>
+          <div class="{{report.ReportType}}"></div>
+          <div class="item-inner">
+            <div class="item-title title-top">{{report.Name}}</div>
+            <div class="inner-description">
+              <div class="item-title title-bottom">{{report.Description}}</div>
+              <div class="title-bottom-date">{{report.Date}}</div>
+            </div>
+          </div>
+        </a>
+      </li>
+      {{/each}} {{/if}}
+    </ul>
+  </script>
+  <script type="text/html" id="report-no-content-template">
+    <div class="have-no-report">
+      <div class="icon-mobile_data"></div>
+      <div class="report-no-title">
+        <span>数据实时看</span>
+      </div>
+      <div class="report-no-description">
+        <span>没有订阅报表自动生成功能，请去平台报表中心开启</span>
+      </div>
+    </div>
+  </script>
   <script src="/dist/sui/js/sm.js"></script>
   <script src="/dist/sui/js/sm-extend.js"></script>
   <script src="/dist/sui/js/sm-city-picker.js"></script>

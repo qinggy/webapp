@@ -340,9 +340,36 @@ $(function () {
     });
   });
 
+  var focusEnum = {
+    'commnunicate': 'icon-commnunicate',
+    'electronicMeter': 'icon-electronic-meter',
+    'electronicPk': 'icon-electronic-pk',
+    'energyEfficient': 'icon-energy-efficient',
+    'gasMeter': 'icon-gas-meter',
+    'gasPk': 'icon-gas-pk',
+    'overRun': 'icon-over-run',
+    'waterMeter': 'icon-water-meter',
+    'waterPk': 'icon-water-pk',
+    'other': 'icon-focus-other'
+  };
+
+  var getFocusType = function (type) {
+    return focusEnum[type];
+  };
+
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
-    esdpec.framework.core.getJsonResult("news", function (response) {
-      $.alert(response);
+    esdpec.framework.core.getJsonResult("subscribemodule/list", function (response) {
+      var data = {
+        focusList: []
+      };
+      if (response.IsSuccess && response.Content.length > 0) {
+        data.focusList = response.Content;
+        $jQuery.each(data.focusList, function (index, item) {
+          item.FocusType = getFocusType(item.FocusType);
+        });
+      }
+      var focusHtml = template('focus-list-template', data);
+      $jQuery('#focus-list-container').html(focusHtml);
     });
 
   });

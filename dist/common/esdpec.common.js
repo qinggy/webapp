@@ -15,7 +15,7 @@ Array.prototype.remove = function (val) {
 }
 
 esdpec.framework.core.Config = {
-  APIBaseUrl: 'http://172.17.0.21/api/',
+  APIBaseUrl: 'http://localhost:81/', //'http://172.17.0.21/api/',
   ajaxProcessingText: "加载中....",
   ajaxProcessedText: "完成"
 }
@@ -46,7 +46,6 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
         location.href = "/";
       }
       successCallBack(data);
-      $jQuery("html").getNiceScroll().resize();
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
@@ -70,7 +69,6 @@ esdpec.framework.core.getJsonResultRR = function (url, successCallBack, failureC
         location.href = "/";
       }
       successCallBack(data);
-      $jQuery("html").getNiceScroll().resize();
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
@@ -92,7 +90,6 @@ esdpec.framework.core.getJSONData = function (url, successCallBack, failureCallB
   $jQuery.getJSON(this.Config.APIBaseUrl + url)
     .done(function (data) {
       successCallBack(data);
-      $jQuery("html").getNiceScroll().resize();
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (failureCallBack != null) {
