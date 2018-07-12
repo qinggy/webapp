@@ -357,6 +357,143 @@ $(function () {
     return focusEnum[type];
   };
 
+  var renderFocusList = function (data) {
+    var sortedData = {};
+    var homeList = _.filter(data.focusList, a => a.IfHomePage);
+    var others = _.filter(data.focusList, a => !a.IfHomePage);
+    sortedData.focusList = _.concat(homeList, _.sortBy(others, a => a.Index));
+    localStorage.setItem('focus_list', JSON.stringify(sortedData));
+    var focusHtml = template('focus-list-template', sortedData);
+    $jQuery('#focus-list-container').html(focusHtml);
+    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '#delete-action', function (deleteItem) {
+      console.log(deleteItem);
+    });
+    $jQuery('.focus-list .focus-item').on('click', function (e) {
+      var focusId = $jQuery(e.currentTarget).attr('clickId');
+      console.log(focusId);
+    });
+  };
+
+  var toggleActive = function () {
+    var tabs = $jQuery('.focus-detail-header_tab a');
+    $jQuery(tabs).each(function (index, item) {
+      $jQuery(item).removeClass('active');
+    });
+  };
+
+  var ifShowSearch = function (flag) {
+    var container = $jQuery('#search-container');
+    if (flag) {
+      if ($jQuery(container).css('display') === 'none') {
+        $jQuery('#search-container').slideDown(300);
+        $jQuery('#showMoreBtn').addClass('active');
+      } else {
+        $jQuery('#search-container').slideUp(300);
+        $jQuery('#showMoreBtn').removeClass('active');
+      }
+    } else if ($jQuery(container).css('display') !== 'none') {
+      $jQuery('#search-container').slideUp(300);
+      $jQuery('#showMoreBtn').removeClass('active');
+    }
+  };
+
+  var generateChart = function (chartDom) {
+    var myChart = echarts.init(chartDom, e_macarons);
+    var option = {
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: ['最高', '最低']
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          magicType: {
+            show: true,
+            type: ['line', 'bar']
+          }
+        }
+      },
+      calculable: true,
+      dataZoom: {
+        show: true,
+        realtime: true,
+        start: 20,
+        end: 80
+      },
+      xAxis: [{
+        type: 'category',
+        data: function () {
+          var list = [];
+          for (var i = 1; i <= 30; i++) {
+            list.push('2013-03-' + i);
+          }
+          return list;
+        }(),
+        axisTick: {
+          alignWithLabel: true
+        }
+      }],
+      yAxis: [{
+        type: 'value',
+        position: 'right'
+      }],
+      series: [{
+          name: '最高',
+          type: 'line',
+          data: function () {
+            var list = [];
+            for (var i = 1; i <= 30; i++) {
+              list.push(Math.round(Math.random() * 30));
+            }
+            return list;
+          }(),
+          markLine: {
+            itemStyle: {
+              normal: {
+                borderWidth: 1,
+                lineStyle: {
+                  type: 'dash',
+                  color: '#c23531',
+                  width: 2,
+                },
+                label: {
+                  formatter: '预警值-12.6',
+                  textStyle: {
+                    fontSize: 12,
+                  },
+                  position: 'middle'
+                }
+              },
+            },
+            data: [{
+              name: 'Y 轴值为 100 的水平线',
+              yAxis: 12.6
+            }]
+          },
+        },
+        {
+          name: '最低',
+          type: 'line',
+          data: function () {
+            var list = [];
+            for (var i = 1; i <= 30; i++) {
+              list.push(Math.round(Math.random() * 10));
+            }
+            return list;
+          }()
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+  };
+
+  var formatNumber = function (n) {
+    return n < 10 ? "0" + n : n;
+  };
+
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
     esdpec.framework.core.getJsonResult("subscribemodule/list", function (response) {
       var data = {
@@ -366,12 +503,81 @@ $(function () {
         data.focusList = response.Content;
         $jQuery.each(data.focusList, function (index, item) {
           item.FocusType = getFocusType(item.FocusType);
+          if (item.IfHomePage) item.IsHomePage = 'home-page-color';
         });
       }
-      var focusHtml = template('focus-list-template', data);
-      $jQuery('#focus-list-container').html(focusHtml);
+      renderFocusList(data);
     });
+    $(page).on('click', '#sethome', function (e) {
+      console.log('sethome');
+    });
+    $(page).on('click', '#setindex', function (e) {
+      console.log('setindex');
+    });
+    $(page).on('keypress', '#searchbtn', function (e) {
+      if (e.keyCode === 13) {
+        $.alert('enter search');
+      }
+    });
+    var $content = $(page).find(".content").on('refresh', function (e) {
+      setTimeout(function () {
 
+        $.pullToRefreshDone($content);
+      }, 2000);
+    });
+  });
+  $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
+    $("#dataTypePicker").picker({
+      toolbarTemplate: '<header class="bar bar-nav">\
+      <button class="button button-link pull-right close-picker">\
+      确定\
+      </button>\
+      <h1 class="title">请选择数据类型</h1>\
+      </header>',
+      cols: [{
+        textAlign: 'center',
+        values: ['日', '月', '年'],
+        cssClass: 'picker-items-col-normal'
+      }]
+    });
+    $("#startDatePicker").datePicker({
+      value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+      // value: ['1988', '12', '02']
+    }, 'd');
+    $("#endDatePicker").datePicker({
+      value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+      // value: ['1988', '12', '02']
+    }, 'm');
+    $(page).on("click", '#showMoreBtn', function (e) {
+      toggleActive();
+      ifShowSearch(true);
+    });
+    $(page).on("click", '#showMenu', function (e) {
+      toggleActive();
+      $jQuery('#showMenu').addClass('active');
+      ifShowSearch(false);
+    });
+    $(page).on("click", '#showDay', function (e) {
+      toggleActive();
+      $jQuery('#showDay').addClass('active');
+      ifShowSearch(false);
+    });
+    $(page).on("click", '#showWeek', function (e) {
+      toggleActive();
+      $jQuery('#showWeek').addClass('active');
+      ifShowSearch(false);
+    });
+    $(page).on("click", '#showMonth', function (e) {
+      toggleActive();
+      $jQuery('#showMonth').addClass('active');
+      ifShowSearch(false);
+    });
+    $(page).on("click", '#showYear', function (e) {
+      toggleActive();
+      $jQuery('#showYear').addClass('active');
+      ifShowSearch(false);
+    });
+    generateChart(document.getElementById('echarts'));
   });
 
   $.init();

@@ -4,7 +4,8 @@
  *
  * =====================================================
  */
-; $.smVersion = "0.6.2"; +function ($) {
+;
+$.smVersion = "0.6.2"; + function ($) {
   "use strict";
 
   //全局配置
@@ -13,14 +14,15 @@
     showPageLoadingIndicator: true, //push.js加载页面的时候显示一个加载提示
     router: true, //默认使用router
     swipePanel: "left", //滑动打开侧栏
-    swipePanelOnlyClose: true  //只允许滑动关闭，不允许滑动打开侧栏
+    swipePanelOnlyClose: true //只允许滑动关闭，不允许滑动打开侧栏
   };
 
   $.smConfig = $.extend(defaults, $.config);
 
 }(Zepto);
 
-+ function ($) {
++
+function ($) {
   "use strict";
 
   //比较一个字符串版本号
@@ -101,8 +103,7 @@
       // Some old versions of Webkit choke when 'none' is passed; pass
       // empty string instead in this case
       transformMatrix = new WebKitCSSMatrix(curStyle.webkitTransform === 'none' ? '' : curStyle.webkitTransform);
-    }
-    else {
+    } else {
       transformMatrix = curStyle.MozTransform || curStyle.transform || curStyle.getPropertyValue('transform').replace('translate(', 'matrix(1, 0, 0, 1,');
       matrix = transformMatrix.toString().split(',');
     }
@@ -194,9 +195,10 @@
       return this;
     }
   };
+
   function __dealCssEvent(eventNameArr, callback) {
     var events = eventNameArr,
-      i, dom = this;// jshint ignore:line
+      i, dom = this; // jshint ignore:line
 
     function fireCallBack(e) {
       /*jshint validthis:true */
@@ -245,8 +247,7 @@
       var prev = el.previousElementSibling;
       if (selector) {
         if ($(prev).is(selector)) prevEls.push(prev);
-      }
-      else prevEls.push(prev);
+      } else prevEls.push(prev);
       el = prev;
     }
     return $(prevEls);
@@ -259,8 +260,7 @@
       var next = el.nextElementSibling;
       if (selector) {
         if ($(next).is(selector)) nextEls.push(next);
-      }
-      else nextEls.push(next);
+      } else nextEls.push(next);
       el = next;
     }
     return $(nextEls);
@@ -269,6 +269,7 @@
   //重置zepto的show方法，防止有些人引用的版本中 show 方法操作 opacity 属性影响动画执行
   $.fn.show = function () {
     var elementDisplay = {};
+
     function defaultDisplay(nodeName) {
       var element, display;
       if (!elementDisplay[nodeName]) {
@@ -293,7 +294,8 @@
 /*===========================
 Device/OS Detection
 ===========================*/
-; (function ($) {
+;
+(function ($) {
   "use strict";
   var device = {};
   var ua = navigator.userAgent;
@@ -354,8 +356,7 @@ Device/OS Detection
   device.statusBar = false;
   if (device.webView && (windowWidth * windowHeight === screen.width * screen.height)) {
     device.statusBar = true;
-  }
-  else {
+  } else {
     device.statusBar = false;
   }
 
@@ -383,8 +384,7 @@ Device/OS Detection
   // Status bar classes
   if (device.statusBar) {
     classNames.push('with-statusbar-overlay');
-  }
-  else {
+  } else {
     $('html').removeClass('with-statusbar-overlay');
   }
 
@@ -397,7 +397,8 @@ Device/OS Detection
   $.device = device;
 })(Zepto);
 
-; (function () {
+;
+(function () {
   'use strict';
 
   /**
@@ -507,7 +508,9 @@ Device/OS Detection
 
     // Some old versions of Android don't have Function.prototype.bind
     function bind(method, context) {
-      return function () { return method.apply(context, arguments); };
+      return function () {
+        return method.apply(context, arguments);
+      };
     }
 
 
@@ -875,7 +878,8 @@ Device/OS Detection
    * @returns {boolean}
    */
   FastClick.prototype.touchHasMoved = function (event) {
-    var touch = event.changedTouches[0], boundary = this.touchBoundary;
+    var touch = event.changedTouches[0],
+      boundary = this.touchBoundary;
 
     if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
       return true;
@@ -1257,7 +1261,8 @@ Device/OS Detection
 ************   Modals   ************
 ======================================================*/
 /*jshint unused: false*/
-+function ($) {
++
+function ($) {
   "use strict";
   var _modalTemplateTempDiv = document.createElement('div');
 
@@ -1310,7 +1315,11 @@ Device/OS Detection
     return $.modal({
       text: text || '',
       title: typeof title === 'undefined' ? defaults.modalTitle : title,
-      buttons: [{ text: defaults.modalButtonOk, bold: true, onClick: callbackOk }]
+      buttons: [{
+        text: defaults.modalButtonOk,
+        bold: true,
+        onClick: callbackOk
+      }]
     });
   };
   $.confirm = function (text, title, callbackOk, callbackCancel) {
@@ -1322,9 +1331,15 @@ Device/OS Detection
     return $.modal({
       text: text || '',
       title: typeof title === 'undefined' ? defaults.modalTitle : title,
-      buttons: [
-        { text: defaults.modalButtonCancel, onClick: callbackCancel },
-        { text: defaults.modalButtonOk, bold: true, onClick: callbackOk }
+      buttons: [{
+          text: defaults.modalButtonCancel,
+          onClick: callbackCancel
+        },
+        {
+          text: defaults.modalButtonOk,
+          bold: true,
+          onClick: callbackOk
+        }
       ]
     });
   };
@@ -1338,8 +1353,7 @@ Device/OS Detection
       text: text || '',
       title: typeof title === 'undefined' ? defaults.modalTitle : title,
       afterText: '<input type="text" class="modal-text-input">',
-      buttons: [
-        {
+      buttons: [{
           text: defaults.modalButtonCancel
         },
         {
@@ -1363,8 +1377,7 @@ Device/OS Detection
       text: text || '',
       title: typeof title === 'undefined' ? defaults.modalTitle : title,
       afterText: '<input type="text" name="modal-username" placeholder="' + defaults.modalUsernamePlaceholder + '" class="modal-text-input modal-text-input-double"><input type="password" name="modal-password" placeholder="' + defaults.modalPasswordPlaceholder + '" class="modal-text-input modal-text-input-double">',
-      buttons: [
-        {
+      buttons: [{
           text: defaults.modalButtonCancel
         },
         {
@@ -1390,8 +1403,7 @@ Device/OS Detection
       text: text || '',
       title: typeof title === 'undefined' ? defaults.modalTitle : title,
       afterText: '<input type="password" name="modal-password" placeholder="' + defaults.modalPasswordPlaceholder + '" class="modal-text-input">',
-      buttons: [
-        {
+      buttons: [{
           text: defaults.modalButtonCancel
         },
         {
@@ -1485,8 +1497,7 @@ Device/OS Detection
         modal = _modal.childNodes[0];
         if (removeOnClose) modal.classList.add('remove-on-close');
         $(defaults.modalContainer).append(modal);
-      }
-      else return false; //nothing found
+      } else return false; //nothing found
     }
     modal = $(modal);
     if (modal.length === 0) return false;
@@ -1506,8 +1517,7 @@ Device/OS Detection
       if (pickerModal.length > 0) {
         if (removeOnClose) pickerModal.addClass('remove-on-close');
         $(defaults.modalContainer).append(pickerModal[0]);
-      }
-      else return false; //nothing found
+      } else return false; //nothing found
     }
     pickerModal = $(pickerModal);
     if (pickerModal.length === 0) return false;
@@ -1552,12 +1562,12 @@ Device/OS Detection
     if (isModal) {
       modal.show();
       modal.css({
-        marginTop: - Math.round(modal.outerHeight() / 2) + 'px'
+        marginTop: -Math.round(modal.outerHeight() / 2) + 'px'
       });
     }
     if (isToast) {
       modal.css({
-        marginLeft: - Math.round(modal.outerWidth() / 2 / 1.185) + 'px' //1.185 是初始化时候的放大效果
+        marginLeft: -Math.round(modal.outerWidth() / 2 / 1.185) + 'px' //1.185 是初始化时候的放大效果
       });
     }
 
@@ -1611,8 +1621,7 @@ Device/OS Detection
       if (modal.length === $('.popup.modal-in').length) {
         overlay.removeClass('modal-overlay-visible');
       }
-    }
-    else if (!(isPickerModal || isToast)) {
+    } else if (!(isPickerModal || isToast)) {
       overlay.removeClass('modal-overlay-visible');
     }
 
@@ -1636,8 +1645,7 @@ Device/OS Detection
         if (removeOnClose && modal.length > 0) {
           modal.remove();
         }
-      }
-      else {
+      } else {
         modal.remove();
       }
     });
@@ -1647,6 +1655,7 @@ Device/OS Detection
 
     return true;
   };
+
   function handleClicks(e) {
     /*jshint validthis:true */
     var clicked = $(this);
@@ -1661,15 +1670,13 @@ Device/OS Detection
     if (clicked.hasClass('open-popup')) {
       if (clickedData.popup) {
         popup = clickedData.popup;
-      }
-      else popup = '.popup';
+      } else popup = '.popup';
       $.popup(popup);
     }
     if (clicked.hasClass('close-popup')) {
       if (clickedData.popup) {
         popup = clickedData.popup;
-      }
-      else popup = '.popup.modal-in';
+      } else popup = '.popup.modal-in';
       $.closeModal(popup);
     }
 
@@ -1704,7 +1711,8 @@ Device/OS Detection
 ************   Calendar   ************
 ======================================================*/
 /*jshint unused: false*/
-+function ($) {
++
+function ($) {
   "use strict";
   var rtl = false;
   var Calendar = function (params) {
@@ -1725,15 +1733,13 @@ Device/OS Detection
       animate: true,
       closeOnSelect: true,
       monthPicker: true,
-      monthPickerTemplate:
-        '<div class="picker-calendar-month-picker">' +
+      monthPickerTemplate: '<div class="picker-calendar-month-picker">' +
         '<a href="#" class="link icon-only picker-calendar-prev-month"><i class="icon icon-prev"></i></a>' +
         '<div class="current-month-value"></div>' +
         '<a href="#" class="link icon-only picker-calendar-next-month"><i class="icon icon-next"></i></a>' +
         '</div>',
       yearPicker: true,
-      yearPickerTemplate:
-        '<div class="picker-calendar-year-picker">' +
+      yearPickerTemplate: '<div class="picker-calendar-year-picker">' +
         '<a href="#" class="link icon-only picker-calendar-prev-year"><i class="icon icon-prev"></i></a>' +
         '<span class="current-year-value"></span>' +
         '<a href="#" class="link icon-only picker-calendar-next-year"><i class="icon icon-next"></i></a>' +
@@ -1744,8 +1750,7 @@ Device/OS Detection
       inputReadOnly: true,
       toolbar: true,
       toolbarCloseText: 'Done',
-      toolbarTemplate:
-        '<div class="toolbar">' +
+      toolbarTemplate: '<div class="toolbar">' +
         '<div class="toolbar-inner">' +
         '{{monthPicker}}' +
         '{{yearPicker}}' +
@@ -1817,13 +1822,11 @@ Device/OS Detection
         }
         if (typeof inValuesIndex === 'undefined') {
           p.value.push(value);
-        }
-        else {
+        } else {
           p.value.splice(inValuesIndex, 1);
         }
         p.updateValue();
-      }
-      else {
+      } else {
         p.value = [value];
         p.updateValue();
       }
@@ -1861,6 +1864,7 @@ Device/OS Detection
       var col;
       var allowItemClick = true;
       var isTouched, isMoved, touchStartX, touchStartY, touchCurrentX, touchCurrentY, touchStartTime, touchEndTime, startTranslate, currentTranslate, wrapperWidth, wrapperHeight, percentage, touchesDiff, isScrolling;
+
       function handleTouchStart(e) {
         if (isMoved || isTouched) return;
         // e.preventDefault();
@@ -1873,6 +1877,7 @@ Device/OS Detection
         isScrolling = undefined;
         startTranslate = currentTranslate = p.monthsTranslate;
       }
+
       function handleTouchMove(e) {
         if (!isTouched) return;
 
@@ -1908,6 +1913,7 @@ Device/OS Detection
         p.wrapper.transform('translate3d(' + (p.isH ? currentTranslate : 0) + '%, ' + (p.isH ? 0 : currentTranslate) + '%, 0)');
 
       }
+
       function handleTouchEnd(e) {
         if (!isTouched || !isMoved) {
           isTouched = isMoved = false;
@@ -1919,26 +1925,21 @@ Device/OS Detection
         if (touchEndTime - touchStartTime < 300) {
           if (Math.abs(touchesDiff) < 10) {
             p.resetMonth();
-          }
-          else if (touchesDiff >= 10) {
+          } else if (touchesDiff >= 10) {
             if (rtl) p.nextMonth();
             else p.prevMonth();
-          }
-          else {
+          } else {
             if (rtl) p.prevMonth();
             else p.nextMonth();
           }
-        }
-        else {
+        } else {
           if (percentage <= -0.5) {
             if (rtl) p.prevMonth();
             else p.nextMonth();
-          }
-          else if (percentage >= 0.5) {
+          } else if (percentage >= 0.5) {
             if (rtl) p.nextMonth();
             else p.prevMonth();
-          }
-          else {
+          } else {
             p.resetMonth();
           }
         }
@@ -2027,8 +2028,10 @@ Device/OS Detection
         firstDayOfMonthIndex = new Date(date.getFullYear(), date.getMonth()).getDay();
       if (firstDayOfMonthIndex === 0) firstDayOfMonthIndex = 7;
 
-      var dayDate, currentValues = [], i, j,
-        rows = 6, cols = 7,
+      var dayDate, currentValues = [],
+        i, j,
+        rows = 6,
+        cols = 7,
         monthHTML = '',
         dayIndex = 0 + (p.params.firstDay - 1),
         today = new Date().setHours(0, 0, 0, 0),
@@ -2053,15 +2056,13 @@ Device/OS Detection
             dayNumber = daysInPrevMonth + dayNumber + 1;
             addClass += ' picker-calendar-day-prev';
             dayDate = new Date(month - 1 < 0 ? year - 1 : year, month - 1 < 0 ? 11 : month - 1, dayNumber).getTime();
-          }
-          else {
+          } else {
             dayNumber = dayNumber + 1;
             if (dayNumber > daysInMonth) {
               dayNumber = dayNumber - daysInMonth;
               addClass += ' picker-calendar-day-next';
               dayDate = new Date(month + 1 > 11 ? year + 1 : year, month + 1 > 11 ? 0 : month + 1, dayNumber).getTime();
-            }
-            else {
+            } else {
               dayDate = new Date(year, month, dayNumber).getTime();
             }
           }
@@ -2093,8 +2094,7 @@ Device/OS Detection
       if (typeof dir === 'undefined') {
         p.currentMonth = parseInt(p.months.eq(1).attr('data-month'), 10);
         p.currentYear = parseInt(p.months.eq(1).attr('data-year'), 10);
-      }
-      else {
+      } else {
         p.currentMonth = parseInt(p.months.eq(dir === 'next' ? (p.months.length - 1) : 0).attr('data-month'), 10);
         p.currentYear = parseInt(p.months.eq(dir === 'next' ? (p.months.length - 1) : 0).attr('data-year'), 10);
       }
@@ -2125,8 +2125,7 @@ Device/OS Detection
       }
       if (!rebuildBoth) {
         newMonthHTML = p.monthHTML(new Date(p.currentYear, p.currentMonth), dir);
-      }
-      else {
+      } else {
         p.wrapper.find('.picker-calendar-month-next, .picker-calendar-month-prev').remove();
         prevMonthHTML = p.monthHTML(new Date(p.currentYear, p.currentMonth), 'prev');
         nextMonthHTML = p.monthHTML(new Date(p.currentYear, p.currentMonth), 'next');
@@ -2249,8 +2248,7 @@ Device/OS Detection
       var targetDate;
       if (year < p.currentYear) {
         targetDate = new Date(year, month + 1, -1).getTime();
-      }
-      else {
+      } else {
         targetDate = new Date(year, month).getTime();
       }
       if (p.params.maxDate && targetDate > new Date(p.params.maxDate).getTime()) {
@@ -2274,8 +2272,7 @@ Device/OS Detection
         p.months = p.wrapper.find('.picker-calendar-month');
         monthTranslate = -(prevTranslate - 1) * 100 * inverter;
         p.months.eq(p.months.length - 1).transform('translate3d(' + (p.isH ? monthTranslate : 0) + '%, ' + (p.isH ? 0 : monthTranslate) + '%, 0)').addClass('picker-calendar-month-next');
-      }
-      else {
+      } else {
         // To prev
         p.monthsTranslate++;
         if (!p.animating) p.months.eq(0).remove();
@@ -2381,17 +2378,19 @@ Device/OS Detection
             if (pageHeight === pageScrollHeight) {
               newPaddingBottom = p.container.height();
             }
-            pageContent.css({ 'padding-bottom': (newPaddingBottom) + 'px' });
+            pageContent.css({
+              'padding-bottom': (newPaddingBottom) + 'px'
+            });
           }
           pageContent.scrollTop(scrollTop, 300);
         }
       }
     }
+
     function closeOnHTMLClick(e) {
       if (p.input && p.input.length > 0) {
         if (e.target !== p.input[0] && $(e.target).parents('.picker-modal').length === 0) p.close();
-      }
-      else {
+      } else {
         if ($(e.target).parents('.picker-modal').length === 0) p.close();
       }
     }
@@ -2412,7 +2411,9 @@ Device/OS Detection
     // Open
     function onPickerClose() {
       p.opened = false;
-      if (p.input && p.input.length > 0) p.input.parents('.content').css({ 'padding-bottom': '' });
+      if (p.input && p.input.length > 0) p.input.parents('.content').css({
+        'padding-bottom': ''
+      });
       if (p.params.onClose) p.params.onClose(p);
 
       // Destroy events
@@ -2439,8 +2440,7 @@ Device/OS Detection
           p.container = $(p.pickerHTML);
           p.container.addClass('picker-modal-inline');
           $(p.params.container).append(p.container);
-        }
-        else {
+        } else {
           p.container = $($.pickerModal(p.pickerHTML));
           $(p.container)
             .on('close', function () {
@@ -2530,9 +2530,10 @@ Device/OS Detection
 ======================================================*/
 /* jshint unused:false */
 /* jshint multistr:true */
-+ function ($) {
++
+function ($) {
   "use strict";
-  var Picker = function (params) {
+  var Picker = function (params, dateFormat) {
     var p = this;
     var defaults = {
       updateValuesOnMomentum: false,
@@ -2594,7 +2595,7 @@ Device/OS Detection
         p.params.onChange(p, p.value, p.displayValue);
       }
       if (p.input && p.input.length > 0) {
-        $(p.input).val(p.params.formatValue ? p.params.formatValue(p, p.value, p.displayValue) : p.value.join(' '));
+        $(p.input).val(p.params.formatValueCustom ? p.params.formatValueCustom(p, p.value, p.displayValue, dateFormat) : p.value.join('-'));
         $(p.input).trigger('change');
       }
     };
@@ -2625,7 +2626,9 @@ Device/OS Detection
       col.calcSize = function () {
         if (p.params.rotateEffect) {
           col.container.removeClass('picker-items-col-absolute');
-          if (!col.width) col.container.css({ width: '' });
+          if (!col.width) col.container.css({
+            width: ''
+          });
         }
         var colWidth, colHeight;
         colWidth = 0;
@@ -2638,17 +2641,25 @@ Device/OS Detection
         if (col.width) {
           colWidth = col.width;
           if (parseInt(colWidth, 10) === colWidth) colWidth = colWidth + 'px';
-          col.container.css({ width: colWidth });
+          col.container.css({
+            width: colWidth
+          });
         }
         if (p.params.rotateEffect) {
           if (!col.width) {
             col.items.each(function () {
               var item = $(this);
-              item.css({ width: 'auto' });
+              item.css({
+                width: 'auto'
+              });
               colWidth = Math.max(colWidth, item[0].offsetWidth);
-              item.css({ width: '' });
+              item.css({
+                width: ''
+              });
             });
-            col.container.css({ width: (colWidth + 2) + 'px' });
+            col.container.css({
+              width: (colWidth + 2) + 'px'
+            });
           }
           col.container.addClass('picker-items-col-absolute');
         }
@@ -2761,6 +2772,7 @@ Device/OS Detection
 
       var allowItemClick = true;
       var isTouched, isMoved, touchStartY, touchCurrentY, touchStartTime, touchEndTime, startTranslate, returnTo, currentTranslate, prevTranslate, velocityTranslate, velocityTime;
+
       function handleTouchStart(e) {
         if (isMoved || isTouched) return;
         e.preventDefault();
@@ -2771,6 +2783,7 @@ Device/OS Detection
         allowItemClick = true;
         startTranslate = currentTranslate = $.getTranslate(col.wrapper[0], 'y');
       }
+
       function handleTouchMove(e) {
         if (!isTouched) return;
         e.preventDefault();
@@ -2809,6 +2822,7 @@ Device/OS Detection
         velocityTime = (new Date()).getTime();
         prevTranslate = currentTranslate;
       }
+
       function handleTouchEnd(e) {
         if (!isTouched || !isMoved) {
           isTouched = isMoved = false;
@@ -2819,15 +2833,13 @@ Device/OS Detection
         if (returnTo) {
           if (returnTo === 'min') {
             col.wrapper.transform('translate3d(0,' + minTranslate + 'px,0)');
-          }
-          else col.wrapper.transform('translate3d(0,' + maxTranslate + 'px,0)');
+          } else col.wrapper.transform('translate3d(0,' + maxTranslate + 'px,0)');
         }
         touchEndTime = new Date().getTime();
         var velocity, newTranslate;
         if (touchEndTime - touchStartTime > 300) {
           newTranslate = currentTranslate;
-        }
-        else {
+        } else {
           velocity = Math.abs(velocityTranslate / (touchEndTime - velocityTime));
           newTranslate = currentTranslate + velocityTranslate * p.params.momentumRatio;
         }
@@ -2908,8 +2920,7 @@ Device/OS Detection
       var columnHTML = '';
       if (col.divider) {
         columnHTML += '<div class="picker-items-col picker-items-col-divider ' + (col.textAlign ? 'picker-items-col-' + col.textAlign : '') + ' ' + (col.cssClass || '') + '">' + col.content + '</div>';
-      }
-      else {
+      } else {
         for (var j = 0; j < col.values.length; j++) {
           columnItemsHTML += '<div class="picker-item" data-picker-value="' + col.values[j] + '">' + (col.displayValues ? col.displayValues[j] : col.values[j]) + '</div>';
         }
@@ -2970,18 +2981,20 @@ Device/OS Detection
             if (pageHeight === pageScrollHeight) {
               newPaddingBottom = p.container.height();
             }
-            pageContent.css({ 'padding-bottom': (newPaddingBottom) + 'px' });
+            pageContent.css({
+              'padding-bottom': (newPaddingBottom) + 'px'
+            });
           }
           pageContent.scrollTop(scrollTop, 300);
         }
       }
     }
+
     function closeOnHTMLClick(e) {
       if (!p.opened) return;
       if (p.input && p.input.length > 0) {
         if (e.target !== p.input[0] && $(e.target).parents('.picker-modal').length === 0) p.close();
-      }
-      else {
+      } else {
         if ($(e.target).parents('.picker-modal').length === 0) p.close();
       }
     }
@@ -3001,7 +3014,9 @@ Device/OS Detection
     // Open
     function onPickerClose() {
       p.opened = false;
-      if (p.input && p.input.length > 0) p.input.parents('.content').css({ 'padding-bottom': '' });
+      if (p.input && p.input.length > 0) p.input.parents('.content').css({
+        'padding-bottom': ''
+      });
       if (p.params.onClose) p.params.onClose(p);
 
       // Destroy events
@@ -3023,8 +3038,7 @@ Device/OS Detection
           p.container.addClass('picker-modal-inline');
           $(p.params.container).append(p.container);
           p.opened = true;
-        }
-        else {
+        } else {
           p.container = $($.pickerModal(p.pickerHTML));
           $(p.container)
             .one('opened', function () {
@@ -3050,8 +3064,7 @@ Device/OS Detection
           if (p.params.value) {
             p.setValue(p.params.value, 0);
           }
-        }
-        else {
+        } else {
           if (p.value) p.setValue(p.value, 0);
         }
       }
@@ -3091,7 +3104,7 @@ Device/OS Detection
     $.closeModal(pickerToClose);
   });
 
-  $.fn.picker = function (params) {
+  $.fn.picker = function (params, dateFormat) {
     var args = arguments;
     return this.each(function () {
       if (!this) return;
@@ -3103,7 +3116,7 @@ Device/OS Detection
           input: this,
           value: $this.val() ? $this.val().split(' ') : ''
         }, params);
-        picker = new Picker(p);
+        picker = new Picker(p, dateFormat);
         $this.data("picker", picker);
       }
       if (typeof params === typeof "a") {
@@ -3115,7 +3128,8 @@ Device/OS Detection
 
 /* jshint unused:false*/
 
-+ function ($) {
++
+function ($) {
   "use strict";
 
   var today = new Date();
@@ -3142,26 +3156,45 @@ Device/OS Detection
 
   var initYears = (function () {
     var arr = [];
-    for (var i = 1950; i <= 2050; i++) { arr.push(i); }
+    for (var i = 1950; i <= 2050; i++) {
+      arr.push(i);
+    }
     return arr;
   })();
 
 
   var defaults = {
 
-    rotateEffect: false,  //为了性能
+    rotateEffect: false, //为了性能
 
     value: [today.getFullYear(), formatNumber(today.getMonth() + 1), formatNumber(today.getDate()), today.getHours(), formatNumber(today.getMinutes())],
 
     onChange: function (picker, values, displayValues) {
       var days = getDaysByMonthAndYear(picker.cols[1].value, picker.cols[0].value);
-      var currentValue = picker.cols[2].value;
-      if (currentValue > days.length) currentValue = days.length;
-      picker.cols[2].setValue(currentValue);
+      if (picker.cols[2]) {
+        var currentValue = picker.cols[2].value;
+        if (currentValue > days.length) currentValue = days.length;
+        picker.cols[2].setValue(currentValue);
+      }
     },
 
     formatValue: function (p, values, displayValues) {
       return displayValues[0] + '-' + values[1] + '-' + values[2] + ' ' + values[3] + ':' + values[4];
+    },
+
+    formatValueCustom: function (p, values, displayValues, dateFormat) {
+      switch (dateFormat) {
+        case 'y':
+          return displayValues[0];
+        case 'm':
+          return displayValues[0] + '-' + values[1];
+        case 'd':
+          return displayValues[0] + '-' + values[1] + '-' + values[2];
+        case 'h':
+          return displayValues[0] + '-' + values[1] + '-' + values[2] + ' ' + values[3];
+        case 'mm':
+          return displayValues[0] + '-' + values[1] + '-' + values[2] + ' ' + values[3] + ':' + values[4];
+      }
     },
 
     cols: [
@@ -3187,7 +3220,9 @@ Device/OS Detection
       {
         values: (function () {
           var arr = [];
-          for (var i = 0; i <= 23; i++) { arr.push(i); }
+          for (var i = 0; i <= 23; i++) {
+            arr.push(i);
+          }
           return arr;
         })(),
       },
@@ -3200,7 +3235,9 @@ Device/OS Detection
       {
         values: (function () {
           var arr = [];
-          for (var i = 0; i <= 59; i++) { arr.push(i < 10 ? '0' + i : i); }
+          for (var i = 0; i <= 59; i++) {
+            arr.push(i < 10 ? '0' + i : i);
+          }
           return arr;
         })(),
       }
@@ -3216,9 +3253,35 @@ Device/OS Detection
     });
   };
 
+  $.fn.datePicker = function (params, dateFormat) {
+    return this.each(function () {
+      if (!this) return;
+      var p = $.extend(defaults, params);
+      switch (dateFormat) {
+        case 'y':
+          p.cols = p.cols.slice(0, 1);
+          break;
+        case 'm':
+          p.cols = p.cols.slice(0, 2);
+          break;
+        case 'd':
+          p.cols = p.cols.slice(0, 3);
+          break;
+        case 'h':
+          p.cols = p.cols.slice(0, 5);
+          break;
+        case 'mm':
+          break;
+      }
+      $(this).picker(p, dateFormat);
+      if (params.value) $(this).val(p.formatValueCustom(p, p.value, p.value, dateFormat));
+    });
+  };
+
 }(Zepto);
 
-+ function (window) {
++
+function (window) {
 
   "use strict";
 
@@ -3265,7 +3328,7 @@ Device/OS Detection
     };
 
     me.extend = function (target, obj) {
-      for (var i in obj) {  // jshint ignore:line
+      for (var i in obj) { // jshint ignore:line
         target[i] = obj[i];
       }
     };
@@ -3923,7 +3986,7 @@ Device/OS Detection
         return false;
       }
 
-      if (this.options.ptr && this.y > 44 && this.startY * -1 < $(window).height() && !this.ptrLock) {// jshint ignore:line
+      if (this.options.ptr && this.y > 44 && this.startY * -1 < $(window).height() && !this.ptrLock) { // jshint ignore:line
         // not trigger ptr when user want to scroll to top
         y = this.options.ptrOffset || 44;
         this._execEvent('ptr');
@@ -5325,7 +5388,8 @@ Device/OS Detection
 /* ===============================================================================
 ************   scroller   ************
 =============================================================================== */
-+ function ($) {
++
+function ($) {
   "use strict";
   //重置zepto自带的滚动条
   var _zeptoMethodCache = {
@@ -5614,7 +5678,8 @@ Device/OS Detection
 /* ===============================================================================
 ************   Tabs   ************
 =============================================================================== */
-+function ($) {
++
+function ($) {
   "use strict";
 
   var showTab = function (tab, tabLink, force) {
@@ -5713,12 +5778,13 @@ Device/OS Detection
 /* ===============================================================================
 ************   Tabs   ************
 =============================================================================== */
-+function ($) {
++
+function ($) {
   "use strict";
   $.initFixedTab = function () {
     var $fixedTab = $('.fixed-tab');
     if ($fixedTab.length === 0) return;
-    $('.fixed-tab').fixedTab();//默认{offset: 0}
+    $('.fixed-tab').fixedTab(); //默认{offset: 0}
   };
   var FixedTab = function (pageContent, _options) {
     var $pageContent = this.$pageContent = $(pageContent);
@@ -5797,7 +5863,8 @@ Device/OS Detection
 
 }(Zepto);
 
-+ function ($) {
++
+function ($) {
   "use strict";
   //这里实在js滚动时使用的下拉刷新代码。
 
@@ -5884,7 +5951,8 @@ Device/OS Detection
   };
 }(Zepto); // jshint ignore:line
 
-+ function ($) {
++
+function ($) {
   'use strict';
   $.initPullToRefresh = function (pageContainer) {
     var eventsTarget = $(pageContainer);
@@ -5970,7 +6038,7 @@ Device/OS Detection
           e.preventDefault();
           translate = (Math.pow(touchesDiff, 0.85) + startTranslate);
           container.transform('translate3d(0,' + translate + 'px,0)');
-        } else { }
+        } else {}
         if ((useTranslate && Math.pow(touchesDiff, 0.85) > triggerDistance) || (!useTranslate && touchesDiff >= triggerDistance * 2)) {
           refresh = true;
           container.addClass('pull-up').removeClass('pull-down');
@@ -6024,7 +6092,7 @@ Device/OS Detection
 
   };
   $.pullToRefreshDone = function (container) {
-    $(window).scrollTop(0);//解决微信下拉刷新顶部消失的问题
+    $(window).scrollTop(0); //解决微信下拉刷新顶部消失的问题
     container = $(container);
     if (container.length === 0) container = $('.pull-to-refresh-content.refreshing');
     container.removeClass('refreshing').addClass('transitioning');
@@ -6097,7 +6165,8 @@ Device/OS Detection
 
 }(Zepto); //jshint ignore:line
 
-+ function ($) {
++
+function ($) {
   'use strict';
 
   function handleInfiniteScroll() {
@@ -6150,6 +6219,7 @@ Device/OS Detection
         $(v).scrollTop(height);
       }
     });
+
     function detachEvents() {
       $.detachInfiniteScroll(infiniteContent);
       pageContainer.off('pageBeforeRemove', detachEvents);
@@ -6158,7 +6228,8 @@ Device/OS Detection
   };
 }(Zepto);
 
-+function ($) {
++
+function ($) {
   "use strict";
   $(function () {
     $(document).on("focus", ".searchbar input", function (e) {
@@ -6180,19 +6251,22 @@ Device/OS Detection
 ************   Panels   ************
 ======================================================*/
 /*jshint unused: false*/
-+function ($) {
++
+function ($) {
   "use strict";
   $.allowPanelOpen = true;
   $.openPanel = function (panel) {
     if (!$.allowPanelOpen) return false;
-    if (panel === 'left' || panel === 'right') panel = ".panel-" + panel;  //可以传入一个方向
+    if (panel === 'left' || panel === 'right') panel = ".panel-" + panel; //可以传入一个方向
     panel = panel ? $(panel) : $(".panel").eq(0);
     var direction = panel.hasClass("panel-right") ? "right" : "left";
     if (panel.length === 0 || panel.hasClass('active')) return false;
     $.closePanel(); // Close if some panel is opened
     $.allowPanelOpen = false;
     var effect = panel.hasClass('panel-reveal') ? 'reveal' : 'cover';
-    panel.css({ display: 'block' }).addClass('active');
+    panel.css({
+      display: 'block'
+    }).addClass('active');
     panel.trigger('open');
 
     // Trigger reLayout
@@ -6207,13 +6281,11 @@ Device/OS Detection
         if (e.target === transitionEndTarget[0]) {
           if (panel.hasClass('active')) {
             panel.trigger('opened');
-          }
-          else {
+          } else {
             panel.trigger('closed');
           }
           $.allowPanelOpen = true;
-        }
-        else panelTransitionEnd();
+        } else panelTransitionEnd();
       });
     }
     panelTransitionEnd();
@@ -6233,7 +6305,9 @@ Device/OS Detection
 
     transitionEndTarget.transitionEnd(function () {
       if (activePanel.hasClass('active')) return;
-      activePanel.css({ display: '' });
+      activePanel.css({
+        display: ''
+      });
       activePanel.trigger('closed');
       $('body').removeClass('panel-closing');
       $.allowPanelOpen = true;
@@ -6264,7 +6338,8 @@ Device/OS Detection
     if (!(swipePanel || swipePanelOnlyClose)) return;
 
     var panelOverlay = $('.panel-overlay');
-    var isTouched, isMoved, isScrolling, touchesStart = {}, touchStartTime, touchesDiff, translate, opened, panelWidth, effect, direction;
+    var isTouched, isMoved, isScrolling, touchesStart = {},
+      touchStartTime, touchesDiff, translate, opened, panelWidth, effect, direction;
     var views = $('.page');
 
     function handleTouchStart(e) {
@@ -6278,8 +6353,7 @@ Device/OS Detection
       if (swipePanelCloseOpposite || swipePanelOnlyClose) {
         if ($('.panel.active').length > 0) {
           side = $('.panel.active').hasClass('panel-left') ? 'left' : 'right';
-        }
-        else {
+        } else {
           if (swipePanelOnlyClose) return;
           side = swipePanel;
         }
@@ -6303,6 +6377,7 @@ Device/OS Detection
       touchStartTime = (new Date()).getTime();
       direction = undefined;
     }
+
     function handleTouchMove(e) {
       if (!isTouched) return;
       if (!panel[0]) return;
@@ -6319,8 +6394,7 @@ Device/OS Detection
       if (!direction) {
         if (pageX > touchesStart.x) {
           direction = 'to-right';
-        }
-        else {
+        } else {
           direction = 'to-left';
         }
 
@@ -6386,8 +6460,7 @@ Device/OS Detection
         if (translate < -panelWidth) {
           translate = -panelWidth;
         }
-      }
-      else {
+      } else {
         translate = touchesDiff + (opened ? panelWidth : 0);
         if (translate < 0) translate = 0;
         if (translate > panelWidth) {
@@ -6398,12 +6471,12 @@ Device/OS Detection
         views.transform('translate3d(' + translate + 'px,0,0)').transition(0);
         panelOverlay.transform('translate3d(' + translate + 'px,0,0)');
         //app.pluginHook('swipePanelSetTransform', views[0], panel[0], Math.abs(translate / panelWidth));
-      }
-      else {
+      } else {
         panel.transform('translate3d(' + translate + 'px,0,0)').transition(0);
         //app.pluginHook('swipePanelSetTransform', views[0], panel[0], Math.abs(translate / panelWidth));
       }
     }
+
     function handleTouchEnd(e) {
       if (!isTouched || !isMoved) {
         isTouched = false;
@@ -6419,29 +6492,24 @@ Device/OS Detection
       if (!opened) {
         if (translate === 0) {
           action = 'reset';
-        }
-        else if (
+        } else if (
           timeDiff < 300 && Math.abs(translate) > 0 ||
           timeDiff >= 300 && (Math.abs(translate) >= panelWidth / 2)
         ) {
           action = 'swap';
-        }
-        else {
+        } else {
           action = 'reset';
         }
-      }
-      else {
+      } else {
         if (translate === -panelWidth) {
           action = 'reset';
-        }
-        else if (
+        } else if (
           timeDiff < 300 && Math.abs(translate) >= 0 ||
           timeDiff >= 300 && (Math.abs(translate) <= panelWidth / 2)
         ) {
           if (side === 'left' && translate === panelWidth) action = 'reset';
           else action = 'swap';
-        }
-        else {
+        } else {
           action = 'reset';
         }
       }
@@ -6450,11 +6518,12 @@ Device/OS Detection
         if (opened) {
           $.closePanel();
           if (edge) {
-            panel.css({ display: '' });
+            panel.css({
+              display: ''
+            });
             $('body').removeClass('panel-closing');
           }
-        }
-        else {
+        } else {
           $.openPanel(side);
         }
         if (edge) $.allowPanelOpen = true;
@@ -6463,19 +6532,21 @@ Device/OS Detection
         if (opened) {
           $.allowPanelOpen = true;
           $.openPanel(side);
-        }
-        else {
+        } else {
           $.closePanel();
           if (edge) {
             $.allowPanelOpen = true;
-            panel.css({ display: '' });
-          }
-          else {
+            panel.css({
+              display: ''
+            });
+          } else {
             var target = effect === 'reveal' ? views : panel;
             $('body').addClass('panel-closing');
             target.transitionEnd(function () {
               $.allowPanelOpen = true;
-              panel.css({ display: '' });
+              panel.css({
+                display: ''
+              });
               $('body').removeClass('panel-closing');
             });
           }
@@ -6486,7 +6557,9 @@ Device/OS Detection
         views.transform('');
       }
       panel.transition('').transform('');
-      panelOverlay.css({ display: '' }).transform('');
+      panelOverlay.css({
+        display: ''
+      }).transform('');
     }
     $(document).on($.touchEvents.start, handleTouchStart);
     $(document).on($.touchEvents.move, handleTouchMove);
@@ -6558,12 +6631,17 @@ Device/OS Detection
  * 注: 以 _ 开头的函数标明用于此处内部使用，可根据需要随时重构变更，不对外确保兼容性。
  *
  */
-+function ($) {
++
+function ($) {
   'use strict';
 
   if (!window.CustomEvent) {
     window.CustomEvent = function (type, config) {
-      config = config || { bubbles: false, cancelable: false, detail: undefined };
+      config = config || {
+        bubbles: false,
+        cancelable: false,
+        detail: undefined
+      };
       var e = document.createEvent('CustomEvent');
       e.initCustomEvent(type, config.bubbles, config.cancelable, config.detail);
       return e;
@@ -6971,8 +7049,7 @@ Device/OS Detection
    */
   Router.prototype._loadDocument = function (url, callback) {
     if (this.xhr && this.xhr.readyState < 4) {
-      this.xhr.onreadystatechange = function () {
-      };
+      this.xhr.onreadystatechange = function () {};
       this.xhr.abort();
       this.dispatch(EVENTS.pageLoadCancel);
     }
@@ -7167,7 +7244,8 @@ Device/OS Detection
       'page-from-center-to-left',
       'page-from-center-to-right',
       'page-from-right-to-center',
-      'page-from-left-to-center'].join(' ');
+      'page-from-left-to-center'
+    ].join(' ');
 
     var classForFrom, classForTo;
     switch (direction) {
@@ -7470,7 +7548,8 @@ Device/OS Detection
 ************   Modals   ************
 ======================================================*/
 /*jshint unused: false*/
-+function ($) {
++
+function ($) {
   "use strict";
   $.lastPosition = function (options) {
     if (!sessionStorage) {
@@ -7517,7 +7596,8 @@ Device/OS Detection
 }(Zepto);
 
 /*jshint unused: false*/
-+function ($) {
++
+function ($) {
   'use strict';
 
   var getPage = function () {
@@ -7533,7 +7613,7 @@ Device/OS Detection
     var $content = $page.hasClass('content') ?
       $page :
       $page.find('.content');
-    $content.scroller();  //注意滚动条一定要最先初始化
+    $content.scroller(); //注意滚动条一定要最先初始化
 
     $.initPullToRefresh($content);
     $.initInfiniteScroll($content);
@@ -7631,7 +7711,8 @@ Device/OS Detection
 ************   ScrollFix   ************
 =============================================================================== */
 
-+ function ($) {
++
+function ($) {
   "use strict";
   //安卓微信中使用scrollfix会有问题，因此只在ios中使用，安卓机器按照原来的逻辑
 

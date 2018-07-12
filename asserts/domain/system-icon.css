@@ -20,109 +20,143 @@
 .icon-pie_chart:before {
   content: "\e900";
 }
+
 .icon-report:before {
   content: "\e902";
 }
+
 .icon-healthy:before {
   content: "\e903";
 }
+
 .icon-my:before {
   content: "\e904";
 }
+
 .icon-follow:before {
   content: "\e905";
 }
+
 .icon-columnar:before {
   content: "\e906";
 }
+
 .icon-electric:before {
   content: "\e907";
 }
+
 .icon-nav:before {
   content: "\e908";
 }
+
 .icon-gas:before {
   content: "\e909";
 }
+
 .icon-water:before {
   content: "\e90a";
 }
+
 .icon-search:before {
   content: "\e90b";
 }
+
 .icon-jump:before {
   content: "\e90c";
 }
+
 .icon-top:before {
   content: "\e90d";
 }
+
 .icon-tick:before {
   content: "\e90f";
 }
+
 .icon-home:before {
   content: "\e911";
 }
+
 .icon-address:before {
   content: "\e914";
 }
+
 .icon-telephone:before {
   content: "\e915";
 }
+
 .icon-official_network:before {
   content: "\e916";
 }
+
 .icon-mobile_phone:before {
   content: "\e917";
 }
+
 .icon-maibox:before {
   content: "\e918";
 }
+
 .icon-agreement:before {
   content: "\e919";
 }
+
 .icon-about_us:before {
   content: "\e91a";
 }
+
 .icon-contact_us:before {
   content: "\e91b";
 }
+
 .icon-cache:before {
   content: "\e91c";
 }
+
 .icon-set_up:before {
   content: "\e91d";
 }
+
 .icon-privacy:before {
   content: "\e91e";
 }
+
 .icon-password:before {
   content: "\e920";
 }
+
 .icon-switch:before {
   content: "\e921";
 }
+
 .icon-account:before {
   content: "\e922";
 }
+
 .icon-fold-line:before {
   content: "\e923";
 }
+
 .icon-reduce:before {
   content: "\e912";
   color: #bbb;
 }
+
 .icon-add_to:before {
   content: "\e913";
   color: #bbb;
 }
+
 .icon-mobile_data:before {
   content: "\e910";
   color: #bbb;
 }
+
 .icon-arrow:before {
   content: "\e901";
   color: #bbb;
 }
+
 .icon-wechat:before {
   content: "\e90e";
   color: #bbb;
@@ -361,4 +395,24 @@
 
 .icon-focus-other {
   background-image: url(/asserts/img/gz/other.png);
+}
+
+.icon-focus-up {
+  background-image: url(/asserts/img/rl/up.png);
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
+}
+
+.icon-focus-down {
+  background-image: url(/asserts/img/rl/down.png);
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
 }

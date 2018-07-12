@@ -70,6 +70,37 @@
   border-radius: 1rem;
 }
 
+.home-page-color {
+  color: rgb(52, 165, 251);
+}
+
+.focus-list {
+  overflow: hidden;
+}
+
+.focus-item {
+  transform: translateX(0px);
+  transition: all .3s;
+}
+
+.focus-item.active {
+  transform: translateX(-4.25rem);
+  transition: all .3s;
+}
+
+.delete-action {
+  background-color: red;
+  color: #fff;
+  height: 3.25rem;
+  width: 4.25rem;
+  line-height: 3.25rem;
+  text-align: center;
+  right: -4.25rem;
+  top: 0;
+  position: absolute;
+  display: inline-block;
+}
+
 /* end focus module */
 
 /* start login module */
@@ -355,7 +386,7 @@
 }
 
 .unbind-contain {
-  background-image: -webkit-linear-gradient( 90deg, rgb(190,222,246) 0%, rgb(32,157,250) 100%);
+  background-image: -webkit-linear-gradient( 90deg, rgb(190, 222, 246) 0%, rgb(32, 157, 250) 100%);
   line-height: 2.2rem;
   width: 54%;
   text-align: center;
@@ -466,22 +497,25 @@
 }
 
 /* feedback_feedback */
-.content-title{
+
+.content-title {
   position: absolute;
   background-color: #209dfa;
   width: 100%;
   height: 2.25rem;
-  top:0;
+  top: 0;
 }
-.icon-jump:before{
+
+/* .icon-jump:before {
   position: absolute;
   float: left;
   color: #fff;
-  top:50%;
+  top: 50%;
   left: 1%;
-  transform: translate(0,-50%);
-}
-.content-title h1{
+  transform: translate(0, -50%);
+} */
+
+.content-title h1 {
   position: absolute;
   font-size: 0.8rem;
   color: #fff;
@@ -489,21 +523,23 @@
   left: 50%;
   transform: translate(-50%);
 }
-.content-title h2{
+
+.content-title h2 {
   position: absolute;
   font-size: 0.75rem;
   color: #fff;
   right: 2%;
 }
 
-.content-input{
+.content-input {
   position: relative;
   top: 9%;
-  transform:translate(0,1%);
+  transform: translate(0, 1%);
   width: 100%;
   height: 100%;
 }
-.content-input textarea{
+
+.content-input textarea {
   position: absolute;
   width: 96%;
   height: 10rem;
@@ -514,18 +550,20 @@
   font-size: 0.8rem;
   font-weight: 300;
 }
-.content-input h1{
+
+.content-input h1 {
   position: absolute;
   top: 33%;
   left: 2%;
   font-size: 0.75rem;
   float: left;
 }
-.content-input input{
+
+.content-input input {
   position: absolute;
   top: 31%;
   left: 22%;
-  width:75%;
+  width: 75%;
   height: 10%;
   border: 0;
   background-color: transparent;
@@ -534,27 +572,32 @@
   font-size: 0.8rem;
   font-weight: 300;
 }
+
 /*end feedback_feedback */
 
 /* personal_information */
 
-.item-content img{
+.item-content img {
   width: 0.9rem;
   height: 0.9rem;
   margin-right: 0.5rem;
 }
-.link-list{
-  margin:3rem 0;
+
+.link-list {
+  margin: 3rem 0;
 }
-.item-inner img{
+
+.item-inner img {
   width: 14%;
   height: 14%;
 }
-.item-inner h1{
+
+.item-inner h1 {
   font-size: 0.75rem;
   color: #333;
   font-weight: 400;
 }
+
 /* end personal_information */
 
 /* mask exit_logon
@@ -586,52 +629,39 @@
 
 /* contact_us */
 
-.menu_list{
+.menu_list {
   position: relative;
-  top:9%;
+  top: 9%;
   width: 100%;
   height: 100%;
   background-color: #fff;
 }
-.list_ul{
+
+.list_ul {
   margin: 0;
   padding: 0;
 }
-.list_ul li{
+
+.list_ul li {
   list-style: none;
-  word-break:keep-all;
-  white-space:nowrap;
+  word-break: keep-all;
+  white-space: nowrap;
 }
-.list_ul i{
+
+.list_ul i {
   float: left;
   padding: 0.65rem 0.5rem;
 }
-.list_li hr{
+
+.list_li hr {
   border: 5px solid #f4f6f9;
 }
-.list_li div{
+
+.list_li div {
   line-height: 2.2rem;
   font-size: 0.75rem;
 }
+
 /* end contact_us */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* end about module */
