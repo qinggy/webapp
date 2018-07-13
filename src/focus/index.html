@@ -85,9 +85,6 @@
       </header>
       <div class="content">
         <div class="focus-detail-header">
-          <!-- <div class="focus-detail-header_menu">
-            <a class="icon icon-nav pull-left open-panel" data-panel=".panel-left"></a>
-          </div> -->
           <div class="buttons-tab focus-detail-header_tab">
             <a href="#" id="showMenu" class="icon icon-nav pull-left open-panel tab-link button" data-panel=".panel-left"></a>
             <a href="#tabDay" id="showDay" class="tab-link active button">1日</a>
@@ -98,10 +95,6 @@
               <i class="icon-jump"></i>
             </a>
           </div>
-          <!-- <div class="focus-detail-header_more" id="showMoreBtn">
-            <span>更多</span>
-            <i class="icon-jump"></i>
-          </div> -->
         </div>
         <div class="search-condition-container" id="search-container">
           <div class="condition-row">
@@ -124,13 +117,15 @@
           <div class="header-container">
             <i class="icon-electric"></i>
             <div class="param-header">
-              <span>S58/N58</span>
-              <span>S59/N59</span>
+              <span class="">S58/N58</span>
+              <span class="">S58/N58</span>
+              <div class="icon-add_to operate-icon"></div>
+              <div class="icon-reduce operate-icon"></div>
             </div>
-            <div class="icon-add_to operate-icon"></div>
-            <div class="icon-reduce operate-icon"></div>
-            <div class="icon-switch operate-icon focus-switch"></div>
-            <a href="#" class="button focus-detail-subscribe">关注</a>
+            <div class="focus-div">
+              <div class="icon-switch operate-icon focus-switch"></div>
+              <div class="button focus-detail-subscribe">关注</div>
+            </div>
           </div>
         </div>
         <div class="parameter-container">
@@ -190,9 +185,13 @@
             <div class="alert-data-item">
               <span class="item-name">S58/N58</span>
               <span class="item-data">3000次</span>
-              <span class="item-more">查看更多</span>
+              <span class="item-more">查看详情</span>
             </div>
-            <div class=""></div>
+            <div class="alert-data-item">
+              <span class="item-name">S59/N59</span>
+              <span class="item-data">3000次</span>
+              <span class="item-more">查看详情</span>
+            </div>
           </div>
         </div>
         <div class="focus-table-values">
@@ -201,13 +200,77 @@
               <span>表底数</span>
             </div>
           </div>
-          <div>
-            <div class="alert-data-item">
-              <span class="item-name">S58/N58</span>
-              <span class="item-data">3000次</span>
-              <span class="item-more">查看更多</span>
-            </div>
-            <div class=""></div>
+          <div class="list-block">
+            <ul>
+              <li class="item-content item-link icon-more">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">有功电能</div>
+                </div>
+              </li>
+              <li class="item-content item-link icon-more">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">A相电流</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="list-block">
+            <ul class="statistic">
+              <li class="item-content item-link">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">参数类型</div>
+                  <div class="item-after">累计值</div>
+                </div>
+              </li>
+              <li class="item-content item-link">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">采集频率</div>
+                  <div class="item-after">300S</div>
+                </div>
+              </li>
+              <li class="item-content item-link">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">存储时间</div>
+                  <div class="item-after">300S</div>
+                </div>
+              </li>
+              <li class="item-content item-link">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">读数因子</div>
+                  <div class="item-after">0.0001</div>
+                </div>
+              </li>
+              <li class="item-content item-link">
+                <div class="item-media">
+                  <i class="icon icon-f7"></i>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">查询超时</div>
+                  <div>
+                    <input type="text" class="search-overrun-input" placeholder="5S 请输入超限时间">
+                  </div>
+                  <div class="item-after search-more">查询</div>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

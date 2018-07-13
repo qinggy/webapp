@@ -416,3 +416,11 @@
   width: 1rem;
   display: inline-block;
 }
+
+.icon-more:after {
+  content: '\e90c';
+  color: #bbb;
+  transform: rotate(180deg);
+  position: absolute;
+  right: 1rem;
+}
