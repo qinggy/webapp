@@ -494,6 +494,10 @@ $(function () {
     return n < 10 ? "0" + n : n;
   };
 
+  var showParamDetail = function () {
+    $.alert(11);
+  }
+
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
     esdpec.framework.core.getJsonResult("subscribemodule/list", function (response) {
       var data = {

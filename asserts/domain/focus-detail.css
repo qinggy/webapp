@@ -403,6 +403,10 @@
   background-image: none;
 }
 
+#focus-detail-page .list-block ul ul {
+  padding-left: 0rem !important;
+}
+
 .search-more {
   color: #0894ec !important;
 }
@@ -420,4 +424,8 @@
 
 .statistic li:nth-child(odd) {
   background-color: rgb(238, 249, 255) !important;
+}
+
+.hidden {
+  display: none;
 }
