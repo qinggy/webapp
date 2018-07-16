@@ -1,0 +1,11 @@
+.report-detail-nav {
+  background-color: rgb(32, 157, 250);
+}
+
+.report-detail-nav .icon-jump:before {
+  color: #fff;
+}
+
+.report-detail-nav .title {
+  color: #fff;
+}

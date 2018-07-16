@@ -16,6 +16,7 @@ Array.prototype.remove = function (val) {
 
 esdpec.framework.core.Config = {
   APIBaseUrl: 'http://localhost:81/', //'http://172.17.0.21/api/',
+  BaseWebSiteUrl: 'http://172.17.0.48/',
   ajaxProcessingText: "加载中....",
   ajaxProcessedText: "完成"
 }
