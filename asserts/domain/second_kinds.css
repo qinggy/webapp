@@ -1,0 +1,187 @@
+/* start about module */
+
+  .bar-nav{
+    background-color: #209dfa;
+  }
+  .bar-nav .icon-jump:before{
+    color: #fff;
+  }
+  .bar-nav h1{
+    color: #fff;
+  }
+  .bar-nav .pull-right{
+    position: absolute;
+    right: 5%;
+    color: #fff;
+  }
+/* feedback_feedback */
+  
+  .content-input{
+    position: relative;
+    top: 8%;
+    transform:translate(0,1%);
+    width: 100%;
+    height: 100%;
+  }
+  .content-input textarea{
+    position: absolute;
+    width: 96%;
+    height: 10rem;
+    left: 50%;
+    transform: translate(-50%);
+    border: 0;
+    color: #bbb;
+    font-size: 0.8rem;
+    font-weight: 300;
+  }
+  .content-input h1{
+    position: absolute;
+    top: 36%;
+    left: 2%;
+    font-size: 0.75rem;
+    float: left;
+  }
+  .content-input input{
+    position: absolute;
+    top: 34%;
+    left: 22%;
+    width:75%;
+    height: 10%;
+    border: 0;
+    background-color: transparent;
+    border-bottom: #fff solid 1px;
+    color: #bbb;
+    font-size: 0.8rem;
+    font-weight: 300;
+  }
+  /*end feedback_feedback */
+  
+  /* personal_information */
+  
+  .item-content img{
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-right: 0.5rem;
+  }
+  .link-list{
+    margin:3rem 0;
+  }
+  .item-inner img{
+    width: 14%;
+    height: 14%;
+  }
+  .item-inner h1{
+    font-size: 0.75rem;
+    color: #333;
+    font-weight: 400;
+  }
+  /* end personal_information */
+  
+  /* contact_us */
+  
+  .menu_list{
+    position: relative;
+    top:8%;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+  }
+  .list_ul{
+    margin: 0;
+    padding: 0;
+  }
+  .list_ul li{
+    list-style: none;
+    word-break:keep-all;
+  }
+  .list_ul i{
+    float: left;
+    padding: 0.65rem 0.5rem;
+  }
+  .list_li hr{
+    border: 5px solid #f4f6f9;
+  }
+  .list_li div{
+    line-height: 2.2rem;
+    font-size: 0.75rem;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* end contact_us */
+
+  /* service_agreement */
+
+.service_agreement_content{
+  position: relative;
+  top:10%;
+  width: 100%;
+  height: 100%;
+}
+.service_agreement_content h1{
+  font-size: 0.8rem;
+  text-align: center;
+  color: #000;
+  font-weight: bold;
+}
+.service_agreement_content h2,.service_agreement_content h3{
+  position: absolute;
+  right: 0;
+  top:1.8rem;
+  font-size: 0.7rem;
+  right: 4%;
+  color: #333;
+  font-weight: 400;
+}
+.service_agreement_content h3{
+  top:4rem;
+  margin: 0 1% 0 5%;
+  line-height: 1.3rem;
+  text-align:justify; 
+}
+/*about_us*/
+.about_us{
+  position: relative;
+  top:16%;
+}
+.about_us img{
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 0.05rem solid #305e8c;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.about_us h2{
+  position: absolute;
+  top:16%;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.about_us h3{
+  position: absolute;
+  top:28%;
+  color: #666;
+}
+.about_us hr{ 
+  width: 16%;
+  border:0.5px solid #bbb;
+}
+
+
+/* end about_us */
+
+/*end service_agreement */
+
+
+
+
+
+
+
+
+
+
+  /* end about module */
