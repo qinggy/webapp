@@ -23,8 +23,9 @@ http://sourceforge.net/adobe/cmap/wiki/License/
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="google" content="notranslate">
-  <title></title>
+  <title>report-detail</title>
   <link rel="stylesheet" href="/dist/pdfjs/viewer.css" />
+  <link rel="stylesheet" href="/asserts/domain/system-icon.css">
   <script src="/dist/pdfjs/compatibility.js"></script>
 
   <!-- This snippet is used in production (included from viewer.html) -->
@@ -35,7 +36,11 @@ http://sourceforge.net/adobe/cmap/wiki/License/
   <script src="/dist/pdfjs/viewer.js"></script>
 </head>
 
-<body tabindex="1" class="loadingInProgress">
+<body tabindex="1" class="loadingInProgress pdfContainer">
+  <header class="bar bar-nav report-detail-nav">
+    <a class="icon icon-jump" onclick="historyBack()"></a>
+    <h1 class="title" id="reportDetailTitle">报表详情</h1>
+  </header>
   <div id="outerContainer">
     <div id="sidebarContainer">
       <div id="toolbarSidebar">
@@ -190,7 +195,7 @@ http://sourceforge.net/adobe/cmap/wiki/License/
 
               <div class="verticalToolbarSeparator hiddenSmallView"></div>
 
-              <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
+              <button id="secondaryToolbarToggle" class="toolbarButton hidden" title="Tools" tabindex="36" data-l10n-id="tools">
                 <span data-l10n-id="tools_label">Tools</span>
               </button>
             </div>
@@ -437,5 +442,18 @@ http://sourceforge.net/adobe/cmap/wiki/License/
   </div>
 
 </body>
+<script type="text/javascript">
+  var title = '报表详情';
+  window.onload = function () {
+    title = document.location.search.split("&")[1].split("=")[1];
+    if (title !== '')
+      document.getElementById('reportDetailTitle').innerHTML = decodeURI(title);
+  }
+
+  function historyBack() {
+    var baseUri = "http://172.17.0.48/";
+    window.location.href = baseUri + "src/report/index.html";
+  }
+</script>
 
 </html>

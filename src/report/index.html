@@ -70,21 +70,12 @@
         </div>
       </div>
     </div>
-    <div class="page" id="page-report-detail-pdf">
-      <header class="bar bar-nav report-detail-nav">
-        <a class="icon icon-jump pull-left back"></a>
-        <h1 class="title" id="reportDetailTitle">报表详情</h1>
-      </header>
-      <div class="content">
-        <iframe id="pdfContainer" frameborder="0" scrolling="no" width="100%" height="100%"></iframe>
-      </div>
-    </div>
   </div>
   <script type="text/html" id="report-list-template">
     <ul>
       {{if reportList.length > 0}} {{each reportList report index}}
       <li class="report-li">
-        <a href="#page-report-detail-pdf" data-url="{{report.FilePath}}" data-title="{{report.Name}}" class="item-link item-content">
+        <a href="#" data-url="{{report.FilePath}}" data-id="{{report.Id}}" data-title="{{report.Name}}" class="item-link item-content">
           <div class="report-header"></div>
           <div class="{{report.ReportType}}"></div>
           <div class="item-inner">
