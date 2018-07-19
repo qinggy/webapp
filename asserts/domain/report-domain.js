@@ -31,6 +31,9 @@ $(function () {
         });
         reportHtml = template('report-list-template', data);
         $jQuery('#report-list-container').removeClass('report-no-margin').html(reportHtml);
+        esdpec.framework.core.swipeDelete('.report-list .report-li', '#delete-action', function (deleteItem) {
+          console.log(deleteItem);
+        });
         $(page).on('click', 'li.report-li a', function (e) {
           var reportDom = $jQuery(e.currentTarget);
           var pageTitle = reportDom.attr('data-title');

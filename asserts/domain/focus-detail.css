@@ -62,8 +62,8 @@
   border-bottom: 0.025rem solid #d0d0d0;
 }
 
-.active span,
-.active i {
+.bar-tab .active span,
+.bar-tab .active i {
   color: #0894ec !important;
 }
 
@@ -79,6 +79,10 @@
   transform: rotate(270deg);
   display: inline-block;
   color: #000;
+}
+
+.pull-left {
+  cursor: pointer;
 }
 
 .search-condition-container {
@@ -242,8 +246,8 @@
 }
 
 .focus-charts canvas {
-  left: -0.5rem !important;
-  width: calc(100% + 0rem) !important;
+  /* left: -0.5rem !important;
+  width: calc(100% + 0.5rem) !important; */
 }
 
 .summary-container {
@@ -428,4 +432,8 @@
 
 .hidden {
   display: none;
+}
+
+.delete-title {
+  color: #fff !important;
 }

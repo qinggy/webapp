@@ -17,7 +17,7 @@
   line-height: 1;
 }
 
-.icon-pie_chart:before {
+.icon-region:before {
   content: "\e900";
 }
 
@@ -135,6 +135,70 @@
 
 .icon-fold-line:before {
   content: "\e923";
+}
+
+.icon-coal_mine:before {
+  content: "\e92f";
+  color: #bbb;
+}
+
+.icon-total_area:before {
+  content: "\e92d";
+  color: #bbb;
+}
+
+.icon-capacity:before {
+  content: "\e928";
+  color: #bbb;
+}
+
+.icon-pie_chart:before {
+  content: "\e91f";
+  color: #bbb;
+}
+
+.icon-close:before {
+  content: "\e924";
+  color: #bbb;
+}
+
+.icon-output_value:before {
+  content: "\e925";
+  color: #bbb;
+}
+
+.icon-cold_quantity:before {
+  content: "\e926";
+  color: #bbb;
+}
+
+.icon-other:before {
+  content: "\e927";
+  color: #bbb;
+}
+
+.icon-number_of_people:before {
+  content: "\e929";
+  color: #bbb;
+}
+
+.icon-actual_collection:before {
+  content: "\e92a";
+  color: #bbb;
+}
+
+.icon-theoretical_acquisition:before {
+  content: "\e92b";
+  color: #bbb;
+}
+
+.icon-refresh:before {
+  content: "\e92c";
+  color: #bbb;
+}
+
+.icon-output-value:before {
+  content: "\e92e";
 }
 
 .icon-reduce:before {
@@ -423,4 +487,14 @@
   transform: rotate(180deg);
   position: absolute;
   right: 1rem;
+}
+
+.icon-loading {
+  background-image: url(/asserts/img/loading.gif);
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 0.8rem;
+  width: 0.8rem;
+  display: inline-block;
 }

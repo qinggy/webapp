@@ -1,344 +1,6 @@
 $(function () {
   'use strict';
-  //下拉刷新页面
-  $(document).on("pageInit", "#page-ptr", function (e, id, page) {
-    var $content = $(page).find(".content").on('refresh', function (e) {
-      // 模拟2s的加载过程
-      setTimeout(function () {
-        var cardHTML = '<div class="card">' +
-          '<div class="card-header">标题</div>' +
-          '<div class="card-content">' +
-          '<div class="card-content-inner">内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容内容' +
-          '</div>' +
-          '</div>' +
-          '</div>';
-
-        $content.find('.card-container').prepend(cardHTML);
-        // $(window).scrollTop(0);
-        // 加载完毕需要重置
-        $.pullToRefreshDone($content);
-      }, 2000);
-    });
-  });
-
-  //无限滚动
-  $(document).on("pageInit", "#page-infinite-scroll-bottom", function (e, id, page) {
-    var loading = false;
-    // 每次加载添加多少条目
-    var itemsPerLoad = 20;
-    // 最多可加载的条目
-    var maxItems = 100;
-    var lastIndex = $('.list-container li').length;
-
-    function addItems(number, lastIndex) {
-      // 生成新条目的HTML
-      var html = '';
-      for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
-        html += '<li class="item-content"><div class="item-inner"><div class="item-title">新条目</div></div></li>';
-      }
-      // 添加新条目
-      $('.infinite-scroll .list-container').append(html);
-    }
-    $(page).on('infinite', function () {
-      // 如果正在加载，则退出
-      if (loading) return;
-      // 设置flag
-      loading = true;
-      // 模拟1s的加载过程
-      setTimeout(function () {
-        // 重置加载flag
-        loading = false;
-        if (lastIndex >= maxItems) {
-          // 加载完毕，则注销无限加载事件，以防不必要的加载
-          $.detachInfiniteScroll($('.infinite-scroll'));
-          // 删除加载提示符
-          $('.infinite-scroll-preloader').remove();
-          return;
-        }
-        addItems(itemsPerLoad, lastIndex);
-        // 更新最后加载的序号
-        lastIndex = $('.list-container li').length;
-        $.refreshScroller();
-      }, 1000);
-    });
-  });
-
-  //顶部无限滚动
-  $(document).on("pageInit", "#page-infinite-scroll-top", function (e, id, page) {
-    function addItems(number, lastIndex) {
-      // 生成新条目的HTML
-      var html = '';
-      for (var i = lastIndex + number; i > lastIndex; i--) {
-        html += '<li class="item-content"><div class="item-inner"><div class="item-title">条目' + i + '</div></div></li>';
-      }
-      // 添加新条目
-      $('.infinite-scroll .list-container').prepend(html);
-
-    }
-    var timer = false;
-    $(page).on('infinite', function () {
-      var lastIndex = $('.list-block li').length;
-      var lastLi = $(".list-container li")[0];
-      var scroller = $('.infinite-scroll-top');
-      var scrollHeight = scroller[0].scrollHeight; // 获取当前滚动元素的高度
-      // 如果正在加载，则退出
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      // 模拟1s的加载过程
-      timer = setTimeout(function () {
-
-        addItems(20, lastIndex);
-
-        $.refreshScroller();
-        //  lastLi.scrollIntoView({
-        //     behavior: "smooth",
-        //     block:    "start"
-        // });
-        // 将滚动条的位置设置为最新滚动元素高度和之前的高度差
-        scroller.scrollTop(scroller[0].scrollHeight - scrollHeight);
-      }, 1000);
-    });
-
-  });
-  //test demo js
-
-  //多个标签页下的无限滚动
-  $(document).on("pageInit", "#page-fixed-tab-infinite-scroll", function (e, id, page) {
-    var loading = false;
-    // 每次加载添加多少条目
-    var itemsPerLoad = 20;
-    // 最多可加载的条目
-    var maxItems = 100;
-    var lastIndex = $('.list-container li')[0].length;
-
-    function addItems(number, lastIndex) {
-      // 生成新条目的HTML
-      var html = '';
-      for (var i = lastIndex + 1; i <= lastIndex + number; i++) {
-        html += '<li class="item-content""><div class="item-inner"><div class="item-title">新条目</div></div></li>';
-      }
-      // 添加新条目
-      $('.infinite-scroll.active .list-container').append(html);
-    }
-    $(page).on('infinite', function () {
-      // 如果正在加载，则退出
-      if (loading) return;
-      // 设置flag
-      loading = true;
-      var tabIndex = 0;
-      if ($(this).find('.infinite-scroll.active').attr('id') == "tab2") {
-        tabIndex = 0;
-      }
-      if ($(this).find('.infinite-scroll.active').attr('id') == "tab3") {
-        tabIndex = 1;
-      }
-      lastIndex = $('.list-container').eq(tabIndex).find('li').length;
-      // 模拟1s的加载过程
-      setTimeout(function () {
-        // 重置加载flag
-        loading = false;
-        if (lastIndex >= maxItems) {
-          // 加载完毕，则注销无限加载事件，以防不必要的加载
-          //$.detachInfiniteScroll($('.infinite-scroll').eq(tabIndex));
-          // 删除加载提示符
-          $('.infinite-scroll-preloader').eq(tabIndex).hide();
-          return;
-        }
-        addItems(itemsPerLoad, lastIndex);
-        // 更新最后加载的序号
-        lastIndex = $('.list-container').eq(tabIndex).find('li').length;
-        $.refreshScroller();
-      }, 1000);
-    });
-  });
-
-  //图片浏览器
-  $(document).on("pageInit", "#page-photo-browser", function (e, id, page) {
-    var myPhotoBrowserStandalone = $.photoBrowser({
-      photos: [
-        '//img.alicdn.com/tps/i3/TB1kt4wHVXXXXb_XVXX0HY8HXXX-1024-1024.jpeg',
-        '//img.alicdn.com/tps/i1/TB1SKhUHVXXXXb7XXXX0HY8HXXX-1024-1024.jpeg',
-        '//img.alicdn.com/tps/i4/TB1AdxNHVXXXXasXpXX0HY8HXXX-1024-1024.jpeg',
-      ]
-    });
-    //点击时打开图片浏览器
-    $(page).on('click', '.pb-standalone', function () {
-      myPhotoBrowserStandalone.open();
-    });
-    /*=== Popup ===*/
-    var myPhotoBrowserPopup = $.photoBrowser({
-      photos: [
-        '//img.alicdn.com/tps/i3/TB1kt4wHVXXXXb_XVXX0HY8HXXX-1024-1024.jpeg',
-        '//img.alicdn.com/tps/i1/TB1SKhUHVXXXXb7XXXX0HY8HXXX-1024-1024.jpeg',
-        '//img.alicdn.com/tps/i4/TB1AdxNHVXXXXasXpXX0HY8HXXX-1024-1024.jpeg',
-      ],
-      type: 'popup'
-    });
-    $(page).on('click', '.pb-popup', function () {
-      myPhotoBrowserPopup.open();
-    });
-    /*=== 有标题 ===*/
-    var myPhotoBrowserCaptions = $.photoBrowser({
-      photos: [{
-          url: '//img.alicdn.com/tps/i3/TB1kt4wHVXXXXb_XVXX0HY8HXXX-1024-1024.jpeg',
-          caption: 'Caption 1 Text'
-        },
-        {
-          url: '//img.alicdn.com/tps/i1/TB1SKhUHVXXXXb7XXXX0HY8HXXX-1024-1024.jpeg',
-          caption: 'Second Caption Text'
-        },
-        // 这个没有标题
-        {
-          url: '//img.alicdn.com/tps/i4/TB1AdxNHVXXXXasXpXX0HY8HXXX-1024-1024.jpeg',
-        },
-      ],
-      theme: 'dark',
-      type: 'standalone'
-    });
-    $(page).on('click', '.pb-standalone-captions', function () {
-      myPhotoBrowserCaptions.open();
-    });
-  });
-
-  //对话框
-  $(document).on("pageInit", "#page-modal", function (e, id, page) {
-    var $content = $(page).find('.content');
-    $content.on('click', '.alert-text', function () {
-      $.alert('这是一段提示消息');
-    });
-
-    $content.on('click', '.alert-text-title', function () {
-      $.alert('这是一段提示消息', '这是自定义的标题!');
-    });
-
-    $content.on('click', '.alert-text-title-callback', function () {
-      $.alert('这是自定义的文案', '这是自定义的标题!', function () {
-        $.alert('你点击了确定按钮!')
-      });
-    });
-    $content.on('click', '.confirm-ok', function () {
-      $.confirm('你确定吗?', function () {
-        $.alert('你点击了确定按钮!');
-      });
-    });
-    $content.on('click', '.prompt-ok', function () {
-      $.prompt('你叫什么问题?', function (value) {
-        $.alert('你输入的名字是"' + value + '"');
-      });
-    });
-  });
-
-  //操作表
-  $(document).on("pageInit", "#page-action", function (e, id, page) {
-    $(page).on('click', '.create-actions', function () {
-      var buttons1 = [{
-          text: '请选择',
-          label: true
-        },
-        {
-          text: '卖出',
-          bold: true,
-          color: 'danger',
-          onClick: function () {
-            $.alert("你选择了“卖出“");
-          }
-        },
-        {
-          text: '买入',
-          onClick: function () {
-            $.alert("你选择了“买入“");
-          }
-        }
-      ];
-      var buttons2 = [{
-        text: '取消',
-        bg: 'danger'
-      }];
-      var groups = [buttons1, buttons2];
-      $.actions(groups);
-    });
-  });
-
-  //加载提示符
-  $(document).on("pageInit", "#page-preloader", function (e, id, page) {
-    $(page).on('click', '.open-preloader-title', function () {
-      $.showPreloader('加载中...')
-      setTimeout(function () {
-        $.hidePreloader();
-      }, 2000);
-    });
-    $(page).on('click', '.open-indicator', function () {
-      $.showIndicator();
-      setTimeout(function () {
-        $.hideIndicator();
-      }, 2000);
-    });
-  });
-
-  //选择颜色主题
-  $(document).on("click", ".select-color", function (e) {
-    var b = $(e.target);
-    document.body.className = "theme-" + (b.data("color") || "");
-    b.parent().find(".active").removeClass("active");
-    b.addClass("active");
-  });
-
-  //picker
-  $(document).on("pageInit", "#page-picker", function (e, id, page) {
-    $("#picker").picker({
-      toolbarTemplate: '<header class="bar bar-nav">\
-        <button class="button button-link pull-left">\
-      按钮\
-      </button>\
-      <button class="button button-link pull-right close-picker">\
-      确定\
-      </button>\
-      <h1 class="title">标题</h1>\
-      </header>',
-      cols: [{
-        textAlign: 'center',
-        values: ['iPhone 4', 'iPhone 4S', 'iPhone 5', 'iPhone 5S', 'iPhone 6', 'iPhone 6 Plus', 'iPad 2', 'iPad Retina', 'iPad Air', 'iPad mini', 'iPad mini 2', 'iPad mini 3'],
-        cssClass: 'picker-items-col-normal'
-      }]
-    });
-    $("#picker-name").picker({
-      toolbarTemplate: '<header class="bar bar-nav">\
-      <button class="button button-link pull-right close-picker">确定</button>\
-      <h1 class="title">请选择称呼</h1>\
-      </header>',
-      cols: [{
-          textAlign: 'center',
-          values: ['赵', '钱', '孙', '李', '周', '吴', '郑', '王']
-        },
-        {
-          textAlign: 'center',
-          values: ['杰伦', '磊', '明', '小鹏', '燕姿', '菲菲', 'Baby']
-        },
-        {
-          textAlign: 'center',
-          values: ['先生', '小姐']
-        }
-      ]
-    });
-  });
-
-  $(document).on("pageInit", "#page-datetime-picker", function (e) {
-    $("#datetime-picker").datetimePicker({
-      toolbarTemplate: '<header class="bar bar-nav">\
-      <button class="button button-link pull-right close-picker">确定</button>\
-      <h1 class="title">选择日期和时间</h1>\
-      </header>'
-    });
-  });
-
-  $(document).on("pageInit", "#page-city-picker", function (e) {
-    $("#city-picker").cityPicker({
-      value: ['天津', '河东区']
-      //value: ['四川', '内江', '东兴区']
-    });
-  });
+  var lastclicktime = null;
 
   var focusEnum = {
     'commnunicate': 'icon-commnunicate',
@@ -371,6 +33,82 @@ $(function () {
     $jQuery('.focus-list .focus-item').on('click', function (e) {
       var focusId = $jQuery(e.currentTarget).attr('clickId');
       console.log(focusId);
+
+
+    });
+  };
+
+  var operateMeterTreeAjaxResult = function (response) {
+    if (response.IsSuccess && response.Content.length > 0) {
+      var meterList = response.Content;
+      localStorage.setItem('meter_tree', JSON.stringify(meterList));
+      renderMeterTree(meterList, '#', 'forward');
+    }
+  };
+
+  var loadMeterTree = function (type) {
+    switch (type) {
+      case 0:
+        esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+          operateMeterTreeAjaxResult(response);
+        });
+        break;
+      case 1:
+        esdpec.framework.core.getJsonResult("common/gettree", function (response) {
+          operateMeterTreeAjaxResult(response);
+        });
+        break;
+    }
+  }
+
+  var loadFocusListData = function (pageNum, keyword, successCallback) {
+    localStorage.setItem('current_focus_page', pageNum);
+    esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
+      var data = {
+        focusList: []
+      };
+      if (response.IsSuccess && response.Content.datas.length > 0) {
+        data.focusList = response.Content.datas;
+        $jQuery.each(data.focusList, function (index, item) {
+          item.FocusType = getFocusType(item.FocusType);
+          if (item.IfHomePage) item.IsHomePage = 'home-page-color';
+        });
+      }
+      localStorage.setItem('focus_total_page', response.Content.total_page);
+      if (!!successCallback) successCallback;
+      renderFocusList(data);
+    });
+  };
+
+  var renderMeterTree = function (list, parent, type) {
+    if (type === 'forward') {
+      var path = $jQuery('#parentId').val();
+      $jQuery('#parentId').val(path + '||' + parent);
+    }
+    var children = _.filter(list, a => a.parent === parent);
+    _.map(children, a => a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '');
+    var data = {
+      meterList: children
+    };
+    var meterHtml = template('meter-list-template', data);
+    $jQuery('#meterListContainer').html(meterHtml);
+    $jQuery('.meter-list .meter-item').on('click', function (e) {
+      var meterId = $jQuery(e.currentTarget).attr('data-id');
+      var allMeterList = localStorage.getItem('meter_tree');
+      var meterNodes = JSON.parse(allMeterList);
+      var children = _.filter(meterNodes, a => a.parent === meterId);
+      if (children.length > 0)
+        renderMeterTree(children, meterId, 'forward');
+      else {
+        var node = _.find(meterNodes, a => a.id === meterId);
+        if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
+          $.router.load("#focus-detail-page", true);
+          $('#close-panel').click();
+        }
+      }
+    });
+    $jQuery('#backParent').on('click', function (e) {
+      backNavigate();
     });
   };
 
@@ -384,16 +122,18 @@ $(function () {
   var ifShowSearch = function (flag) {
     var container = $jQuery('#search-container');
     if (flag) {
-      if ($jQuery(container).css('display') === 'none') {
+      if ($jQuery('#showMoreBtn').attr('data-toggle') === 'open') {
         $jQuery('#search-container').slideDown(300);
         $jQuery('#showMoreBtn').addClass('active');
       } else {
         $jQuery('#search-container').slideUp(300);
         $jQuery('#showMoreBtn').removeClass('active');
+        $jQuery('#showMoreBtn').attr('data-toggle', 'close');
       }
-    } else if ($jQuery(container).css('display') !== 'none') {
+    } else if ($jQuery('#showMoreBtn').attr('data-toggle') === 'open') {
       $jQuery('#search-container').slideUp(300);
       $jQuery('#showMoreBtn').removeClass('active');
+      $jQuery('#showMoreBtn').attr('data-toggle', 'close');
     }
   };
 
@@ -498,46 +238,46 @@ $(function () {
     $.alert(11);
   }
 
-  $(document).on("pageInit", "#page-focus", function (e, id, page) {
-    esdpec.framework.core.getJsonResult("subscribemodule/list", function (response) {
-      var data = {
-        focusList: []
-      };
-      if (response.IsSuccess && response.Content.length > 0) {
-        data.focusList = response.Content;
-        $jQuery.each(data.focusList, function (index, item) {
-          item.FocusType = getFocusType(item.FocusType);
-          if (item.IfHomePage) item.IsHomePage = 'home-page-color';
-        });
+  var backNavigate = function () {
+    var pathVal = $jQuery('#parentId').val();
+    pathVal = pathVal.substring(2);
+    var pathStack = pathVal.split('||');
+    if (pathStack.length > 1) {
+      var meterList = localStorage.getItem('meter_tree');
+      var parent = pathStack[pathStack.length - 2];
+      var pathVal = [];
+      for (var i = 0; i <= pathStack.length - 2; i++) {
+        pathVal[i] = pathStack[i];
       }
-      renderFocusList(data);
-    });
-    $(page).on('click', '#sethome', function (e) {
-      console.log('sethome');
-    });
-    $(page).on('click', '#setindex', function (e) {
-      console.log('setindex');
-    });
-    $(page).on('keypress', '#searchbtn', function (e) {
-      if (e.keyCode === 13) {
-        $.alert('enter search');
-      }
-    });
-    var $content = $(page).find(".content").on('refresh', function (e) {
-      setTimeout(function () {
+      var path = _.join(pathVal, '||');
+      $jQuery('#parentId').val('||' + path);
+      renderMeterTree(JSON.parse(meterList), parent, 'back');
+    }
+  }
 
-        $.pullToRefreshDone($content);
-      }, 2000);
-    });
-  });
-  $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
+  var operateBefore = function () {
+    if (lastclicktime === null)
+      lastclicktime = new Date();
+    else {
+      var currentTime = new Date();
+      if (parseInt(currentTime - lastclicktime) <= 300) {
+        //console.log('Frequent operation, no response!');
+        return false;
+      } else {
+        lastclicktime = currentTime;
+      }
+    }
+    return true;
+  }
+
+  var bindTabClick = function (page) {
     $("#dataTypePicker").picker({
       toolbarTemplate: '<header class="bar bar-nav">\
-      <button class="button button-link pull-right close-picker">\
-      确定\
-      </button>\
-      <h1 class="title">请选择数据类型</h1>\
-      </header>',
+    <button class="button button-link pull-right close-picker">\
+    确定\
+    </button>\
+    <h1 class="title">请选择数据类型</h1>\
+    </header>',
       cols: [{
         textAlign: 'center',
         values: ['日', '月', '年'],
@@ -546,41 +286,111 @@ $(function () {
     });
     $("#startDatePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-      // value: ['1988', '12', '02']
     }, 'd');
     $("#endDatePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-      // value: ['1988', '12', '02']
     }, 'm');
-    $(page).on("click", '#showMoreBtn', function (e) {
+    $('#showMoreBtn').on("click", function (e) {
+      if (!operateBefore()) return;
+      var toggle = $jQuery('#showMoreBtn').attr('data-toggle');
+      if (toggle === 'open') {
+        $jQuery('#showMoreBtn').attr('data-toggle', 'close');
+      } else {
+        $jQuery('#showMoreBtn').attr('data-toggle', 'open');
+      }
       toggleActive();
       ifShowSearch(true);
     });
-    $(page).on("click", '#showMenu', function (e) {
+    $('#showMenu').on("click", function (e) {
+      if (!operateBefore()) return;
       toggleActive();
       $jQuery('#showMenu').addClass('active');
       ifShowSearch(false);
     });
-    $(page).on("click", '#showDay', function (e) {
+    $('#showDay').on("click", function (e) {
+      if (!operateBefore()) return;
       toggleActive();
       $jQuery('#showDay').addClass('active');
       ifShowSearch(false);
     });
-    $(page).on("click", '#showWeek', function (e) {
+    $('#showWeek').on("click", function (e) {
+      if (!operateBefore()) return;
       toggleActive();
       $jQuery('#showWeek').addClass('active');
       ifShowSearch(false);
     });
-    $(page).on("click", '#showMonth', function (e) {
+    $('#showMonth').on("click", function (e) {
+      if (!operateBefore()) return;
       toggleActive();
       $jQuery('#showMonth').addClass('active');
       ifShowSearch(false);
     });
-    $(page).on("click", '#showYear', function (e) {
+    $('#showYear').on("click", function (e) {
+      if (!operateBefore()) return;
       toggleActive();
       $jQuery('#showYear').addClass('active');
       ifShowSearch(false);
     });
+  };
+
+  var pullToLoadFocusList = function (page) {
+    var $content = $(page).find(".content").on('refresh', function (e) {
+      var currentPage = localStorage.getItem('current_focus_page');
+      var totalPage = localStorage.getItem('focus_total_page');
+      var pageNum = parseFloat(currentPage) + 1;
+      if (pageNum <= parseInt(totalPage))
+        loadFocusListData(pageNum, '');
+      setTimeout(() => $.pullToRefreshDone($content), 2000);
+    });
+  };
+
+  $(document).on('click', '.tree-menu', function (e) {
+    $.allowPanelOpen = true;
+    $.openPanel('#tree-panel');
+  })
+
+  $(document).on('click', '#refreshCurrentNodeData', function () {
+    var path = $jQuery('#parentId').val();
+    var pathStack = path.split('||');
+    var parentId = pathStack[pathStack.length - 1];
+    if (parentId === '#')
+      loadMeterTree(1);
+    else
+      esdpec.framework.core.getJsonResult('common/getchildtree?nodeId=' + parentId, function (response) {
+        if (response.IsSuccess && response.Content.length > 0) {
+          var children = response.Content;
+          var meterJson = localStorage.getItem('meter_tree');
+          var meterList = JSON.parse(meterJson);
+          var residueMeters = _.filter(meterList, a => a.parent !== parentId);
+          var newMeters = _.concat(residueMeters, children);
+          localStorage.setItem('meter_tree', JSON.stringify(newMeters));
+          renderMeterTree(newMeters, parentId, 'forward');
+        }
+      });
+  });
+
+  $(document).on('click', '#search-btn', function (e) {
+    var keyword = $jQuery('#search').val();
+    loadFocusListData(1, keyword);
+  });
+
+  $(document).on('click', '#sethome', function (e) {
+    console.log('sethome');
+  });
+
+  $(document).on('click', '#setindex', function (e) {
+    console.log('setindex');
+  });
+
+  $(document).on("pageInit", "#page-focus", function (e, id, page) {
+    loadFocusListData(1, '');
+    loadMeterTree(0);
+    pullToLoadFocusList(page);
+  });
+
+  $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
+    $('#close-panel').click();
+    bindTabClick(page);
     generateChart(document.getElementById('echarts'));
   });
 

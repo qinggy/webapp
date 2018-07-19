@@ -6,7 +6,7 @@ Array.prototype.indexOf = function (val) {
   }
   return -1;
 }
-//数组添加remove方法
+
 Array.prototype.remove = function (val) {
   var index = this.indexOf(val);
   if (index > -1) {
@@ -15,7 +15,7 @@ Array.prototype.remove = function (val) {
 }
 
 esdpec.framework.core.Config = {
-  APIBaseUrl: 'http://localhost:81/', //'http://172.17.0.21/api/',
+  APIBaseUrl: 'http://172.17.0.21/api/', //'http://localhost:81/',
   BaseWebSiteUrl: 'http://172.17.0.48/',
   ajaxProcessingText: "加载中....",
   ajaxProcessedText: "完成"
@@ -25,32 +25,42 @@ esdpec.framework.core.completeRequest = function (XMLHttpRequest, textStatus, on
   var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
   var unauthorize = XMLHttpRequest.getResponseHeader("authorize");
   if (sessionstatus === "timeout" || unauthorize === "unauthorize") {
-    location.href = "/login.html";
+    location.href = location.origin + '/src/login.html'
   }
   if (onCompleteCallBack != null) onCompleteCallBack;
 };
 
+esdpec.framework.core.getRequestRandom = function (url) {
+  if (_.indexOf(url, '?') > -1) {
+    return '&_t=' + new Date().getTime();
+  } else
+    return '?_t=' + new Date().getTime();
+};
+
 esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCallBack) {
-  $.showPreloader('Please Wait ...');;
+  $.showPreloader('Please Wait ...');
   setTimeout(function () {
     $.hidePreloader();
   }, 5000);
   $jQuery.ajaxSetup({
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+    },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
     }
   });
-  $jQuery.getJSON(this.Config.APIBaseUrl + url + "?_t=" + new Date().getTime())
+  $jQuery.getJSON(this.Config.APIBaseUrl + url + esdpec.framework.core.getRequestRandom(url))
     .done(function (data) {
       $.hidePreloader();
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        location.href = "/";
+        location.href = location.origin + '/src/login.html'
       }
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
-        location.reload();
+        location.href = location.origin + '/src/login.html'
       }
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
@@ -58,68 +68,26 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
     });
 };
 
-esdpec.framework.core.getJsonResultRR = function (url, successCallBack, failureCallBack) {
+esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, failureCallBack) {
   $jQuery.ajaxSetup({
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+    },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
     }
   });
-  $jQuery.getJSON(this.Config.APIBaseUrl + url + "?_t=" + new Date().getTime())
+  $jQuery.getJSON(this.Config.APIBaseUrl + url + esdpec.framework.core.getRequestRandom(url))
     .done(function (data) {
-      if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        location.href = "/";
-      }
+      if (data.Code != undefined && data.Code != null && data.Code == 401) {}
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {
-      if (err == "Unauthorized") {
-        location.reload();
-      }
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
       }
     });
 };
-
-esdpec.framework.core.getJSONData = function (url, successCallBack, failureCallBack) {
-  $jQuery.ajaxSetup({
-    cache: false,
-    complete: function (XMLHttpRequest, textStatus) {
-      esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
-    }
-  });
-  $jQuery.getJSON(this.Config.APIBaseUrl + url)
-    .done(function (data) {
-      successCallBack(data);
-    })
-    .fail(function OnError(xhr, textStatus, err) {
-      if (failureCallBack != null) {
-        failureCallBack($jQuery.parseJSON(xhr.responseText));
-      };
-    });
-}
-
-//Web api - Http get operation - Data fetch
-esdpec.framework.core.getJSONDataBySearchParam = function (url, object, successCallBack, failureCallBack, beforeSendCallBack, onCompleteCallBack) {
-  $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      type: 'GET',
-      data: object,
-      beforeSend: beforeSendCallBack == undefined ? undefined : beforeSendCallBack,
-      complete: function (XMLHttpRequest, textStatus) {
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus, onCompleteCallBack);
-      }
-    })
-    .success(function (data) {
-      successCallBack(data);
-    })
-    .error(function OnError(xhr, textStatus, err) {
-      if (failureCallBack != null) {
-        failureCallBack($jQuery.parseJSON(xhr.responseText));
-      }
-    });
-}
 
 // Web api - Http put operation - record update
 esdpec.framework.core.doPutOperation = function (url, object, successCallBack, failureCallBack) {
@@ -129,6 +97,9 @@ esdpec.framework.core.doPutOperation = function (url, object, successCallBack, f
       type: 'PUT',
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(object),
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      },
       complete: function (XMLHttpRequest, textStatus) {
         esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
       }
@@ -141,28 +112,6 @@ esdpec.framework.core.doPutOperation = function (url, object, successCallBack, f
         failureCallBack($jQuery.parseJSON(xhr.responseText));
       }
     });
-}
-
-esdpec.framework.core.doPost = function (url, obj, success, failure) {
-  $jQuery.ajax({
-    url: this.Config.APIBaseUrl + url,
-    type: "POST",
-    contentType: "application/json",
-    dataType: "json",
-    data: obj,
-    statusCode: {
-      200: function (data) {
-        success(data);
-      }
-    },
-    complete: function (XMLHttpRequest, textStatus) {
-      esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
-    }
-  }).error(function OnError(xhr, textStatus, err) {
-    if (failure != null) {
-      failure($jQuery.parseJSON(xhr.responseText));
-    }
-  });
 }
 
 // Web api - Http post operation - create record
@@ -179,11 +128,12 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
         successCallBack(data);
       }
     },
-    beforeSend: function () {
+    beforeSend: function (xhr) {
       $.showPreloader('Please Wait ...');
       setTimeout(function () {
         $.hidePreloader();
       }, 5000);
+      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
     },
     complete: function (XMLHttpRequest, textStatus) {
       $.hidePreloader();
@@ -197,90 +147,6 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
   });
 }
 
-// Web api - Http post operation - create record
-esdpec.framework.core.doPostLoad = function (url, object, successCallBack, failureCallBack) {
-  $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      type: 'POST',
-      contentType: 'application/json',
-      dataType: "json",
-      data: object,
-      statusCode: {
-        200: function (data) {
-          successCallBack(data)
-        }
-      },
-      beforeSend: function () {
-        $.showPreloader('Please Wait ...');
-        setTimeout(function () {
-          $.hidePreloader();
-        }, 5000);
-      },
-      complete: function (XMLHttpRequest, textStatus) {
-        $.hidePreloader();
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
-      }
-    })
-    .error(function OnError(xhr, textStatus, err) {
-      if (failureCallBack != null) {
-        failureCallBack($jQuery.parseJSON(xhr.responseText));
-      }
-    });
-}
-
-esdpec.framework.core.doPostOperationWithOutLoading = function (url, object, successCallBack, failureCallBack) {
-  $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      type: 'POST',
-      contentType: 'application/json',
-      dataType: "json",
-      data: JSON.stringify(object),
-      statusCode: {
-        200: function (data) {
-          successCallBack(data);
-        }
-      },
-      beforeSend: function () {
-
-      },
-      complete: function (XMLHttpRequest, textStatus) {
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
-      }
-    })
-    .error(function OnError(xhr, textStatus, err) {
-      if (failureCallBack != null) {
-        failureCallBack($jQuery.parseJSON(xhr.responseText));
-      }
-    });
-}
-
-//sync
-esdpec.framework.core.doPostOperationAsyncFalse = function (url, object, successCallBack, failureCallBack) {
-  $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      async: false,
-      type: 'POST',
-      contentType: 'application/json; charset=utf-8',
-      data: JSON.stringify(object),
-      statusCode: {
-        200: function (data) {
-          successCallBack(data);
-        }
-      },
-      complete: function (XMLHttpRequest, textStatus) {
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
-      }
-    })
-    .error(function OnError(xhr, textStatus, err) {
-      if (failureCallBack != null) {
-        failureCallBack($jQuery.parseJSON(xhr.responseText));
-      }
-    });
-}
-
 // Web api - Http delete operation - delete a record
 esdpec.framework.core.doDeleteOperation = function (url, object, successCallBack, failureCallBack) {
   $jQuery.ajax({
@@ -289,6 +155,9 @@ esdpec.framework.core.doDeleteOperation = function (url, object, successCallBack
       type: 'DELETE',
       data: JSON.stringify(object),
       contentType: 'application/json; charset=utf-8',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      },
       complete: function (XMLHttpRequest, textStatus) {
         esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
       }
@@ -300,28 +169,4 @@ esdpec.framework.core.doDeleteOperation = function (url, object, successCallBack
       if (failureCallBack != null)
         failureCallBack(xhr, textStatus, err);
     });
-}
-
-var GlobalLoader = {
-  ShowLoader: function () {
-    if ($jQuery('.blockUI').length == 0) {
-      var common = 'Please Wait ...';
-      $jQuery.blockUI({
-        message: '<img src="/asserts/img/loading.gif" /> ' + common.Wait + '...'
-      });
-    }
-  },
-  HideLoader: function () {
-    $jQuery.unblockUI();
-  }
-}
-if ($jQuery.blockUI) {
-  var common = 'Please Wait ...';
-  $jQuery(document).ajaxStart(
-    $jQuery.blockUI({
-      message: '<img src="/asserts/img/loading.gif" /> ' + common.Wait + '...'
-    })
-  ).ajaxStop(
-    $jQuery.unblockUI()
-  );
 }
