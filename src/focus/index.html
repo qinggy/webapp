@@ -87,11 +87,11 @@
         <div class="focus-detail-header">
           <div class="buttons-tab focus-detail-header_tab" id="datatab">
             <a class="icon icon-nav pull-left tab-link button open-panel tree-menu"></a>
-            <a id="showDay" class="tab-link active button">1日</a>
-            <a id="showWeek" class="tab-link button">1周</a>
-            <a id="showMonth" class="tab-link button">1月</a>
-            <a id="showYear" class="tab-link button">1年</a>
-            <a class="tab-link button" id="showMoreBtn" data-toggle="close">更多
+            <a id="showDay" class="tab-link active button" data-type="2">1日</a>
+            <a id="showWeek" class="tab-link button" data-type="3">1周</a>
+            <a id="showMonth" class="tab-link button" data-type="4">1月</a>
+            <a id="showYear" class="tab-link button" data-type="5">1年</a>
+            <a class="tab-link button" id="showMoreBtn" data-toggle="close" data-type="6">更多
               <i class="icon-jump"></i>
             </a>
           </div>
@@ -116,22 +116,17 @@
         <div class="comparision-meter-container">
           <div class="header-container">
             <i class="icon-electric"></i>
-            <div class="param-header">
-              <span class="">S58/N58</span>
-              <span class="">S58/N58</span>
-              <div class="icon-add_to operate-icon"></div>
-              <div class="icon-reduce operate-icon"></div>
-            </div>
+            <div class="param-header" id="headerContainer"></div>
             <div class="focus-div">
-              <div class="icon-switch operate-icon focus-switch"></div>
+              <div class="icon-switch operate-icon focus-switch" id="param-switch"></div>
               <div class="button focus-detail-subscribe">关注</div>
             </div>
           </div>
         </div>
-        <div class="parameter-container">
-
+        <div class="parameter-container" id="parameter-container" data-toggle="open">
         </div>
         <div class="chart-container">
+          <span class="chart-unit" id="current-unit">kWh</span>
           <div class="focus-charts" id="echarts"></div>
         </div>
         <div class="summary-container">
@@ -139,40 +134,14 @@
             <div class="summary-header-container">
               <span>日总量</span>
             </div>
-            <div class="summary-total-data">
-              <div class="summary-cycle">
-                <span>800
-                </span>
-                <span>KWH</span>
-              </div>
-              <div class="summary-prompt">
-                <div class="data-container">
-                  <span class="warn data-container">2.3%</span>
-                  <div class="icon-focus-up"></div>
-                </div>
-                <div class="data-prompt">相对昨日同期</div>
-              </div>
-            </div>
+            <div class="summary-total-data" id="summary-total-data"></div>
           </div>
           <div class="summary-vertical-divide"></div>
           <div class="summary-average">
             <div class="summary-header-container">
               <span>平均值</span>
             </div>
-            <div class="summary-total-data">
-              <div class="summary-cycle">
-                <span>700
-                </span>
-                <span>KWH</span>
-              </div>
-              <div class="summary-prompt">
-                <div class="data-container">
-                  <span class="great data-container">1.3%</span>
-                  <div class="icon-focus-down"></div>
-                </div>
-                <div class="data-prompt">相对同期平均值</div>
-              </div>
-            </div>
+            <div class="summary-total-data" id="avg-total-data"></div>
           </div>
         </div>
         <div class="focus-alart-container">
@@ -181,18 +150,7 @@
               <span>报警信息</span>
             </div>
           </div>
-          <div>
-            <div class="alert-data-item">
-              <span class="item-name">S58/N58</span>
-              <span class="item-data">3000次</span>
-              <span class="item-more">查看详情</span>
-            </div>
-            <div class="alert-data-item">
-              <span class="item-name">S59/N59</span>
-              <span class="item-data">3000次</span>
-              <span class="item-more">查看详情</span>
-            </div>
-          </div>
+          <div id="alert-data-container"></div>
         </div>
         <div class="focus-table-values">
           <div class="alert-container">
@@ -336,6 +294,55 @@
       </li>
       {{/each}} {{/if}}
     </ul>
+  </script>
+  <script type="text/html" id="meter-header-template">
+    {{if focusMeterList.length > 0}} {{each focusMeterList meter index}}
+    <span class="{{meter.activeClass}}">{{meter.text}}</span>
+    {{/each}} {{/if}}
+    <div class="icon-add_to operate-icon"></div>
+    {{if focusMeterList.length > 1}}
+    <div class="icon-reduce operate-icon"></div>
+    {{/if}}
+  </script>
+  <script type="text/html" id="parameter-template">
+    {{if parameterList.length > 0}}{{each parameterList para index}}
+    <a href="#" class="button {{para.checked}}" data-id="{{para.id}}" data-type="{{para.type}}">{{para.name}}</a>
+    {{/each}}{{/if}}
+  </script>
+  <script type="text/html" id="data-template">
+    <div class="summary-cycle">
+      <span>{{sum_val}}</span>
+      <span>{{unit}}</span>
+    </div>
+    <div class="summary-prompt">
+      <div class="data-container">
+        <span class="{{if summargyClass}}warn{{else}}great{{/if}} data-container">{{sum_per}}%</span>
+        <div class="{{if summargyClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
+      </div>
+      <div class="data-prompt">相对昨日同期</div>
+    </div>
+  </script>
+  <script type="text/html" id="avg-data-template">
+    <div class="summary-cycle">
+      <span>{{avg_val}}</span>
+      <span>{{unit}}</span>
+    </div>
+    <div class="summary-prompt">
+      <div class="data-container">
+        <span class="{{if avgClass}}warn{{else}}great{{/if}} data-container">{{avg_per}}%</span>
+        <div class="{{if avgClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
+      </div>
+      <div class="data-prompt">相对同期平均值</div>
+    </div>
+  </script>
+  <script type="text/html" id="alert-data-template">
+    {{if meterList.length > 0}} {{each meterList meter index}}
+    <div class="alert-data-item">
+      <span class="item-name">{{meter.text}}</span>
+      <span class="item-data">{{meter.alert_count}}次</span>
+      <span class="item-more">查看详情</span>
+    </div>
+    {{/each}} {{/if}}
   </script>
   <script src="/dist/sui/js/sm.js"></script>
   <script src="/dist/sui/js/sm-extend.js"></script>

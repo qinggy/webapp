@@ -191,6 +191,13 @@
   text-overflow: ellipsis;
   max-width: 4rem;
   margin-bottom: 0.5rem;
+  display: inline-block;
+  border-bottom: 0.05rem solid #ddd;
+}
+
+.current-active {
+  color: #0894ec;
+  border-bottom: 0.09rem solid #0894ec !important;
 }
 
 .param-header .icon-reduce {
@@ -234,10 +241,36 @@
 .parameter-container {
   background-color: #f9f9f9;
   padding: 0 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-bottom: 0.5rem;
+}
+
+.parameter-container a {
+  font-size: 0.6rem;
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  border: 0.05rem solid #d0d0d0;
+  color: #333;
+}
+
+.checked {
+  background-color: #0894ec !important;
+  color: #fff !important;
+  border: transparent !important;
+}
+
+.chart-unit {
+  position: absolute;
+  left: 1rem;
+  font-size: 0.5rem;
+  top: 0.16rem;
+  color: #333;
 }
 
 .chart-container {
   background-color: #f9f9f9;
+  position: relative;
 }
 
 .focus-charts {
