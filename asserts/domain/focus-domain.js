@@ -2,7 +2,6 @@ $(function () {
   'use strict';
   let lastclicktime = null;
   let currentClickMeters = [];
-
   let focusEnum = {
     'commnunicate': 'icon-commnunicate',
     'electronicMeter': 'icon-electronic-meter',
@@ -15,11 +14,173 @@ $(function () {
     'waterPk': 'icon-water-pk',
     'other': 'icon-focus-other'
   };
-
+  let queryType = {
+    convenient: 0,
+    custom: 1
+  };
+  let paraType = {
+    aggregateValue: 0,
+    instantaneousValue: 1
+  };
+  let dateType = {
+    hour: 1,
+    day: 2,
+    week: 3,
+    month: 4,
+    year: 5,
+    more: 6
+  };
+  let getXAxisData = function (type) {
+    switch (type) {
+      case '1':
+        break;
+      case '2':
+        return function () {
+          let list = [];
+          for (let i = 1; i <= 23; i++) {
+            if (i <= 9) list.push('0' + i);
+            else list.push(i);
+          }
+          return list;
+        }();
+      case '3':
+        return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期天'];
+      case '4':
+        return function () {
+          let list = [];
+          for (let i = 1; i <= 31; i++) {
+            if (i <= 9) list.push('0' + i);
+            else list.push(i);
+          }
+          return list;
+        }();
+      case '5':
+        return function () {
+          let list = [];
+          for (let i = 1; i <= 12; i++) {
+            if (i <= 9) list.push('0' + i);
+            else list.push(i);
+          }
+          return list;
+        }();
+      case '6':
+        break;
+    }
+  };
+  let getLegendTitle = function (type, comparsion) {
+    if (!comparsion) {
+      switch (type) {
+        case '1':
+          break;
+        case '2':
+          return ['昨日', '今日'];
+        case '3':
+          return ['上周', '本周'];
+        case '4':
+          return ['上月', '本月'];
+        case '5':
+          return ['去年', '今年'];
+        case '6':
+          break;
+      }
+    }
+    return '';
+  };
+  let ifComparsion = () => currentClickMeters.length > 1;
+  let getDateType = () => {
+    let activeDoms = $('#datatab a.active');
+    if (activeDoms.length <= 0)
+      $('#showDay').addClass('active');
+    return $('#datatab a.active').attr('data-type');
+  };
+  let getActiveMeter = () => {
+    let headers = $('#headerContainer span.current-active');
+    let currentNode = _.head(headers);
+    return $(currentNode).attr('data-id');
+  };
+  let getActiveParameters = () => {
+    let allParaDoms = $('#parameter-container a.checked');
+    let firstPara = _.head(allParaDoms);
+    let activeParams = {
+      parameterList: [],
+      type: -1,
+    };
+    _.forEach(allParaDoms, para => {
+      activeParams.parameterList.push({
+        id: $(para).attr('data-id'),
+        type: $(para).attr('data-type')
+      });
+    });
+    activeParams.type = allParaDoms.length > 0 ? $(firstPara).attr('data-type') : -1;
+    return activeParams;
+  };
   let getFocusType = function (type) {
     return focusEnum[type];
   };
+  let getWeek = () => {
+    let weekOfday = parseInt(moment().format('E'));
+    let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:01');
+    let last_sunday = moment().add(7 - weekOfday, 'days').format('YYYY-MM-DD 23:59:59');
+    return {
+      monday: last_monday,
+      sunday: last_sunday
+    };
+  }
+  let getMonth = (date) => {
+    let vStartDate = new moment().add('month', date).format("YYYY-MM") + '-01 00:00:01';
+    let vEndM = moment(vStartDate).add('month', 1).add('days', -1);
+    let vEndDate = moment(vEndM).format("YYYY-MM-DD 23:59:59");
+    return {
+      firstDay: vStartDate,
+      lastDay: vEndDate
+    }
+  };
+  let getYear = (date) => {
+    let vStartDate = new moment().add('year', date).format('YYYY') + "-01-01 00:00:01";
+    let vEndM = moment(vStartDate).add('year', 1).add('year', -1);
+    let vEndDate = moment(vEndM).format("YYYY") + "-12-31 23:59:59";
+    return {
+      firstDay: vStartDate,
+      lastDay: vEndDate
+    }
+  };
+  let getNumOfWeek = (date) => {
+    let weekOfDay = new moment(date).format('E');
+    switch (weekOfDay) {
+      case '1':
+        return '星期一';
+      case '2':
+        return '星期二';
+      case '3':
+        return '星期三';
+      case '4':
+        return '星期四';
+      case '5':
+        return '星期五';
+      case '6':
+        return '星期六';
+      case '7':
+        return '星期天';
+    }
+  };
+  let getDaysOfMonth = function (year, month) {
+    month = parseInt(month, 10);
+    var d = new Date(year, month, 0);
+    return d.getDate();
+  };
+  let getYAxisVal = (data, dateType, sTime) => {
+    if (dateType === '3') {
+      let xAxis = getXAxisData(dateType);
+      let endTime = new Date(sTime).addDays(7);
 
+    }
+    return _.map(data, a => {
+      return {
+        val: a.val,
+        date: a.date.substring(a.date.length - 2)
+      };
+    });
+  };
   let renderFocusList = function (data) {
     let sortedData = {};
     let homeList = _.filter(data.focusList, a => a.IfHomePage);
@@ -161,7 +322,7 @@ $(function () {
         show: true,
         realtime: true,
         start: 0,
-        end: 60
+        end: 100 //data.dataZoom.end
       },
       xAxis: [{
         type: 'category',
@@ -180,10 +341,6 @@ $(function () {
   let formatNumber = function (n) {
     return n < 10 ? "0" + n : n;
   };
-
-  let showParamDetail = function () {
-    $.alert(11);
-  }
 
   let backNavigate = function () {
     let pathVal = $jQuery('#parentId').val();
@@ -229,14 +386,43 @@ $(function () {
         textAlign: 'center',
         values: ['日', '月', '年'],
         cssClass: 'picker-items-col-normal'
-      }]
+      }],
+      onClose: function (e) {
+        let chooseValue = _.head(e.value);
+        switch (chooseValue) {
+          case '日':
+            $("#startDatePicker").datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+            }, 'd');
+            $("#endDatePicker").datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+            }, 'd');
+            break;
+          case '月':
+            $("#startDatePicker").datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1)],
+            }, 'm');
+            $("#endDatePicker").datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1)],
+            }, 'm');
+            break;
+          case '年':
+            $("#startDatePicker").datePicker({
+              value: [new Date().getFullYear()],
+            }, 'y');
+            $("#endDatePicker").datePicker({
+              value: [new Date().getFullYear()],
+            }, 'y');
+            break;
+        }
+      }
     });
     $("#startDatePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
     }, 'd');
     $("#endDatePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-    }, 'm');
+    }, 'd');
   };
 
   let pullToLoadFocusList = function (page) {
@@ -250,85 +436,20 @@ $(function () {
     });
   };
 
-  let getSearchType = function () {
-    let activeDoms = $('#datatab a.active');
-    if (activeDoms.length <= 0)
-      $('#showDay').addClass('active');
-    return $('#datatab a.active').attr('data-type');
-  }
-
-  let getXAxisData = function (type) {
-    switch (type) {
-      case '1':
-        break;
-      case '2':
-        return function () {
-          let list = [];
-          for (let i = 1; i <= 23; i++) {
-            if (i <= 9) list.push('0' + i);
-            else list.push(i);
-          }
-          return list;
-        }();
-      case '3':
-        return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期天'];
-      case '4':
-        return function () {
-          let list = [];
-          for (let i = 1; i <= 31; i++) {
-            if (i <= 9) list.push('0' + i);
-            else list.push(i);
-          }
-          return list;
-        }();
-      case '5':
-        return function () {
-          let list = [];
-          for (let i = 1; i <= 12; i++) {
-            if (i <= 9) list.push('0' + i);
-            else list.push(i);
-          }
-          return list;
-        }();
-      case '6':
-        break;
-    }
-  };
-
-  let getLegendTitle = function (type, comparsion) {
-    if (!comparsion) {
-      switch (type) {
-        case '1':
-          break;
-        case '2':
-          return ['昨日', '今日'];
-        case '3':
-          return ['上周', '本周'];
-        case '4':
-          return ['上月', '本月'];
-        case '5':
-          return ['去年', '今年'];
-        case '6':
-          break;
-      }
-    }
-    return '';
-  };
-
-  let getChartSeries = function (SeriesData, xAxis, rule) {
-    let seriesOption = []
+  let getChartSeries = function (SeriesData, xAxis, rule, dateType, sTime) {
+    let seriesOption = [];
     _.forEach(SeriesData, s => {
       let formatData = _.map(s.data, a => {
         return {
           val: a.val,
-          date: a.date.substring(a.date.length - 2)
+          date: parseInt(dateType) === 3 ? getNumOfWeek(a.date) : a.date.substring(a.date.length - 2)
         };
       });
       let option = {};
       option.name = s.name;
       option.type = 'line';
       option.data = _.map(xAxis, a => {
-        var valueItem = _.find(formatData, b => b.date === a);
+        var valueItem = _.find(formatData, b => b.date === _.toString(a));
         return !!valueItem ? valueItem.val : 0;
       });
       option.markLine = {
@@ -400,8 +521,6 @@ $(function () {
           }
         }
       }
-
-      // option.markLine = 
       seriesOption.push(option);
     });
     return seriesOption;
@@ -436,31 +555,109 @@ $(function () {
   };
 
   let renderAggregateData = function (data) {
+    if (data.avg_val < 1000) data.avg_font_size = '1.25rem';
+    else if (data.avg_val > 1000 && data.avg_val < 10000) data.avg_font_size = '1rem';
+    else if (data.avg_val > 10000 && data.avg_val < 100000) data.avg_font_size = '0.9rem';
+    else if (data.avg_val > 100000 && data.avg_val < 1000000) data.avg_font_size = '0.8rem';
+    else if (data.avg_val > 1000000 && data.avg_val < 10000000) data.avg_font_size = '0.7rem';
+    else data.avg_font_size = '0.65rem';
+    if (data.sum_val < 1000) data.sum_font_size = '1.25rem';
+    else if (data.sum_val > 1000 && data.sum_val < 10000) data.sum_font_size = '1rem';
+    else if (data.sum_val > 10000 && data.sum_val < 100000) data.sum_font_size = '0.9rem';
+    else if (data.sum_val > 100000 && data.sum_val < 1000000) data.sum_font_size = '0.8rem';
+    else if (data.sum_val > 1000000 && data.sum_val < 10000000) data.sum_font_size = '0.7rem';
+    else data.sum_font_size = '0.65rem';
     let aggregateHtml = template('data-template', data);
     $('#summary-total-data').html(aggregateHtml);
     let avgHtml = template('avg-data-template', data);
     $('#avg-total-data').html(avgHtml);
   };
 
-  let renderAlartData = function () {
-
+  let renderAlartData = function (alertVal) {
+    let firstNode = _.head(currentClickMeters);
+    firstNode.alert_count = alertVal;
+    let data = {
+      meterList: [firstNode]
+    }
     let alertHtml = template('alert-data-template', data);
     $('#alert-data-container').html(alertHtml);
   };
 
   let renderGaugeData = function () {
+    let currentMeterId = getActiveMeter();
+    let currentMeter = _.find(currentClickMeters, a => a.id === currentMeterId);
+    if (!!currentMeter) {
+      let parameters = currentMeter.parameters;
+      let orderData = _.orderBy(parameters, ['type'], ['asc'])
+      let data = {
+        parameterList: orderData
+      };
+      let gaugeDataHtml = template('gaugeData-template', data);
+      $('#gaugeDataContainer').html(gaugeDataHtml);
 
+      $('#gaugeDataContainer li.item-content').on('click', function (e) {
+        let currentDom = e.currentTarget;
+        let mfId = $(currentDom).attr('data-id');
+        let fixedParaDom = $('#showParamMore_' + mfId);
+        let fixedHtml = fixedParaDom.html();
+        if (_.isEqual(fixedHtml, '')) {
+          esdpec.framework.core.getJsonResult('dataanalysis/getparainfo?mfid=' + mfId, function (response) {
+            if (response.IsSuccess) {
+              let data = {
+                factor: response.Content.factor,
+                interval: response.Content.interval,
+                storage_time: response.Content.storage_time,
+                type: response.Content.type,
+                mfId: mfId
+              };
+              let fixedParaHtml = template('fixed-parameter-template', data);
+              fixedParaDom.html(fixedParaHtml);
+              $('#seachbtn_' + mfId).on('click', function (e) {
+                let timeout = $('#seachBox_' + mfId).val();
+                if (_.isEqual(timeout, '')) {
+                  $.toast('请输入超限时间，默认为5单位秒');
+                  return;
+                }
+                esdpec.framework.core.getJsonResult('dataanalysis/getdatafromdevice?mfid=' + mfId + '&timeout=' + timeout, function (response) {
+                  if (response.IsSuccess && response.Content != null) {
+                    let lastData = {
+                      lastDataList: response.Content.last_datas
+                    };
+                    _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
+                    let lastDataHtml = template('last-data-template', lastData);
+                    $('#last-data-container_' + mfId).html(lastDataHtml);
+                  }
+                });
+              });
+              fixedParaDom.attr('data-toggle', 'open');
+              let lastData = {
+                lastDataList: response.Content.last_datas
+              };
+              _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
+              let lastDataHtml = template('last-data-template', lastData);
+              $('#last-data-container_' + mfId).html(lastDataHtml);
+            }
+            return;
+          });
+        }
+        if (fixedParaDom.attr('data-toggle') === 'open') {
+          $jQuery('#showParamMore_' + mfId).attr('data-toggle', 'close').slideUp(300);
+        } else {
+          $jQuery('#showParamMore_' + mfId).attr('data-toggle', 'open').slideDown(300);
+        }
+      });
+    }
   };
 
-  let getFocusMeterData = function (node, queryType, paraType, dateType, sTime, eTime, mfIds, ifComparsion) {
-    if (!ifComparsion) {
-      let param = _.find(node.parameters, a => a.type === 0);
+  let getFocusMeterData = function (node, queryType, paraType, dateType, sTime, eTime, mfIds) {
+    if (!ifComparsion()) {
+      let firstPara = _.head(mfIds);
+      let param = _.find(node.parameters, a => a.id === firstPara);
       let urlParam = generateUrlPara(node.id, queryType, paraType, dateType, sTime, eTime, mfIds);
       esdpec.framework.core.getJsonResultSilent("dataanalysis/getdata?" + urlParam, function (response) {
         if (response.IsSuccess) {
-          console.log(response.Content);
           let data = {};
-          let legendTitle = getLegendTitle(dateType);
+          let legendTitle = getLegendTitle(_.toString(dateType));
           data.legend = {
             data: legendTitle
           };
@@ -472,26 +669,29 @@ $(function () {
               formatter: '{value} '
             }
           }];
-          data.xAxisData = getXAxisData(dateType);
+          data.xAxisData = getXAxisData(_.toString(dateType));
+          // data.dataZoom = {
+          //   end: parseInt(dateType) === 3 ? 100 : 80
+          // };
           data.series = getChartSeries([{
-            data: response.Content.last_data_list,
+            data: response.Content.last_data_list === null ? [] : response.Content.last_data_list,
             name: _.head(legendTitle)
           }, {
-            data: response.Content.now_data_list,
+            data: response.Content.now_data_list === null ? [] : response.Content.now_data_list,
             name: _.last(legendTitle)
-          }], getXAxisData(dateType), response.Content.rule);
+          }], getXAxisData(_.toString(dateType)), response.Content.rule, dateType, sTime);
           renderAggregateData({
-            sum_per: response.Content.sum_per.toFixed(2),
-            sum_val: response.Content.sum_val.toFixed(2),
-            avg_per: response.Content.avg_per.toFixed(2),
-            avg_val: response.Content.avg_val.toFixed(2),
+            sum_per: _.isFinite(response.Content.sum_per) ? response.Content.sum_per.toFixed(2) : '--',
+            sum_val: _.isFinite(response.Content.sum_val) ? response.Content.sum_val.toFixed(2) : '--',
+            avg_per: _.isFinite(response.Content.avg_per) ? response.Content.avg_per.toFixed(2) : '--',
+            avg_val: _.isFinite(response.Content.avg_val) ? response.Content.avg_val.toFixed(2) : '--',
             unit: param.unit,
             summargyClass: response.Content.sum_per > 0,
             avgClass: response.Content.avg_per > 0,
           });
-          renderAlartData({});
-          renderGaugeData({});
           generateChart(document.getElementById('echarts'), data);
+          renderAlartData(response.Content.alarm_sum);
+          renderGaugeData({});
         }
       });
     } else getComparsionData();
@@ -499,23 +699,30 @@ $(function () {
 
   let getMeterFocusData = function () {
     if (currentClickMeters.length <= 0) return;
-    let firstNode = _.head(currentClickMeters);
-    var dateType = getSearchType();
+    let activeNodeId = getActiveMeter();
+    let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
+    var dateType = getDateType();
     //new Promise
-    esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + firstNode.id, function (response) {
+    esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + activeNodeId, function (response) {
       if (response.IsSuccess) {
-        firstNode.parameters = response.Content;
-        let defaultChoosePara = _.find(firstNode.parameters, a => a.type === 0);
+        activeNode.parameters = response.Content;
+        let parameterType = paraType.aggregateValue;
+        let defaultChoosePara = _.find(activeNode.parameters, a => a.type === 0);
+        if (!defaultChoosePara) {
+          defaultChoosePara = _.head(activeNode.parameters);
+          parameterType = defaultChoosePara.type;
+        }
         //render parameter container
-        _.map(firstNode.parameters, a => {
+        _.map(activeNode.parameters, a => {
           if (a.id === defaultChoosePara.id) a.checked = "checked";
         });
         $('#current-unit').text(defaultChoosePara.unit);
         let parameterHtml = template('parameter-template', {
-          parameterList: firstNode.parameters
+          parameterList: activeNode.parameters
         });
         $('#parameter-container').html(parameterHtml);
-        getFocusMeterData(firstNode, 0, 0, dateType, new Date().format('yyyy-MM-dd 00:00:01'), new Date().format('yyyy-MM-dd 23:59:59'), [defaultChoosePara.id], currentClickMeters.length > 1);
+        getFocusMeterData(activeNode, queryType.convenient, parameterType, dateType,
+          new Date().format('yyyy-MM-dd 00:00:01'), new Date().format('yyyy-MM-dd 23:59:59'), [defaultChoosePara.id]);
       }
     });
   };
@@ -567,6 +774,43 @@ $(function () {
     console.log('setindex');
   });
 
+  $('#searchmorebtn').on("click", function (e) {
+    let dataType = $('#dataTypePicker').val();
+    let sTime = $('#startDatePicker').val();
+    let eTime = $('#endDatePicker').val();
+    if (moment(eTime) < moment(sTime)) {
+      $.toast('结束时间不能早于开始时间');
+      return;
+    }
+    let params = getActiveParameters();
+    if (params.type === -1) {
+      $.toast('请选择查询参数');
+      return;
+    }
+    let type = dateType.day;
+    switch (dataType) {
+      case '日':
+        sTime = sTime + ' 00:00:01';
+        eTime = eTime + ' 23:59:59';
+        type = dateType.day;
+        break;
+      case '月':
+        let days = getDaysOfMonth(eTime.split('-')[0], eTime.split('-')[1])
+        sTime = sTime + '-01 00:00:01';
+        eTime = eTime + '-' + days + ' 23:59:59';
+        type = dateType.month;
+        break;
+      case '年':
+        sTime = sTime + '-01-01 00:00:01';
+        eTime = eTime + '-12-31 23:59:59';
+        type = dateType.year;
+        break;
+    }
+    let mfIds = _.map(params.parameterList, a => a.id);
+    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeter());
+    getFocusMeterData(activeNode, queryType.convenient, params.type, type,
+      sTime, eTime, mfIds);
+  });
   $('#showMoreBtn').on("click", function (e) {
     if (!operateBefore()) return;
     let toggle = $jQuery('#showMoreBtn').attr('data-toggle');
@@ -589,28 +833,65 @@ $(function () {
     toggleActive();
     $jQuery('#showDay').addClass('active');
     ifShowSearch(false);
-    getFocusMeterData();
+    let params = getActiveParameters();
+    if (params.type === -1) {
+      $.toast('请选择查询参数');
+      return;
+    }
+    let mfIds = _.map(params.parameterList, a => a.id);
+    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeter());
+    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.day,
+      new Date().format('yyyy-MM-dd 00:00:01'), new Date().format('yyyy-MM-dd 23:59:59'), mfIds);
   });
   $('#showWeek').on("click", function (e) {
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showWeek').addClass('active');
     ifShowSearch(false);
-    getFocusMeterData();
+    let params = getActiveParameters();
+    if (params.type === -1) {
+      $.toast('请选择查询参数');
+      return;
+    }
+    let week = getWeek();
+    let mfIds = _.map(params.parameterList, a => a.id);
+    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeter());
+    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.week,
+      week.monday, week.sunday, mfIds);
   });
   $('#showMonth').on("click", function (e) {
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showMonth').addClass('active');
     ifShowSearch(false);
-    getFocusMeterData();
+    let params = getActiveParameters();
+    if (params.type === -1) {
+      $.toast('请选择查询参数');
+      return;
+    }
+    let today = new Date().format('yyyy-MM-dd');
+    let month = getMonth(today);
+    let mfIds = _.map(params.parameterList, a => a.id);
+    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeter());
+    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.month,
+      month.firstDay, month.lastDay, mfIds);
   });
   $('#showYear').on("click", function (e) {
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showYear').addClass('active');
     ifShowSearch(false);
-    getFocusMeterData();
+    let params = getActiveParameters();
+    if (params.type === -1) {
+      $.toast('请选择查询参数');
+      return;
+    }
+    let today = new Date().format('yyyy-MM-dd');
+    let year = getYear(today);
+    let mfIds = _.map(params.parameterList, a => a.id);
+    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeter());
+    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.year,
+      year.firstDay, year.lastDay, mfIds);
   });
 
   $(document).on("pageInit", "#page-focus", function (e, id, page) {

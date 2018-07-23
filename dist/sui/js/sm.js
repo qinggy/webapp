@@ -2535,6 +2535,7 @@ function ($) {
   "use strict";
   var Picker = function (params, dateFormat) {
     var p = this;
+    var dateFormat = dateFormat;
     var defaults = {
       updateValuesOnMomentum: false,
       updateValuesOnTouchmove: true,
@@ -2595,7 +2596,7 @@ function ($) {
         p.params.onChange(p, p.value, p.displayValue);
       }
       if (p.input && p.input.length > 0) {
-        $(p.input).val(p.params.formatValueCustom ? p.params.formatValueCustom(p, p.value, p.displayValue, dateFormat) : p.value.join('-'));
+        $(p.input).val(p.params.formatValueCustom ? p.params.formatValueCustom(p, p.value, p.displayValue, p.dateFormat || dateFormat) : p.value.join('-'));
         $(p.input).trigger('change');
       }
     };
@@ -2935,7 +2936,15 @@ function ($) {
       var i;
       p.cols = [];
       var colsHTML = '';
-      for (i = 0; i < p.params.cols.length; i++) {
+      var cols = [];
+      if (p.dateFormat === 'y')
+        cols = p.params.cols.slice(0, 1);
+      else if (p.dateFormat === 'm')
+        cols = p.params.cols.slice(0, 2);
+      else if (p.dateFormat === 'd')
+        cols = p.params.cols.slice(0, 3);
+      else cols = p.params.cols;
+      for (i = 0; i < cols.length; i++) {
         var col = p.params.cols[i];
         colsHTML += p.columnHTML(p.params.cols[i]);
         p.cols.push(col);
@@ -3118,7 +3127,8 @@ function ($) {
         }, params);
         picker = new Picker(p, dateFormat);
         $this.data("picker", picker);
-      }
+      } else
+        picker.dateFormat = dateFormat;
       if (typeof params === typeof "a") {
         picker[params].apply(picker, Array.prototype.slice.call(args, 1));
       }
@@ -3170,11 +3180,13 @@ function ($) {
     value: [today.getFullYear(), formatNumber(today.getMonth() + 1), formatNumber(today.getDate()), today.getHours(), formatNumber(today.getMinutes())],
 
     onChange: function (picker, values, displayValues) {
-      var days = getDaysByMonthAndYear(picker.cols[1].value, picker.cols[0].value);
-      if (picker.cols[2]) {
-        var currentValue = picker.cols[2].value;
-        if (currentValue > days.length) currentValue = days.length;
-        picker.cols[2].setValue(currentValue);
+      if ((picker.dateFormat) !== 'y') {
+        var days = getDaysByMonthAndYear(picker.cols[1].value, picker.cols[0].value);
+        if (picker.cols[2]) {
+          var currentValue = picker.cols[2].value;
+          if (currentValue > days.length) currentValue = days.length;
+          picker.cols[2].setValue(currentValue);
+        }
       }
     },
 
@@ -3274,7 +3286,7 @@ function ($) {
           break;
       }
       $(this).picker(p, dateFormat);
-      if (params.value) $(this).val(p.formatValueCustom(p, p.value, p.value, dateFormat));
+      if (params.value) $(this).val(p.formatValueCustom(p, p.value, p.value, p.dateFormat || dateFormat));
     });
   };
 

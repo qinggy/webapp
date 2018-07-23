@@ -451,15 +451,28 @@
 .search-overrun-input {
   width: 6.5rem !important;
   background-color: #f9f9f9 !important;
-  border-radius: 0.025rem !important;
+  border-radius: 0.3rem !important;
   color: #333;
+  margin-top: 0.125rem !important;
 }
 
 .statistic li {
   padding-left: 1.5rem !important;
 }
 
-.statistic li:nth-child(odd) {
+.statistic>li {
+  min-height: 2.5rem !important;
+  height: 2.5rem !important;
+  line-height: 2.5rem !important;
+}
+
+.statistic>li div {
+  min-height: 2.5rem !important;
+  height: 2.5rem !important;
+  max-height: 2.5rem !important;
+}
+
+.statistic>li:nth-child(odd) {
   background-color: rgb(238, 249, 255) !important;
 }
 
@@ -469,4 +482,24 @@
 
 .delete-title {
   color: #fff !important;
+}
+
+.last-data {
+  background-color: #f9f9f9;
+}
+
+.last-data-ul>li {
+  height: 2rem !important;
+  line-height: 2rem !important;
+  min-height: 2rem !important;
+}
+
+.last-data-ul div {
+  max-height: 2rem !important;
+  min-height: 2rem !important;
+  line-height: 2rem !important;
+}
+
+.last-data-ul li.item-content:last-child>div {
+  border-bottom: 0.05rem solid #eee;
 }

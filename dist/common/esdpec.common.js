@@ -34,6 +34,11 @@ Date.prototype.format = function (format) {
   return format;
 }
 
+Date.prototype.addDays = function (days) {
+  this.setDate(this.getDate() + days);
+  return this;
+}
+
 esdpec.framework.core.Config = {
   APIBaseUrl: 'http://172.17.0.21/api/', //'http://localhost:81/',
   BaseWebSiteUrl: 'http://172.17.0.48/',
