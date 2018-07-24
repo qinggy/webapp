@@ -68,8 +68,8 @@
   right: 2.1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.67rem;
-  border: 2px solid #bbb;
+  font-size: 0.7rem;
+  border: 0.06rem solid #bbb;
   padding: 0.1rem;
   border-radius: 1rem;
 }

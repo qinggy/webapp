@@ -117,26 +117,28 @@ esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, fail
 // Web api - Http put operation - record update
 esdpec.framework.core.doPutOperation = function (url, object, successCallBack, failureCallBack) {
   $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      type: 'PUT',
-      contentType: 'application/json; charset=utf-8',
-      data: JSON.stringify(object),
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
-      },
-      complete: function (XMLHttpRequest, textStatus) {
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
+    url: this.Config.APIBaseUrl + url,
+    cache: false,
+    type: 'PUT',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify(object),
+    statusCode: {
+      200: function (data) {
+        successCallBack(data);
       }
-    })
-    .success(function (data) {
-      successCallBack(data);
-    })
-    .error(function OnError(xhr, textStatus, err) {
+    },
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+    },
+    complete: function (XMLHttpRequest, textStatus) {
+      esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
+    },
+    error: function OnError(xhr, textStatus, err) {
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
       }
-    });
+    }
+  });
 }
 
 // Web api - Http post operation - create record
@@ -175,23 +177,25 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
 // Web api - Http delete operation - delete a record
 esdpec.framework.core.doDeleteOperation = function (url, object, successCallBack, failureCallBack) {
   $jQuery.ajax({
-      url: this.Config.APIBaseUrl + url,
-      cache: false,
-      type: 'DELETE',
-      data: JSON.stringify(object),
-      contentType: 'application/json; charset=utf-8',
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
-      },
-      complete: function (XMLHttpRequest, textStatus) {
-        esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
+    url: this.Config.APIBaseUrl + url,
+    cache: false,
+    type: 'DELETE',
+    data: JSON.stringify(object),
+    contentType: 'application/json; charset=utf-8',
+    statusCode: {
+      200: function (data) {
+        successCallBack(data);
       }
-    })
-    .success(function (data) {
-      successCallBack(data);
-    })
-    .fail(function (xhr, textStatus, err) {
+    },
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+    },
+    complete: function (XMLHttpRequest, textStatus) {
+      esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
+    },
+    error: function OnError(xhr, textStatus, err) {
       if (failureCallBack != null)
         failureCallBack(xhr, textStatus, err);
-    });
+    }
+  });
 }

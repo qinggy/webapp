@@ -120,14 +120,17 @@
             <div class="param-header" id="headerContainer"></div>
             <div class="focus-div">
               <div class="icon-switch operate-icon focus-switch" id="param-switch"></div>
-              <div class="button focus-detail-subscribe">关注</div>
+              <div class="button focus-detail-subscribe" id="subscribe">关注</div>
             </div>
           </div>
         </div>
         <div class="parameter-container" id="parameter-container" data-toggle="open">
         </div>
         <div class="chart-container">
-          <span class="chart-unit" id="current-unit">kWh</span>
+          <div class="chart-unit">
+            <span>Unit: </span>
+            <span id="current-unit">kWh</span>
+          </div>
           <div class="focus-charts" id="echarts"></div>
         </div>
         <div class="summary-container">
@@ -184,17 +187,17 @@
   <script type="text/html" id="focus-list-template">
     <ul class="focus-list">
       {{if focusList.length > 0}} {{each focusList focus index}}
-      <li class="focus-item" clickId='{{focus.Id}}'>
+      <li class="focus-item" id='{{focus.id}}'>
         <a href="#focus-detail-page" class="item-link item-content">
-          <div class="icon-background-attribute {{focus.FocusType}}"></div>
+          <div class="icon-background-attribute {{focus.focusType}}"></div>
           <div class="item-inner">
-            <div class="item-title focus-title">{{focus.Name}}</div>
-            <div class="item-title focus-description">{{focus.Description}}</div>
+            <div class="item-title focus-title">{{focus.title}}</div>
+            <div class="item-title focus-description">{{focus.description}}</div>
           </div>
         </a>
-        <i class="icon-home home-position {{focus.IsHomePage}}" id="sethome"></i>
-        <div class="icon-arrow top-position" id="setindex"></div>
-        <div class="delete-action" id="delete-action" clickId="{{focus.Id}}">
+        <i class="icon-home home-position set-home {{focus.isHomePage}}" data-id="{{focus.id}}"></i>
+        <div class="icon-arrow top-position set-index" data-id="{{focus.id}}"></div>
+        <div class="delete-action" id="delete-action" data-id="{{focus.id}}">
           <span style="color:#fff!important">取消关注</span>
         </div>
       </li>
@@ -236,7 +239,7 @@
   </script>
   <script type="text/html" id="parameter-template">
     {{if parameterList.length > 0}}{{each parameterList para index}}
-    <a href="#" class="button {{para.checked}}" data-id="{{para.id}}" data-type="{{para.type}}">{{para.name}}</a>
+    <a href="#" class="button {{para.checked}}" data-id="{{para.id}}" data-type="{{para.type}}" data-unit="{{para.unit}}">{{para.name}}</a>
     {{/each}}{{/if}}
   </script>
   <script type="text/html" id="data-template">
