@@ -27,8 +27,8 @@ $(function () {
         Password: password
       }, function (response) {
         if (response.IsSuccess && response.Code === '00') {
-          localStorage.setItem("current_user", response.Content.userId);
-          localStorage.setItem("user_token", response.Content.token);
+          sessionStorage.setItem("current_user", response.Content.userId);
+          sessionStorage.setItem("user_token", response.Content.token);
           window.location.href = 'focus/index.html';
         } else {
           $.toast(response.Msg);

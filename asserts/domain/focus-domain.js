@@ -6,12 +6,15 @@ $(function () {
     globaleTime = '';
   let currentClickMeters = [];
   let globalFocusList = [],
-    meterTree = [],
     currentPage = 1,
     totalPage = 1,
     globalQueryType,
     globalDataType,
-    globalDateType;
+    globalDateType,
+    globalUnit,
+    isComparsionStatus = false,
+    globalFocusId = -1;
+  let chart = null;
   let focusEnum = {
     // 'commnunicate': 'icon-commnunicate',
     // 'electronicMeter': 'icon-electronic-meter',
@@ -127,6 +130,9 @@ $(function () {
         return yearxAxis;
     }
   };
+  let getInstantanousXAxisData = (data) => {
+    return _.map(data, a => a.date.substring(0, a.date.length - 3));
+  };
   let getLegendTitle = function (type, searchType, comparsion) {
     if (!comparsion) {
       switch (type) {
@@ -154,24 +160,47 @@ $(function () {
     return $('#datatab a.active').attr('data-type');
   };
   let getActiveMeterId = () => {
-    let headers = $('#headerContainer span.current-active');
-    let currentNode = _.head(headers);
-    return $(currentNode).attr('data-id');
+    let currentNode = _.find(currentClickMeters, a => a.checked);
+    return currentNode ? currentNode.id : -1;
   };
-  let getActiveParameters = () => {
-    let allParaDoms = $('#parameter-container a.checked');
-    let firstPara = _.head(allParaDoms);
-    let activeParams = {
-      parameterList: [],
+  let getMeterActiveParameters = () => {
+    let meterParams = {
+      meterList: [],
       type: -1,
     };
-    _.forEach(allParaDoms, para => {
-      activeParams.parameterList.push({
-        id: $(para).attr('data-id'),
-        type: $(para).attr('data-type')
+    let checkedType = -1;
+    _.forEach(currentClickMeters, a => {
+      let meter = {
+        meterId: a.id,
+        parameterList: []
+      };
+      let checkedParams = _.filter(a.parameters, a => a.checked);
+      checkedType = checkedParams.length > 0 ? _.head(checkedParams).type : -1;
+      _.forEach(checkedParams, a => meter.parameterList.push({
+        id: a.id,
+        type: a.type
+      }));
+      meterParams.meterList.push(meter);
+    });
+    meterParams.type = checkedType;
+    return meterParams;
+  };
+  let getActiveParameters = () => {
+    let activeParams = {
+      parameterList: [],
+      type: -1
+    };
+    let paraType = -1;
+    _.forEach(getMeterActiveParameters().meterList, meter => {
+      _.forEach(meter.parameterList, p => {
+        paraType = p.type;
+        activeParams.parameterList.push({
+          id: p.id,
+          type: p.type
+        });
       });
     });
-    activeParams.type = allParaDoms.length > 0 ? $(firstPara).attr('data-type') : -1;
+    activeParams.type = paraType;
     return activeParams;
   };
   let getFocusType = function (type) {
@@ -232,12 +261,11 @@ $(function () {
     let sortedData = {};
     let homeList = _.filter(data.focusList, a => a.is_index);
     let others = _.filter(data.focusList, a => !a.is_index);
-    sortedData.focusList = _.concat(homeList, _.sortBy(others, a => a.Index));
+    sortedData.focusList = _.concat(homeList, _.sortBy(others, a => a.index));
     globalFocusList = sortedData;
     let focusHtml = template('focus-list-template', sortedData);
     $('#focus-list-container').html(focusHtml);
     esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.delete-action', function (deleteItem) {
-      console.log(deleteItem);
       esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + deleteItem, {}, function (response) {
         if (response.IsSuccess) {
           _.remove(globalFocusList.focusList, a => a.id === deleteItem);
@@ -247,10 +275,30 @@ $(function () {
     });
     $('.focus-list li.focus-item').on('click', function (e) {
       let focusId = $(e.currentTarget).attr('id');
-      console.log(focusId);
-
+      globalFocusId = focusId;
+      let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
       currentClickMeters = [];
+      switch (clickFocus.stype) {
+        case 1:
+        case 2:
+          let mIds = clickFocus.slist.split(',');
+          let mfIdJson = JSON.parse(clickFocus.sId);
+          let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+          currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
+          _.forEach(currentClickMeters, m => {
+            m.checked = false;
+            let mfids = _.find(mfIdJson, a => a.m === m.id);
+            m.checkedMfIds = mfids.plist;
+            if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
+          });
+          break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
 
+          break;
+      }
     });
     $('.set-home').on('click', function (e) {
       let currentDom = $(e.currentTarget);
@@ -304,18 +352,30 @@ $(function () {
         $.toast('请刷新列表后，再重试');
         return;
       }
+      let currentNodeIndex = _.findIndex(globalFocusList.focusList, a => a.id === focusId);
+      if (currentNodeIndex === 0) {
+        $.toast('已在置顶位置，不可再往前');
+        return;
+      }
+      let currentNode = _.find(globalFocusList.focusList, a => a.id === focusId);
+      let preNode = globalFocusList.focusList[currentNodeIndex - 1];
+      if (preNode.is_index) {
+        $.toast('已在置顶位置，不可再往前');
+        return;
+      }
       let para = {
         id: focusId,
-        index: _.find(globalFocusList.focusList, a => a.id === focusId).index
+        index: currentNode.index
       };
-      if (_.isEqual(parseInt(para.index), 0)) {
-        $.toast('当前位置已在最前，不可再往前');
+      if (currentNode.index <= 0) {
+        $.toast('已在置顶位置，不可再往前');
         return;
       }
       para.new_index = parseInt(para.index) - 1;
       esdpec.framework.core.doPutOperation('subscribe/sort', para, function (response) {
         if (response.IsSuccess && response.Content) {
           _.forEach(globalFocusList.focusList, a => {
+            if (a.id === preNode.id) a.index = para.index;
             if (a.id === focusId) a.index = para.new_index;
           });
           renderFocusList(globalFocusList);
@@ -327,7 +387,7 @@ $(function () {
   let operateMeterTreeAjaxResult = function (response) {
     if (response.IsSuccess && response.Content.length > 0) {
       let meterList = response.Content;
-      meterTree = meterList;
+      localStorage.setItem('meter_tree', JSON.stringify(meterList));
       renderMeterTree(meterList, '#', 'forward');
     }
   };
@@ -369,25 +429,46 @@ $(function () {
       $jQuery('#parentId').val(path + '||' + parent);
     }
     let children = _.filter(list, a => a.parent === parent);
-    _.map(children, a => a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '');
+    _.map(children, a => {
+      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '';
+      a.showChecked = (isComparsionStatus && (a.modeltype === 'meter' || a.modeltype === 'vmeter')) ? 'showCheckBox' : '';
+      a.hasChecked = _.find(currentClickMeters, m => m.id === a.id) ? 'comparsionchecked' : '';
+    });
     let data = {
       meterList: children
     };
     let meterHtml = template('meter-list-template', data);
     $jQuery('#meterListContainer').html(meterHtml);
     $jQuery('.meter-list .meter-item').on('click', function (e) {
-      let meterId = $jQuery(e.currentTarget).attr('data-id');
-      let meterNodes = meterTree;
+      let meterId = $(e.currentTarget).attr('data-id');
+      let meterTree = localStorage.getItem('meter_tree');
+      let meterNodes = JSON.parse(meterTree);
       let children = _.filter(meterNodes, a => a.parent === meterId);
       if (children.length > 0)
         renderMeterTree(children, meterId, 'forward');
       else {
         let node = _.find(meterNodes, a => a.id === meterId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
-          currentClickMeters = [];
-          currentClickMeters.push(node);
-          $.router.load("#focus-detail-page", true);
-          $('#close-panel').click();
+          if (isComparsionStatus) {
+            if (currentClickMeters.length >= 4) {
+              $.toast('目前最多只能接受4个仪表同时对比');
+              return;
+            }
+            $(e.currentTarget).toggleClass('comparsionchecked');
+            if ($(e.currentTarget).hasClass('comparsionchecked')) {
+              let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+              let meterModel = _.find(meterTree, a => a.id === meterId);
+              currentClickMeters.push(meterModel);
+            } else {
+              _.remove(currentClickMeters, a => a.id === meterId);
+            }
+          } else {
+            currentClickMeters = [];
+            node.checked = true;
+            currentClickMeters.push(node);
+            $.router.load("#focus-detail-page", true);
+            $('#close-panel').click();
+          }
         }
       }
     });
@@ -395,6 +476,12 @@ $(function () {
       backNavigate();
     });
   };
+  $('#tree-panel').on('close', function (e) {
+    isComparsionStatus = false;
+    renderFocusMeter();
+    if (currentClickMeters.length === 1)
+      getMeterFocusData();
+  });
   let toggleActive = function () {
     let tabs = $jQuery('.focus-detail-header_tab a');
     $jQuery(tabs).each(function (index, item) {
@@ -419,7 +506,7 @@ $(function () {
     }
   };
   let generateChart = function (chartDom, data) {
-    let myChart = echarts.init(chartDom, e_macarons);
+    chart = echarts.init(chartDom, e_macarons);
     let option = {
       tooltip: {
         trigger: 'axis'
@@ -448,11 +535,17 @@ $(function () {
           alignWithLabel: true
         }
       }],
-      yAxis: data.yAxisData,
+      yAxis: [{
+        type: 'value',
+        position: 'right',
+        axisLabel: {
+          formatter: '{value} '
+        }
+      }],
       series: data.series
     };
 
-    myChart.setOption(option, true);
+    chart.setOption(option, true);
   };
   let formatNumber = function (n) {
     return n < 10 ? "0" + n : n;
@@ -469,6 +562,7 @@ $(function () {
       }
       let path = _.join(pathVal, '||');
       $jQuery('#parentId').val('||' + path);
+      let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
       renderMeterTree(meterTree, parent, 'back');
     }
   }
@@ -555,6 +649,20 @@ $(function () {
       data: response.now_data_list,
       name: _.last(legendTitle)
     }] : [];
+  let getInstantanousSeriesPara = (response, legendTitle) => {
+    if (ifComparsion()) {
+
+      return [];
+    }
+    let seriesParas = [];
+    _.forEach(response, a => {
+      seriesParas.push({
+        data: a.now_data_list,
+        name: _.find(legendTitle, l => l.id === a.mfid).name
+      });
+    });
+    return seriesParas;
+  };
   let getChartSeries = function (SeriesData, xAxis, rule, dateType, searchType) {
     let seriesOption = [];
     _.forEach(SeriesData, s => {
@@ -666,6 +774,26 @@ $(function () {
     });
     return seriesOption;
   };
+  let getInstantanousSeries = (SeriesData, xAxis, dateType, searchType) => {
+    let seriesOption = [];
+    _.forEach(SeriesData, s => {
+      let formatData = _.map(s.data, a => {
+        return {
+          val: a.val,
+          date: a.date
+        };
+      });
+      let option = {};
+      option.name = s.name;
+      option.type = 'line';
+      option.data = _.map(xAxis, a => {
+        var valueItem = _.find(formatData, b => b.date === _.toString(a));
+        return !!valueItem ? valueItem.val : 0;
+      });
+      seriesOption.push(option);
+    });
+    return seriesOption;
+  };
   let generateUrlPara = function (mId, qtype, ptype, dtype, stime, etime, mfIds) {
     let urlPara = 'meterId=' + mId + '&queryType=' + qtype + '&paraType=' + ptype + '&dateType=' + dtype + '&sTime=' + stime + '&eTime=' + etime;
     if (!!mfIds) {
@@ -679,17 +807,74 @@ $(function () {
     return urlPara + '&mfids=';
   };
   let renderFocusMeter = function () {
-    let lastNode = _.last(currentClickMeters);
-    _.map(currentClickMeters, a =>
-      lastNode.id === a.id ? a.activeClass = 'current-active' : '');
+    if (globalFocusId !== -1) {
+      $('#subscribe').text('取消关注');
+    } else {
+      $('#subscribe').text('关注');
+    }
+    let checkedNode = _.find(currentClickMeters, a => a.checked);
+    if (!checkedNode) {
+      checkedNode = _.head(currentClickMeters);
+      checkedNode.checked = true;
+    }
+    _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
     let meterHeaderData = {
       focusMeterList: currentClickMeters
     };
     let meterNameTemplate = template('meter-header-template', meterHeaderData);
     $('#headerContainer').html(meterNameTemplate);
-  };
-  let getComparsionData = function () {
-
+    $('#headerContainer span').on('click', function (e) {
+      let meterId = $(e.currentTarget).attr('data-id');
+      _.forEach(currentClickMeters, a => {
+        if (a.id === meterId)
+          a.checked = true;
+        else a.checked = false;
+      });
+      $('#headerContainer span').removeClass('current-active');
+      $('#meter_' + meterId).addClass('current-active');
+      let activeNode = _.find(currentClickMeters, a => a.checked);
+      esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + meterId, function (response) {
+        if (response.IsSuccess) {
+          _.map(response.Content, p => {
+            let existP = _.find(activeNode.parameters, a => a.id === p.id);
+            _.assign(p, existP);
+          })
+          activeNode.parameters = response.Content;
+          let parameterHtml = template('parameter-template', {
+            parameterList: activeNode.parameters
+          });
+          $('#parameter-container').html(parameterHtml);
+        }
+      });
+    });
+    $('#add_comparsion').on('click', function (e) {
+      $.allowPanelOpen = true;
+      $.openPanel('#tree-panel');
+      isComparsionStatus = true;
+      //highlight has been choosen
+      $('.meter-list li.meter-item').each(function (i, dom) {
+        let type = $(dom).attr('data-type');
+        let id = $(dom).attr('data-id');
+        if (!_.isEqual(type, 'meter') && !_.isEqual(type, 'vmeter'))
+          $(dom).removeClass('showCheckBox');
+        else $(dom).addClass('showCheckBox');
+        let meter = _.find(currentClickMeters, a => a.id === id);
+        if (meter) {
+          $(dom).addClass('comparsionchecked');
+        } else $(dom).removeClass('comparsionchecked');
+      });
+    });
+    $('#remove_comparsion').on('click', function (e) {
+      let activeNode = _.find(currentClickMeters, a => a.checked);
+      if (!activeNode) {
+        $.toast('请选择要删除的仪表');
+        return;
+      }
+      _.remove(currentClickMeters, a => a.checked);
+      renderFocusMeter();
+      if (currentClickMeters.length === 1)
+        getMeterFocusData();
+    });
   };
   let renderAggregateData = function (data) {
     if (data.avg_val < 1000) data.avg_font_size = '1.25rem';
@@ -709,11 +894,9 @@ $(function () {
     let avgHtml = template('avg-data-template', data);
     $('#avg-total-data').html(avgHtml);
   };
-  let renderAlartData = function (alertVal) {
-    let firstNode = _.head(currentClickMeters);
-    firstNode.alert_count = alertVal;
+  let renderAlartData = function (alertObjList) {
     let data = {
-      meterList: [firstNode]
+      meterList: alertObjList
     }
     let alertHtml = template('alert-data-template', data);
     $('#alert-data-container').html(alertHtml);
@@ -729,7 +912,6 @@ $(function () {
       };
       let gaugeDataHtml = template('gaugeData-template', data);
       $('#gaugeDataContainer').html(gaugeDataHtml);
-
       $('#gaugeDataContainer li.item-content').on('click', function (e) {
         let currentDom = e.currentTarget;
         let mfId = $(currentDom).attr('data-id');
@@ -783,48 +965,117 @@ $(function () {
       });
     }
   };
+  let getComparsionData = function () {
+
+  };
+  let getChartData = (dateType, searchType, sTime, eTime, content, rule) => {
+    let data = {};
+    let legendTitle = getLegendTitle(_.toString(dateType), searchType);
+    data.legend = {
+      data: legendTitle
+    };
+    data.xAxisData = searchType === queryType.convenient ?
+      getXAxisData(_.toString(dateType)) : getCustomXAxisData(sTime, eTime, _.toString(dateType));
+    data.series = getChartSeries(getSeriesPara(content, searchType, legendTitle),
+      data.xAxisData, rule, dateType, searchType);
+    return data;
+  };
+  let getInstantanousChartData = (dateType, searchType, sTime, eTime, content, legendTitle) => {
+    let data = {};
+    data.legend = {
+      data: _.map(legendTitle, a => a.name)
+    };
+    let xData = [];
+    _.forEach(content, paras => {
+      _.forEach(paras.now_data_list, a => {
+        a.date = a.date.substring(0, a.date.length - 3);
+        xData.push(a.date);
+      });
+    });
+    xData = _.uniq(xData);
+    data.xAxisData = xData;
+    data.series = getInstantanousSeries(getInstantanousSeriesPara(content, legendTitle), data.xAxisData, dateType, searchType);
+    return data;
+  };
   let getFocusMeterData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
     if (!ifComparsion()) {
-      let firstPara = _.head(mfIds);
-      let param = _.find(node.parameters, a => a.id === firstPara);
-      currentUnit = param.unit;
-      let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
-      esdpec.framework.core.getJsonResultSilent("dataanalysis/getdata?" + urlParam, function (response) {
-        if (response.IsSuccess) {
-          let data = {};
-          let legendTitle = getLegendTitle(_.toString(dateType), searchType);
-          data.legend = {
-            data: legendTitle
-          };
-          data.yAxisData = [{
-            type: 'value',
-            position: 'right',
-            axisLabel: {
-              //formatter: '{value} ' + param.unit
-              formatter: '{value} '
+      if (mfIds.length > 0) {
+        let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
+        esdpec.framework.core.getJsonResultSilent("dataanalysis/getdata?" + urlParam, function (response) {
+          if (response.IsSuccess) {
+            console.log(response.Content);
+            if (_.isEqual(paraType, 0)) {
+              $('#summary-container').removeClass('hidden');
+              $('#rule-container').addClass('hidden');
+              let data = getChartData(dateType, searchType, sTime, eTime, response.Content, response.Content.rule);
+              renderAggregateData({
+                sum_per: _.isFinite(response.Content.sum_per) ? response.Content.sum_per.toFixed(2) : '--',
+                sum_val: _.isFinite(response.Content.sum_val) ? response.Content.sum_val.toFixed(2) : '--',
+                avg_per: _.isFinite(response.Content.avg_per) ? response.Content.avg_per.toFixed(2) : '--',
+                avg_val: _.isFinite(response.Content.avg_val) ? response.Content.avg_val.toFixed(2) : '--',
+                unit: globalUnit,
+                summargyClass: response.Content.sum_per > 0,
+                avgClass: response.Content.avg_per > 0,
+              });
+              generateChart(document.getElementById('echarts'), data);
+              let alertObjList = [];
+              let meter = _.head(currentClickMeters);
+              meter.alert_count = response.Content.alarm_sum;
+              renderAlartData([meter]);
+              renderGaugeData();
+            } else {
+              $('#summary-container').addClass('hidden');
+              $('#rule-container').removeClass('hidden');
+              let rule = {
+                ruleList: []
+              };
+              let alertList = [];
+              let parameters = [];
+              let paraTitles = [];
+              _.forEach(currentClickMeters, a => parameters = _.concat(parameters, a.parameters));
+              _.forEach(response.Content.data_list, a => {
+                let paraName = _.find(parameters, p => p.id === a.mfid).name;
+                paraTitles.push({
+                  id: a.mfid,
+                  name: paraName
+                });
+                rule.ruleList.push({
+                  name: paraName,
+                  avg: _.isFinite(a.avg_val) ? a.avg_val.toFixed(2) : '--',
+                  upperlimit: a.rule.UpperLimit === null ? '--' : a.rule.UpperLimit,
+                  upperwave: a.rule.UpperWave === null ? '--' : a.rule.UpperWave,
+                  lowerlimit: a.rule.LowerLimit === null ? '--' : a.rule.LowerLimit,
+                  lowerwave: a.rule.LowerWave === null ? '--' : a.rule.LowerWave
+                });
+                alertList.push({
+                  text: paraName,
+                  alert_count: a.alarm_sum
+                });
+              });
+              let ruleHtml = template('rule-container-tbody-template', rule);
+              $('#rule-table-tbody').html(ruleHtml);
+              let data = getInstantanousChartData(dateType, searchType, sTime, eTime, response.Content.data_list, paraTitles);
+              generateChart(document.getElementById('echarts'), data);
+              renderAlartData(alertList);
+              renderGaugeData();
             }
-          }];
-          data.xAxisData = searchType === queryType.convenient ?
-            getXAxisData(_.toString(dateType)) : getCustomXAxisData(sTime, eTime, _.toString(dateType));
-          // data.dataZoom = {
-          //   end: parseInt(dateType) === 3 ? 100 : 80
-          // };
-          data.series = getChartSeries(getSeriesPara(response.Content, searchType, legendTitle),
-            data.xAxisData, response.Content.rule, dateType, searchType);
-          renderAggregateData({
-            sum_per: _.isFinite(response.Content.sum_per) ? response.Content.sum_per.toFixed(2) : '--',
-            sum_val: _.isFinite(response.Content.sum_val) ? response.Content.sum_val.toFixed(2) : '--',
-            avg_per: _.isFinite(response.Content.avg_per) ? response.Content.avg_per.toFixed(2) : '--',
-            avg_val: _.isFinite(response.Content.avg_val) ? response.Content.avg_val.toFixed(2) : '--',
-            unit: param.unit,
-            summargyClass: response.Content.sum_per > 0,
-            avgClass: response.Content.avg_per > 0,
-          });
-          generateChart(document.getElementById('echarts'), data);
-          renderAlartData(response.Content.alarm_sum);
-          renderGaugeData({});
-        }
-      });
+          }
+        });
+      } else {
+        if (chart) chart.clear();
+        renderAlartData([]);
+        renderAggregateData({
+          sum_per: '--',
+          sum_val: '--',
+          avg_per: '--',
+          avg_val: '--',
+          unit: '',
+          summargyClass: false,
+          avgClass: false,
+        });
+        $('#rule-table-tbody').html('');
+        renderGaugeData();
+      }
     } else getComparsionData();
   };
   let getMeterFocusData = function () {
@@ -837,16 +1088,25 @@ $(function () {
       if (response.IsSuccess) {
         activeNode.parameters = response.Content;
         let parameterType = paraType.aggregateValue;
-        let defaultChoosePara = _.find(activeNode.parameters, a => a.type === 0);
-        if (!defaultChoosePara) {
-          defaultChoosePara = _.head(activeNode.parameters);
-          parameterType = defaultChoosePara.type;
+        let unit = '';
+        if (!activeNode.checkedMfIds || activeNode.checkedMfIds.length <= 0) {
+          let defaultChoosePara = _.find(activeNode.parameters, a => a.type === 0);
+          if (!defaultChoosePara) {
+            defaultChoosePara = _.head(activeNode.parameters);
+            unit = defaultChoosePara.unit
+            parameterType = defaultChoosePara.type;
+          }
+          activeNode.checkedMfIds = [defaultChoosePara.id];
         }
         //render parameter container
         _.map(activeNode.parameters, a => {
-          if (a.id === defaultChoosePara.id) a.checked = "checked";
+          if (_.includes(activeNode.checkedMfIds, a.id)) {
+            a.checked = "checked";
+            unit = a.unit;
+            parameterType = a.type;
+          };
         });
-        $('#current-unit').text(defaultChoosePara.unit);
+        $('#current-unit').text(unit);
         let parameterHtml = template('parameter-template', {
           parameterList: activeNode.parameters
         });
@@ -856,14 +1116,18 @@ $(function () {
         globalQueryType = queryType.convenient;
         globalDataType = parameterType;
         globalDateType = dateType;
+        globalUnit = unit;
         getFocusMeterData(activeNode, queryType.convenient, parameterType, dateType,
-          globalsTime, globaleTime, [defaultChoosePara.id]);
+          globalsTime, globaleTime, activeNode.checkedMfIds);
       }
     });
   };
   $(document).on('click', '.tree-menu', function (e) {
     $.allowPanelOpen = true;
     $.openPanel('#tree-panel');
+    $('.meter-list li.meter-item').each(function (i, dom) {
+      $(dom).removeClass('showCheckBox');
+    });
   });
   $(document).on('click', '#refreshCurrentNodeData', function () {
     let path = $jQuery('#parentId').val();
@@ -875,9 +1139,11 @@ $(function () {
       esdpec.framework.core.getJsonResult('common/getchildtree?nodeId=' + parentId, function (response) {
         if (response.IsSuccess && response.Content.length > 0) {
           let children = response.Content;
+          let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
           let residueMeters = _.filter(meterTree, a => a.parent !== parentId);
           let newMeters = _.concat(residueMeters, children);
           meterTree = newMeters;
+          localStorage.setItem('meter_tree', JSON.stringify(meterTree));
           renderMeterTree(newMeters, parentId, 'forward');
         }
       });
@@ -895,46 +1161,60 @@ $(function () {
     loadFocusListData(1, keyword);
   });
   $('#searchmorebtn').on("click", function (e) {
-    let dataType = $('#dataTypePicker').val();
+    globalQueryType = queryType.custom;
     let sTime = $('#startDatePicker').val();
     let eTime = $('#endDatePicker').val();
-    if (moment(eTime) < moment(sTime)) {
-      $.toast('结束时间不能早于开始时间');
-      return;
+    if (globalDataType === paraType.aggregateValue) {
+      let dataType = $('#dataTypePicker').val();
+      if (moment(eTime) < moment(sTime)) {
+        $.toast('结束时间不能早于开始时间');
+        return;
+      }
+      let params = getActiveParameters();
+      if (params.type === -1) {
+        $.toast('请选择查询参数');
+        return;
+      }
+      let type = dateType.day;
+      switch (dataType) {
+        case '日':
+          sTime = sTime + ' 00:00:01';
+          eTime = eTime + ' 23:59:59';
+          type = dateType.day;
+          break;
+        case '月':
+          let days = getDaysOfMonth(eTime.split('-')[0], eTime.split('-')[1])
+          sTime = sTime + '-01 00:00:01';
+          eTime = eTime + '-' + days + ' 23:59:59';
+          type = dateType.month;
+          break;
+        case '年':
+          sTime = sTime + '-01-01 00:00:01';
+          eTime = eTime + '-12-31 23:59:59';
+          type = dateType.year;
+          break;
+      }
+      globalsTime = sTime;
+      globaleTime = eTime;
+      globalDataType = params.type;
+      globalDateType = type;
+      let mfIds = _.map(params.parameterList, a => a.id);
+      let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+      getFocusMeterData(activeNode, queryType.custom, params.type, type,
+        sTime, eTime, mfIds);
+    } else {
+      let time = $('#datePicker').val();
+      globalsTime = time + ' 00:00:01';
+      globaleTime = time + ' 23:59:59';
+      globalQueryType = queryType.custom;
+      globalDataType = paraType.instantaneousValue;
+      globalDateType = dateType.day;
+      let params = getActiveParameters();
+      let mfIds = _.map(params.parameterList, a => a.id);
+      let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+      getFocusMeterData(activeNode, queryType.custom, paraType.instantaneousValue, dateType.day,
+        globalsTime, globaleTime, mfIds);
     }
-    let params = getActiveParameters();
-    if (params.type === -1) {
-      $.toast('请选择查询参数');
-      return;
-    }
-    let type = dateType.day;
-    switch (dataType) {
-      case '日':
-        sTime = sTime + ' 00:00:01';
-        eTime = eTime + ' 23:59:59';
-        type = dateType.day;
-        break;
-      case '月':
-        let days = getDaysOfMonth(eTime.split('-')[0], eTime.split('-')[1])
-        sTime = sTime + '-01 00:00:01';
-        eTime = eTime + '-' + days + ' 23:59:59';
-        type = dateType.month;
-        break;
-      case '年':
-        sTime = sTime + '-01-01 00:00:01';
-        eTime = eTime + '-12-31 23:59:59';
-        type = dateType.year;
-        break;
-    }
-    globalsTime = sTime;
-    globaleTime = eTime;
-    globalQueryType = queryType.custom;
-    globalDataType = params.type;
-    globalDateType = type;
-    let mfIds = _.map(params.parameterList, a => a.id);
-    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
-    getFocusMeterData(activeNode, queryType.custom, params.type, type,
-      sTime, eTime, mfIds);
   });
   $('#showMoreBtn').on("click", function (e) {
     if (!operateBefore()) return;
@@ -975,6 +1255,7 @@ $(function () {
   });
   $('#showWeek').on("click", function (e) {
     if (!operateBefore()) return;
+    if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
     $jQuery('#showWeek').addClass('active');
     ifShowSearch(false);
@@ -996,6 +1277,7 @@ $(function () {
   });
   $('#showMonth').on("click", function (e) {
     if (!operateBefore()) return;
+    if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
     $jQuery('#showMonth').addClass('active');
     ifShowSearch(false);
@@ -1018,6 +1300,7 @@ $(function () {
   });
   $('#showYear').on("click", function (e) {
     if (!operateBefore()) return;
+    if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
     $jQuery('#showYear').addClass('active');
     ifShowSearch(false);
@@ -1039,74 +1322,142 @@ $(function () {
       year.firstDay, year.lastDay, mfIds);
   });
   $(document).on('click', '#parameter-container > a', function (e) {
+    let activeMeter = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     let existType = getActiveParameters().type;
     let currentDom = $(e.currentTarget);
     let chooseType = currentDom.attr('data-type');
-    if (!_.isEqual(existType, chooseType)) {
+    globalDataType = parseInt(chooseType);
+    let mfId = currentDom.attr('data-id');
+    let unit = currentDom.attr('data-unit');
+    if (!_.isEqual(existType, -1) && !_.isEqual(existType, parseInt(chooseType))) {
       $.toast('不同类型的参数不能对比');
       return;
     }
+    if (!_.isEqual(globalUnit, '') && !_.isEqual(unit, globalUnit)) {
+      $.toast('不同类型的参数不能对比');
+      return;
+    }
+    globalDataType = parseInt(chooseType);
     currentDom.toggleClass('checked');
+    if (currentDom.hasClass('checked')) {
+      let para = _.find(activeMeter.parameters, a => a.id === mfId);
+      para.checked = 'checked';
+      $('#current-unit').text(globalUnit);
+      globalUnit = unit;
+    } else {
+      let para = _.find(activeMeter.parameters, a => a.id === mfId);
+      para.checked = '';
+      $('#current-unit').text('');
+      globalUnit = '';
+    }
+    if (globalDataType === paraType.instantaneousValue) {
+      $('#showWeek').css('color', '#ddd !important');
+      $('#showMonth').css('color', '#ddd !important');
+      $('#showYear').css('color', '#ddd !important');
+      if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
+        globalDateType = dateType.day;
+        globalsTime = new Date().format('yyyy-MM-dd 00:00:01');;
+        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
+        $('.focus-detail-header_tab a.active').removeClass('active');
+        $('#showDay').addClass('active');
+      }
+      $('#aggregateValue-container').addClass('hidden');
+      $('#instantanousValue-container').removeClass('hidden');
+      $('#datePicker').datePicker({
+        value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+      }, 'd');
+    } else {
+      document.getElementById('showWeek').style = '';
+      document.getElementById('showMonth').style = '';
+      document.getElementById('showYear').style = '';
+      $('#aggregateValue-container').removeClass('hidden');
+      $('#instantanousValue-container').addClass('hidden');
+    }
     let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
-    let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
-    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+    getFocusMeterData(activeMeter, globalQueryType, globalDataType, globalDateType,
       globalsTime, globaleTime, mfIds);
   });
   $(document).on('click', '#subscribe', function (e) {
-    let meter = _.head(currentClickMeters);
-    let defaultTitle = energyEnum[meter.EnergyCode] + '-' + meter.text;
-    let parentNode = _.find(meterTree, a => a.id === meter.parent);
-    var modal = $.modal({
-      title: '设置关注对象名称',
-      afterText: '<div >' +
-        '<div class="">' +
-        '<input type="text" value="' + defaultTitle + '" id="focusTitle" style="padding: 0.25rem;border-radius: 0.2rem;border: transparent;outline: transparent;">' +
-        '</div>' +
-        '</div>',
-      buttons: [{
-          text: '取消'
-        },
-        {
-          text: '确定',
-          bold: true,
-          onClick: function () {
-            let title = $('#focusTitle').val();
-            if (_.isEqual(title, '')) {
-              $.toast('请设置关注标题');
-              return;
-            }
-            let para = {
-              title: title,
-              sId: _.map(getActiveParameters().parameterList, a => a.id).join(','),
-              areaId: meter.parent,
-              area_name: parentNode ? parentNode.text : '',
-              slist: _.map(currentClickMeters, a => a.id).join(','),
-              unit: currentUnit,
-              energy_code: meter.EnergyCode,
-              description: (parentNode ? parentNode.text : '') + '-' + meter.text,
-              stype: currentClickMeters.length > 1 ? 0 : 1,
-              date_type: globalDateType,
-              query_type: globalQueryType,
-              data_type: globalDataType,
-              stime: globalsTime,
-              etime: globaleTime
-            }
-            esdpec.framework.core.doPostOperation('dataanalysis/subscribe', para, function (response) {
-              if (response.IsSuccess) {
-                $.toast('关注成功');
+    if (globalFocusId === -1) {
+      let meter = _.head(currentClickMeters);
+      let defaultTitle = energyEnum[meter.EnergyCode] + '-' + meter.text;
+      let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+      let parentNode = _.find(meterTree, a => a.id === meter.parent);
+      var modal = $.modal({
+        title: '设置关注对象名称',
+        afterText: '<div >' +
+          '<div class="">' +
+          '<input type="text" value="' + defaultTitle + '" id="focusTitle" style="padding: 0.25rem;border-radius: 0.2rem;border: transparent;outline: transparent;">' +
+          '</div>' +
+          '</div>',
+        buttons: [{
+            text: '取消'
+          },
+          {
+            text: '确定',
+            bold: true,
+            onClick: function () {
+              let title = $('#focusTitle').val();
+              if (_.isEqual(title, '')) {
+                $.toast('请设置关注标题');
+                return;
               }
-            });
-          }
-        },
-      ]
-    });
+              let sIds = [];
+              _.forEach(getMeterActiveParameters().meterList, meter => {
+                let m = {
+                  m: meter.meterId,
+                  plist: []
+                };
+                _.forEach(meter.parameterList, p => {
+                  m.plist.push(p.id);
+                });
+                sIds.push(m);
+              });
+              let para = {
+                title: title,
+                sId: JSON.stringify(sIds),
+                areaId: meter.parent,
+                area_name: parentNode ? parentNode.text : '',
+                slist: _.map(currentClickMeters, a => a.id).join(','),
+                unit: currentUnit,
+                energy_code: meter.EnergyCode,
+                description: (parentNode ? parentNode.text : '') + '-' + meter.text,
+                stype: currentClickMeters.length > 1 ? 0 : 1,
+                date_type: globalDateType,
+                query_type: globalQueryType,
+                data_type: globalDataType,
+                stime: globalsTime,
+                etime: globaleTime,
+                activeId: getActiveMeterId()
+              }
+              esdpec.framework.core.doPostOperation('dataanalysis/subscribe', para, function (response) {
+                if (response.IsSuccess) {
+                  $.toast('关注成功');
+                }
+              });
+            }
+          },
+        ]
+      });
+    } else {
+      esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + globalFocusId, {}, function (response) {
+        if (response.IsSuccess) {
+          _.remove(globalFocusList.focusList, a => a.id === globalFocusId);
+          globalFocusId = response.Content;
+          $('#subscribe').text('关注');
+          $('#' + globalFocusId).remove();
+        }
+      });
+    }
   });
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
+    globalFocusId = -1;
     loadFocusListData(1, '');
     loadMeterTree(0);
     pullToLoadFocusList(page);
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
+    isComparsionStatus = false;
     $('#close-panel').click();
     bindTabClick(page);
     renderFocusMeter();

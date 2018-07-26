@@ -39,6 +39,8 @@ Date.prototype.addDays = function (days) {
   return this;
 }
 
+esdpec.framework.core.user_token = () => sessionStorage.getItem('user_token');
+
 esdpec.framework.core.Config = {
   APIBaseUrl: 'http://172.17.0.21/api/', //'http://localhost:81/',
   BaseWebSiteUrl: 'http://172.17.0.48/',
@@ -69,7 +71,7 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
   }, 5000);
   $jQuery.ajaxSetup({
     beforeSend: function (xhr) {
-      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
@@ -96,7 +98,7 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
 esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, failureCallBack) {
   $jQuery.ajaxSetup({
     beforeSend: function (xhr) {
-      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
@@ -128,7 +130,7 @@ esdpec.framework.core.doPutOperation = function (url, object, successCallBack, f
       }
     },
     beforeSend: function (xhr) {
-      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);
@@ -160,7 +162,7 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
       setTimeout(function () {
         $.hidePreloader();
       }, 5000);
-      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
       $.hidePreloader();
@@ -188,7 +190,7 @@ esdpec.framework.core.doDeleteOperation = function (url, object, successCallBack
       }
     },
     beforeSend: function (xhr) {
-      xhr.setRequestHeader("Authorization", "BasicAuth " + localStorage.getItem('user_token'));
+      xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
       esdpec.framework.core.completeRequest(XMLHttpRequest, textStatus);

@@ -98,7 +98,7 @@
           </div>
         </div>
         <div class="search-condition-container" id="search-container">
-          <div class="condition-row">
+          <div class="condition-row" id="aggregateValue-container">
             <div class="search-data-type icon-jump">
               <input type="text" id="dataTypePicker" class="search-input" value="日" readonly>
             </div>
@@ -108,6 +108,11 @@
             <span class="search-data-span">至</span>
             <div class="search-date">
               <input type="text" id="endDatePicker" class="search-input" placeholder="终止时间" readonly>
+            </div>
+          </div>
+          <div class="condition-row hidden" id="instantanousValue-container">
+            <div class="search-date instantanous-value-date" style="width: 100%">
+              <input type="text" id="datePicker" class="search-input" placeholder="查询时间" readonly>
             </div>
           </div>
           <div>
@@ -133,7 +138,7 @@
           </div>
           <div class="focus-charts" id="echarts"></div>
         </div>
-        <div class="summary-container">
+        <div class="summary-container" id="summary-container">
           <div class="summary-total">
             <div class="summary-header-container">
               <span>日总量</span>
@@ -147,6 +152,19 @@
             </div>
             <div class="summary-total-data" id="avg-total-data"></div>
           </div>
+        </div>
+        <div class="rule-container" id="rule-container">
+          <div class="rule-table-header">
+            <span>
+              <i class="icon-electric"></i>
+            </span>
+            <span>平均值</span>
+            <span>上限值</span>
+            <span>上限波动</span>
+            <span>下限</span>
+            <span>下限波动</span>
+          </div>
+          <div class="rule-table-tbody" id="rule-table-tbody"></div>
         </div>
         <div class="focus-alart-container">
           <div class="alert-container">
@@ -217,12 +235,16 @@
   <script type="text/html" id="meter-list-template">
     <ul class="meter-list">
       {{if meterList.length > 0}} {{each meterList meter index}}
-      <li class="item-content item-link meter-item" data-id="{{meter.id}}">
+      <li class="item-content item-link meter-item {{meter.showChecked}} {{meter.hasChecked}}" data-type="{{meter.modeltype}}"
+        data-id="{{meter.id}}">
         <div class="item-media">
           <i class="icon icon-f7"></i>
         </div>
         <div class="item-inner {{meter.baseInstrument}}">
           <div class="item-title">{{meter.text}}</div>
+          <div class="checkbox comparsion-for-checked" data-id="{{meter.id}}">
+            <i class="icon icon-tick"></i>
+          </div>
         </div>
       </li>
       {{/each}} {{/if}}
@@ -230,11 +252,11 @@
   </script>
   <script type="text/html" id="meter-header-template">
     {{if focusMeterList.length > 0}} {{each focusMeterList meter index}}
-    <span class="{{meter.activeClass}}" data-id="{{meter.id}}">{{meter.text}}</span>
+    <span class="{{meter.activeClass}}" id="meter_{{meter.id}}" data-id="{{meter.id}}">{{meter.text}}</span>
     {{/each}} {{/if}}
-    <div class="icon-add_to operate-icon"></div>
+    <div class="icon-add_to operate-icon" id="add_comparsion"></div>
     {{if focusMeterList.length > 1}}
-    <div class="icon-reduce operate-icon"></div>
+    <div class="icon-reduce operate-icon" id="remove_comparsion"></div>
     {{/if}}
   </script>
   <script type="text/html" id="parameter-template">
@@ -268,10 +290,22 @@
       <div class="data-prompt">相对同期平均值</div>
     </div>
   </script>
+  <script type="text/html" id="rule-container-tbody-template">
+    {{if ruleList.length > 0}}{{each ruleList rule index}}
+    <div class="">
+      <span class="ellipsisTitle">{{rule.name}}</span>
+      <span class="ellipsisTitle">{{rule.avg}}</span>
+      <span class="ellipsisTitle">{{rule.upperlimit}}</span>
+      <span class="ellipsisTitle">{{rule.upperwave}}</span>
+      <span class="ellipsisTitle">{{rule.lowerlimit}}</span>
+      <span class="ellipsisTitle">{{rule.lowerwave}}</span>
+    </div>
+    {{/each}}{{/if}}
+  </script>
   <script type="text/html" id="alert-data-template">
     {{if meterList.length > 0}} {{each meterList meter index}}
     <div class="alert-data-item">
-      <span class="item-name">{{meter.text}}</span>
+      <span class="item-name ellipsisTitle">{{meter.text}}</span>
       <span class="item-data">{{meter.alert_count}}次</span>
       <span class="item-more">查看详情</span>
     </div>
