@@ -152,7 +152,15 @@ $(function () {
     }
     return '';
   };
-  let ifComparsion = () => currentClickMeters.length > 1;
+  let ifComparsion = () => {
+    if (currentClickMeters.length <= 1) return false;
+    let mlist = [];
+    _.forEach(currentClickMeters, m => {
+      let checked = _.find(m.parameters, a => a.checked === 'checked');
+      if (checked) mlist.push(m.id);
+    });
+    return mlist.length > 1;
+  };
   let getDateType = () => {
     let activeDoms = $('#datatab a.active');
     if (activeDoms.length <= 0)
@@ -650,11 +658,17 @@ $(function () {
       name: _.last(legendTitle)
     }] : [];
   let getInstantanousSeriesPara = (response, legendTitle) => {
-    if (ifComparsion()) {
-
-      return [];
-    }
     let seriesParas = [];
+    if (ifComparsion()) {
+      _.forEach(response, a => {
+        let mp = _.find(legendTitle, l => l.id === a.mfid);
+        seriesParas.push({
+          data: a.data_list,
+          name: mp.mName + '-' + mp.name
+        });
+      });
+      return seriesParas;
+    }
     _.forEach(response, a => {
       seriesParas.push({
         data: a.now_data_list,
@@ -965,8 +979,69 @@ $(function () {
       });
     }
   };
-  let getComparsionData = function () {
-
+  let getComparsionData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
+    $('#single').addClass('hidden');
+    $('#multiple').removeClass('hidden');
+    if (mfIds.length > 0) {
+      let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
+      esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
+        if (response.IsSuccess) {
+          //console.log(response.Content);
+          let summaryDataList = [];
+          let parameters = [];
+          _.forEach(currentClickMeters, m => {
+            let ps = _.filter(m.parameters, a => a.checked === 'checked');
+            _.forEach(ps, b => {
+              let mp = _.assign(b, {
+                mName: m.text
+              });
+              parameters.push(mp);
+            })
+          });
+          _.forEach(response.Content, a => {
+            let para = _.find(parameters, p => p.id === a.mfid);
+            let summaryData = {
+              name: para ? para.mName + '-' + para.name : '--',
+              avg_val: a.avg_val ? a.avg_val.toFixed(2) : '--',
+              max_val: a.max_val ? a.max_val.toFixed(2) : '--',
+              min_val: a.min_val ? a.min_val.toFixed(2) : '--',
+              upper_limit: a.rule ? a.rule.UpperLimit ? a.rule.UpperLimit.toFixed(2) : '--' : '--',
+              lower_limit: a.rule ? a.rule.LowerLimit ? a.rule.LowerLimit.toFixed(2) : '--' : '--',
+              lower_wave: a.rule ? a.rule.LowerWave ? a.rule.LowerWave.toFixed(2) : '--' : '--',
+              upper_wave: a.rule ? a.rule.UpperWave ? a.rule.UpperWave.toFixed(2) : '--' : '--',
+              type: para.type
+            };
+            if (para.type === 0) {
+              $('#summary-title').removeClass('hidden');
+              summaryData.sum_val = a.sum_val ? a.sum_val.toFixed(2) : '--';
+            } else {
+              $('#summary-title').addClass('hidden');
+            }
+            summaryDataList.push(summaryData);
+          });
+          let summaryData = {
+            summaryDataList: summaryDataList
+          }
+          let summaryDataHtml = template('summary-data-template', summaryData);
+          $('#summary-data-container').html(summaryDataHtml);
+          let legendTitle = _.filter(parameters, a => {
+            return {
+              id: a.id,
+              name: a.mName + '-' + a.name
+            };
+          });
+          let data = getComparsionChartData(dateType, searchType, response.Content, legendTitle);
+          generateChart(document.getElementById('echarts'), data);
+        }
+      });
+    } else {
+      if (chart) chart.clear();
+      let data = {
+        summaryDataList: []
+      }
+      let summaryDataHtml = template('summary-data-template', data);
+      $('#summary-data-container').html(summaryDataHtml);
+    }
   };
   let getChartData = (dateType, searchType, sTime, eTime, content, rule) => {
     let data = {};
@@ -997,13 +1072,32 @@ $(function () {
     data.series = getInstantanousSeries(getInstantanousSeriesPara(content, legendTitle), data.xAxisData, dateType, searchType);
     return data;
   };
+  let getComparsionChartData = (dateType, searchType, dataList, legendTitle) => {
+    let data = {};
+    data.legend = {
+      data: _.map(legendTitle, a => a.mName + '-' + a.name)
+    };
+    let xData = [];
+    _.forEach(dataList, paras => {
+      _.forEach(paras.data_list, a => {
+        a.date = a.date;
+        xData.push(a.date);
+      });
+    });
+    xData = _.uniq(xData);
+    data.xAxisData = xData;
+    data.series = getInstantanousSeries(getInstantanousSeriesPara(dataList, legendTitle), data.xAxisData, dateType, searchType);
+    return data;
+  };
   let getFocusMeterData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
     if (!ifComparsion()) {
+      $('#single').removeClass('hidden');
+      $('#multiple').addClass('hidden');
       if (mfIds.length > 0) {
         let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
         esdpec.framework.core.getJsonResultSilent("dataanalysis/getdata?" + urlParam, function (response) {
           if (response.IsSuccess) {
-            console.log(response.Content);
+            //console.log(response.Content);
             if (_.isEqual(paraType, 0)) {
               $('#summary-container').removeClass('hidden');
               $('#rule-container').addClass('hidden');
@@ -1039,14 +1133,16 @@ $(function () {
                   id: a.mfid,
                   name: paraName
                 });
-                rule.ruleList.push({
-                  name: paraName,
-                  avg: _.isFinite(a.avg_val) ? a.avg_val.toFixed(2) : '--',
-                  upperlimit: a.rule.UpperLimit === null ? '--' : a.rule.UpperLimit,
-                  upperwave: a.rule.UpperWave === null ? '--' : a.rule.UpperWave,
-                  lowerlimit: a.rule.LowerLimit === null ? '--' : a.rule.LowerLimit,
-                  lowerwave: a.rule.LowerWave === null ? '--' : a.rule.LowerWave
-                });
+                if (a.rule !== null) {
+                  rule.ruleList.push({
+                    name: paraName,
+                    avg: _.isFinite(a.avg_val) ? a.avg_val.toFixed(2) : '--',
+                    upperlimit: a.rule.UpperLimit === null ? '--' : a.rule.UpperLimit,
+                    upperwave: a.rule.UpperWave === null ? '--' : a.rule.UpperWave,
+                    lowerlimit: a.rule.LowerLimit === null ? '--' : a.rule.LowerLimit,
+                    lowerwave: a.rule.LowerWave === null ? '--' : a.rule.LowerWave
+                  });
+                }
                 alertList.push({
                   text: paraName,
                   alert_count: a.alarm_sum
@@ -1076,7 +1172,7 @@ $(function () {
         $('#rule-table-tbody').html('');
         renderGaugeData();
       }
-    } else getComparsionData();
+    } else getComparsionData(node, searchType, paraType, dateType, sTime, eTime, mfIds);
   };
   let getMeterFocusData = function () {
     if (currentClickMeters.length <= 0) return;
@@ -1337,19 +1433,27 @@ $(function () {
       $.toast('不同类型的参数不能对比');
       return;
     }
+    globalUnit = unit;
     globalDataType = parseInt(chooseType);
     currentDom.toggleClass('checked');
     if (currentDom.hasClass('checked')) {
       let para = _.find(activeMeter.parameters, a => a.id === mfId);
       para.checked = 'checked';
-      $('#current-unit').text(globalUnit);
-      globalUnit = unit;
     } else {
       let para = _.find(activeMeter.parameters, a => a.id === mfId);
       para.checked = '';
-      $('#current-unit').text('');
-      globalUnit = '';
+      let selectedUnit = '';
+      _.forEach(currentClickMeters, m => {
+        _.forEach(m.parameters, s => {
+          if (_.isEqual(s.checked, 'checked')) {
+            selectedUnit = s.unit;
+            return false;
+          }
+        });
+      });
+      globalUnit = selectedUnit;
     }
+    $('#current-unit').text(globalUnit);
     if (globalDataType === paraType.instantaneousValue) {
       $('#showWeek').css('color', '#ddd !important');
       $('#showMonth').css('color', '#ddd !important');
@@ -1433,6 +1537,8 @@ $(function () {
               esdpec.framework.core.doPostOperation('dataanalysis/subscribe', para, function (response) {
                 if (response.IsSuccess) {
                   $.toast('关注成功');
+                  $('#subscribe').text('取消关注');
+                  globalFocusId = response.Content;
                 }
               });
             }
@@ -1443,9 +1549,8 @@ $(function () {
       esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + globalFocusId, {}, function (response) {
         if (response.IsSuccess) {
           _.remove(globalFocusList.focusList, a => a.id === globalFocusId);
-          globalFocusId = response.Content;
+          globalFocusId = -1;
           $('#subscribe').text('关注');
-          $('#' + globalFocusId).remove();
         }
       });
     }

@@ -138,49 +138,71 @@
           </div>
           <div class="focus-charts" id="echarts"></div>
         </div>
-        <div class="summary-container" id="summary-container">
-          <div class="summary-total">
-            <div class="summary-header-container">
-              <span>日总量</span>
-            </div>
-            <div class="summary-total-data" id="summary-total-data"></div>
+        <div class="multiple hidden" id="multiple">
+          <div class="multiple-margin">
+            <table class="multiple-container" id="multiple">
+              <thead class="multiple-header">
+                <th>
+                  <i class="icon-electric"></i>
+                </th>
+                <th id="summary-title">日总量</th>
+                <th>平均值</th>
+                <th>最大值</th>
+                <th>最小值</th>
+                <th>报警上限</th>
+                <th>报警下限</th>
+                <th>下限波动</th>
+                <th>上限波动</th>
+              </thead>
+              <tbody class="multiple-body" id="summary-data-container"></tbody>
+            </table>
           </div>
-          <div class="summary-vertical-divide"></div>
-          <div class="summary-average">
-            <div class="summary-header-container">
+        </div>
+        <div id="single">
+          <div class="summary-container" id="summary-container">
+            <div class="summary-total">
+              <div class="summary-header-container">
+                <span>日总量</span>
+              </div>
+              <div class="summary-total-data" id="summary-total-data"></div>
+            </div>
+            <div class="summary-vertical-divide"></div>
+            <div class="summary-average">
+              <div class="summary-header-container">
+                <span>平均值</span>
+              </div>
+              <div class="summary-total-data" id="avg-total-data"></div>
+            </div>
+          </div>
+          <div class="rule-container" id="rule-container">
+            <div class="rule-table-header">
+              <span>
+                <i class="icon-electric"></i>
+              </span>
               <span>平均值</span>
+              <span>上限值</span>
+              <span>上限波动</span>
+              <span>下限</span>
+              <span>下限波动</span>
             </div>
-            <div class="summary-total-data" id="avg-total-data"></div>
+            <div class="rule-table-tbody" id="rule-table-tbody"></div>
           </div>
-        </div>
-        <div class="rule-container" id="rule-container">
-          <div class="rule-table-header">
-            <span>
-              <i class="icon-electric"></i>
-            </span>
-            <span>平均值</span>
-            <span>上限值</span>
-            <span>上限波动</span>
-            <span>下限</span>
-            <span>下限波动</span>
-          </div>
-          <div class="rule-table-tbody" id="rule-table-tbody"></div>
-        </div>
-        <div class="focus-alart-container">
-          <div class="alert-container">
-            <div class="alert-header">
-              <span>报警信息</span>
+          <div class="focus-alart-container">
+            <div class="alert-container">
+              <div class="alert-header">
+                <span>报警信息</span>
+              </div>
             </div>
+            <div id="alert-data-container"></div>
           </div>
-          <div id="alert-data-container"></div>
-        </div>
-        <div class="focus-table-values">
-          <div class="alert-container">
-            <div class="alert-header">
-              <span>表底数</span>
+          <div class="focus-table-values">
+            <div class="alert-container">
+              <div class="alert-header">
+                <span>表底数</span>
+              </div>
             </div>
+            <div class="list-block" id="gaugeDataContainer"></div>
           </div>
-          <div class="list-block" id="gaugeDataContainer"></div>
         </div>
       </div>
     </div>
@@ -390,6 +412,23 @@
       </li>
       {{/each}} {{/if}}
     </ul>
+  </script>
+  <script type="text/html" id="summary-data-template">
+    {{if summaryDataList.length > 0}}{{each summaryDataList summaryData index}}
+    <tr class="multiple-body-item">
+      <td>{{summaryData.name}}</td>
+      {{if summaryData.type === 0}}
+      <td>{{summaryData.sum_val}}</td>
+      {{/if}}
+      <td>{{summaryData.avg_val}}</td>
+      <td>{{summaryData.max_val}}</td>
+      <td>{{summaryData.min_val}}</td>
+      <td>{{summaryData.upper_limit}}</td>
+      <td>{{summaryData.lower_limit}}</td>
+      <td>{{summaryData.lower_wave}}</td>
+      <td>{{summaryData.upper_wave}}</td>
+    </tr>
+    {{/each}}{{/if}}
   </script>
   <script src="/dist/sui/js/sm.js"></script>
   <script src="/dist/sui/js/sm-extend.js"></script>
