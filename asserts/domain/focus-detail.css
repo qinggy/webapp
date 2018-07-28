@@ -611,6 +611,7 @@
   flex: 1;
   padding: 0 0.2rem;
   white-space: nowrap;
+  padding-right: 1rem;
 }
 
 .multiple-body {}
@@ -627,6 +628,7 @@
 .multiple-body-item td {
   padding: 0 0.2rem;
   white-space: nowrap;
+  padding-left: 1rem;
 }
 
 .multiple-body-item td:first-child {

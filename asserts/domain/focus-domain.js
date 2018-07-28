@@ -885,6 +885,7 @@ $(function () {
         return;
       }
       _.remove(currentClickMeters, a => a.checked);
+      $('#parameter-container').empty();
       renderFocusMeter();
       if (currentClickMeters.length === 1)
         getMeterFocusData();
@@ -979,6 +980,66 @@ $(function () {
       });
     }
   };
+  let generateSummaryTable = (type, dataList) => {
+    let rowNames = [{
+      id: 'sum_val',
+      name: '日总量'
+    }, {
+      id: 'sum_per',
+      name: '相对昨日同期'
+    }, {
+      id: 'avg_per',
+      name: '相对同期平均'
+    }, {
+      id: 'avg_val',
+      name: '平均'
+    }, {
+      id: 'max_val',
+      name: '最大'
+    }, {
+      id: 'min_val',
+      name: '最小'
+    }, {
+      id: 'upper_limit',
+      name: '报警上限'
+    }, {
+      id: 'lower_limit',
+      name: '报警下限'
+    }, {
+      id: 'upper_wave',
+      name: '上限波动'
+    }, {
+      id: 'lower_wave',
+      name: '下线波动'
+    }];
+    let tableHtml = "<table class='multiple-container'><thead class='multiple-header'><th><i class='icon-electric'></i></th>";
+    let colNames = _.filter(dataList, a => a.name);
+    _.forEach(colNames, col => {
+      tableHtml += '<th>' + col.name + '</th>';
+    });
+    tableHtml += "</thead>";
+    if (type === 1) {
+      rowNames = _.slice(rowNames, 3);
+    }
+    tableHtml += '<tbody class="multiple-body" id="summary-data-container">';
+    _.forEach(rowNames, row => {
+      tableHtml += "<tr class='multiple-body-item'><td>" + row.name + "</td>";
+      _.forEach(dataList, col => {
+        if (row.id === 'sum_per' || row.id === 'avg_per') {
+          if (col[row.id] > 0) {
+            tableHtml += "<td style='color: red'><i class='icon-focus-up' style='height: 0.5rem;width: 0.5rem;margin-right: 0.2rem;'></i>" + col[row.id] + "%</td>";
+          } else {
+            tableHtml += "<td style='color: green'><i class='icon-focus-down' style='height: 0.5rem;width: 0.5rem;margin-right: 0.2rem;'></i>" + col[row.id] + "%</td>";
+          }
+        } else {
+          tableHtml += "<td>" + col[row.id] + "</td>";
+        }
+      });
+      tableHtml += "</tr>";
+    });
+    tableHtml += "</tbody></table>";
+    return tableHtml;
+  };
   let getComparsionData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
     $('#single').addClass('hidden');
     $('#multiple').removeClass('hidden');
@@ -986,7 +1047,7 @@ $(function () {
       let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
       esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
         if (response.IsSuccess) {
-          //console.log(response.Content);
+          console.log(response.Content);
           let summaryDataList = [];
           let parameters = [];
           _.forEach(currentClickMeters, m => {
@@ -1009,21 +1070,16 @@ $(function () {
               lower_limit: a.rule ? a.rule.LowerLimit ? a.rule.LowerLimit.toFixed(2) : '--' : '--',
               lower_wave: a.rule ? a.rule.LowerWave ? a.rule.LowerWave.toFixed(2) : '--' : '--',
               upper_wave: a.rule ? a.rule.UpperWave ? a.rule.UpperWave.toFixed(2) : '--' : '--',
-              type: para.type
+              type: globalDataType //para.type
             };
             if (para.type === 0) {
-              $('#summary-title').removeClass('hidden');
               summaryData.sum_val = a.sum_val ? a.sum_val.toFixed(2) : '--';
-            } else {
-              $('#summary-title').addClass('hidden');
+              summaryData.sum_per = a.sum_per ? (a.sum_per * 100).toFixed(2) : '--';
+              summaryData.avg_per = a.avg_per ? (a.avg_per * 100).toFixed(2) : '--';
             }
             summaryDataList.push(summaryData);
           });
-          let summaryData = {
-            summaryDataList: summaryDataList
-          }
-          let summaryDataHtml = template('summary-data-template', summaryData);
-          $('#summary-data-container').html(summaryDataHtml);
+          $('#summary-data-container').html(generateSummaryTable(globalDataType, summaryDataList));
           let legendTitle = _.filter(parameters, a => {
             return {
               id: a.id,
