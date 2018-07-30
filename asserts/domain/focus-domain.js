@@ -13,7 +13,9 @@ $(function () {
     globalDateType,
     globalUnit,
     isComparsionStatus = false,
-    globalFocusId = -1;
+    globalFocusId = -1,
+    globalLineDataSource = null,
+    globalPieDataSource = null;
   let chart = null;
   let focusEnum = {
     // 'commnunicate': 'icon-commnunicate',
@@ -130,8 +132,51 @@ $(function () {
         return yearxAxis;
     }
   };
-  let getInstantanousXAxisData = (data) => {
-    return _.map(data, a => a.date.substring(0, a.date.length - 3));
+  let generatePieForAggregateData = (xAxisData, seriesData) => {
+    let option = {
+      tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+      },
+      legend: {
+        orient: 'horizontal',
+        left: 'center',
+        data: xAxisData
+      },
+      toolbox: {
+        show: true,
+        x: 10,
+        y: 31,
+        orient: 'vertical',
+        feature: {
+          myTool: {
+            show: true,
+            title: '换为柱状图',
+            icon: 'image:///asserts/img/gz/bar.png',
+            onclick: function () {
+              if (chart) chart.clear();
+              if (!globalLineDataSource) return;
+              generateChart(document.getElementById('echarts'), globalLineDataSource, true);
+            }
+          }
+        }
+      },
+      series: [{
+        name: '对比能耗',
+        type: 'pie',
+        radius: '55%',
+        center: ['50%', '60%'],
+        data: seriesData,
+        itemStyle: {
+          emphasis: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }]
+    };
+    return option;
   };
   let getLegendTitle = function (type, searchType, comparsion) {
     if (!comparsion) {
@@ -291,7 +336,7 @@ $(function () {
         case 2:
           let mIds = clickFocus.slist.split(',');
           let mfIdJson = JSON.parse(clickFocus.sId);
-          let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
           currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
           _.forEach(currentClickMeters, m => {
             m.checked = false;
@@ -395,7 +440,7 @@ $(function () {
   let operateMeterTreeAjaxResult = function (response) {
     if (response.IsSuccess && response.Content.length > 0) {
       let meterList = response.Content;
-      localStorage.setItem('meter_tree', JSON.stringify(meterList));
+      sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
       renderMeterTree(meterList, '#', 'forward');
     }
   };
@@ -449,7 +494,7 @@ $(function () {
     $jQuery('#meterListContainer').html(meterHtml);
     $jQuery('.meter-list .meter-item').on('click', function (e) {
       let meterId = $(e.currentTarget).attr('data-id');
-      let meterTree = localStorage.getItem('meter_tree');
+      let meterTree = sessionStorage.getItem('meter_tree');
       let meterNodes = JSON.parse(meterTree);
       let children = _.filter(meterNodes, a => a.parent === meterId);
       if (children.length > 0)
@@ -464,7 +509,7 @@ $(function () {
             }
             $(e.currentTarget).toggleClass('comparsionchecked');
             if ($(e.currentTarget).hasClass('comparsionchecked')) {
-              let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+              let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
               let meterModel = _.find(meterTree, a => a.id === meterId);
               currentClickMeters.push(meterModel);
             } else {
@@ -513,7 +558,7 @@ $(function () {
       $jQuery('#showMoreBtn').attr('data-toggle', 'close');
     }
   };
-  let generateChart = function (chartDom, data) {
+  let generateChart = function (chartDom, data, showPie = false) {
     chart = echarts.init(chartDom, e_macarons);
     let option = {
       tooltip: {
@@ -522,10 +567,29 @@ $(function () {
       legend: data.legend,
       toolbox: {
         show: true,
+        x: 10,
+        y: 31,
+        orient: 'vertical',
         feature: {
           magicType: {
             show: true,
+            icon: {
+              line: "image:///asserts/img/gz/line.png",
+              bar: "image:///asserts/img/gz/bar.png",
+            },
             type: ['line', 'bar']
+          },
+          myTool: {
+            show: showPie,
+            title: '换为饼图',
+            icon: 'image:///asserts/img/gz/pie.png',
+            onclick: function () {
+              if (chart) chart.clear();
+              if (!globalPieDataSource) return;
+              let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
+              chart = echarts.init(document.getElementById('echarts'), e_macarons);
+              chart.setOption(option, true);
+            }
           }
         }
       },
@@ -552,14 +616,13 @@ $(function () {
       }],
       series: data.series
     };
-
     chart.setOption(option, true);
   };
   let formatNumber = function (n) {
     return n < 10 ? "0" + n : n;
   };
   let backNavigate = function () {
-    let pathVal = $jQuery('#parentId').val();
+    let pathVal = $('#parentId').val();
     pathVal = pathVal.substring(2);
     let pathStack = pathVal.split('||');
     if (pathStack.length > 1) {
@@ -569,8 +632,8 @@ $(function () {
         pathVal[i] = pathStack[i];
       }
       let path = _.join(pathVal, '||');
-      $jQuery('#parentId').val('||' + path);
-      let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+      $('#parentId').val('||' + path);
+      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       renderMeterTree(meterTree, parent, 'back');
     }
   }
@@ -1049,6 +1112,7 @@ $(function () {
         if (response.IsSuccess) {
           console.log(response.Content);
           let summaryDataList = [];
+          let sumValList = [];
           let parameters = [];
           _.forEach(currentClickMeters, m => {
             let ps = _.filter(m.parameters, a => a.checked === 'checked');
@@ -1077,7 +1141,12 @@ $(function () {
               summaryData.sum_per = a.sum_per ? (a.sum_per * 100).toFixed(2) : '--';
               summaryData.avg_per = a.avg_per ? (a.avg_per * 100).toFixed(2) : '--';
             }
+            let sumVal = {
+              name: summaryData.name,
+              value: a.sum_val ? a.sum_val.toFixed(2) : 0
+            };
             summaryDataList.push(summaryData);
+            sumValList.push(sumVal);
           });
           $('#summary-data-container').html(generateSummaryTable(globalDataType, summaryDataList));
           let legendTitle = _.filter(parameters, a => {
@@ -1087,7 +1156,12 @@ $(function () {
             };
           });
           let data = getComparsionChartData(dateType, searchType, response.Content, legendTitle);
-          generateChart(document.getElementById('echarts'), data);
+          globalLineDataSource = data;
+          globalPieDataSource = {
+            x: _.filter(summaryDataList, a => a.name),
+            y: sumValList
+          };
+          generateChart(document.getElementById('echarts'), data, true);
         }
       });
     } else {
@@ -1291,11 +1365,11 @@ $(function () {
       esdpec.framework.core.getJsonResult('common/getchildtree?nodeId=' + parentId, function (response) {
         if (response.IsSuccess && response.Content.length > 0) {
           let children = response.Content;
-          let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
           let residueMeters = _.filter(meterTree, a => a.parent !== parentId);
           let newMeters = _.concat(residueMeters, children);
           meterTree = newMeters;
-          localStorage.setItem('meter_tree', JSON.stringify(meterTree));
+          sessionStorage.setItem('meter_tree', JSON.stringify(meterTree));
           renderMeterTree(newMeters, parentId, 'forward');
         }
       });
@@ -1541,7 +1615,7 @@ $(function () {
     if (globalFocusId === -1) {
       let meter = _.head(currentClickMeters);
       let defaultTitle = energyEnum[meter.EnergyCode] + '-' + meter.text;
-      let meterTree = JSON.parse(localStorage.getItem('meter_tree'));
+      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       let parentNode = _.find(meterTree, a => a.id === meter.parent);
       var modal = $.modal({
         title: '设置关注对象名称',
