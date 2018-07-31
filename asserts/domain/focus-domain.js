@@ -892,7 +892,8 @@ $(function () {
     let checkedNode = _.find(currentClickMeters, a => a.checked);
     if (!checkedNode) {
       checkedNode = _.head(currentClickMeters);
-      checkedNode.checked = true;
+      if (checkedNode)
+        checkedNode.checked = true;
     }
     _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
     let meterHeaderData = {

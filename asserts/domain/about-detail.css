@@ -1,0 +1,192 @@
+#page-persion-info .list-block {
+  font-size: 0.75rem;
+}
+
+.personal-info-nav {
+  background-color: rgb(32, 157, 250);
+}
+
+.personal-info-nav a,
+.personal-info-nav h1 {
+  color: #fff;
+}
+
+.wechat-margin {
+  margin-left: 0.5rem;
+}
+
+.persional-logo-container {
+  position: relative;
+}
+
+.persional-logo {
+  height: 2.5rem;
+  right: 0rem;
+  position: absolute;
+  top: -1.25rem;
+}
+
+.about-us-logo {
+  width: 100%;
+  position: relative;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.about-us-logo img {
+  height: 6rem;
+}
+
+.about-us-title {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.about-us-container {
+  padding: 0 1rem;
+  font-size: 0.65rem;
+}
+
+.about-us-container div {
+  margin: 2rem 0;
+  position: relative;
+}
+
+.about-us-container div:not(:last-child):after {
+  content: '';
+  width: 2rem;
+  height: 0.05rem;
+  background-color: #d0d0d0;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  bottom: -1rem;
+}
+
+#page-contact-us div.item-title {
+  line-height: 1.1rem;
+}
+
+#page-contact-us div.item-title:before {
+  margin-right: 0.5rem;
+}
+
+#page-contact-us .list-block {
+  font-size: 0.75rem;
+}
+
+.send-feedback {
+  border: transparent;
+}
+
+#page-feedback .content {
+  padding: 0.5rem;
+  background-color: #f9f9f9;
+}
+
+.textarea-container {
+  border: 1px solid #eee;
+  font-size: 0.75rem;
+  border-radius: 0.2rem;
+}
+
+.textarea {
+  outline: transparent;
+  border: transparent;
+  resize: none;
+  width: 100%;
+  min-height: 8rem;
+  padding: 0.25rem;
+  background: transparent;
+}
+
+.contact-container {
+  margin: 0.5rem 0;
+}
+
+.contact-container span {
+  font-size: 0.8rem;
+}
+
+.input-container {
+  display: inline-block;
+  border: 1px solid #eee;
+  line-height: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.25rem;
+  width: calc(100% - 3.46rem);
+  border-radius: 0.2rem;
+  vertical-align: baseline;
+}
+
+.input {
+  outline: transparent;
+  border: transparent;
+  background: transparent;
+  width: 100%;
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+.feedback {
+  text-indent: 1rem;
+  letter-spacing: 1rem;
+}
+
+.privacy-container,
+.agreement-container {
+  background-color: #f9f9f9;
+  padding: 0 1rem 0 0.5rem;
+  font-size: 0.7rem;
+  text-align: justify;
+}
+
+.privacy-h1 {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.privacy-version {
+  font-size: 0.6rem;
+  text-align: right;
+}
+
+.privacy-h2 {
+  font-size: 0.7rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  margin-left: 0.5rem;
+}
+
+.privacy-h3 {
+  margin: 0 0 0.5rem 0;
+  text-indent: 0.5rem;
+  margin-left: 1rem;
+}
+
+.h3-margin {
+  margin-top: 0.5rem;
+}
+
+.privacy-h4 {
+  text-indent: 1rem;
+  margin-left: 1.5rem;
+}
+
+.h4-margin {
+  margin-bottom: 0.5rem;
+}
+
+.privacy-h5 {
+  text-indent: 1.5rem;
+  margin-left: 2rem;
+}
+
+.h5-margin {
+  margin-bottom: 0.5rem;
+}

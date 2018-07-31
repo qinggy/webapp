@@ -498,3 +498,13 @@
   width: 0.8rem;
   display: inline-block;
 }
+
+.icon-wechat-png {
+  background-image: url(/asserts/img/wd/WeChat.png);
+  background-color: #f9f9f9;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  height: 0.8rem;
+  width: 0.8rem;
+  display: inline-block;
+}
