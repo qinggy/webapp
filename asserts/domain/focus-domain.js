@@ -162,12 +162,23 @@ $(function () {
         }
       },
       series: [{
-        name: '对比能耗',
+        name: '能耗对比',
         type: 'pie',
         radius: '55%',
         center: ['50%', '60%'],
+        label: {
+          normal: {
+            position: 'inner'
+          }
+        },
         data: seriesData,
         itemStyle: {
+          normal: {
+            label: {
+              show: true,
+              formatter: "{b} \n\r {c} ({d}%)"
+            }
+          },
           emphasis: {
             shadowBlur: 10,
             shadowOffsetX: 0,
@@ -445,17 +456,23 @@ $(function () {
     }
   };
   let loadMeterTree = function (type) {
-    switch (type) {
-      case 0:
-        esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
-          operateMeterTreeAjaxResult(response);
-        });
-        break;
-      case 1:
-        esdpec.framework.core.getJsonResult("common/gettree", function (response) {
-          operateMeterTreeAjaxResult(response);
-        });
-        break;
+    let meterJson = sessionStorage.getItem('meter_tree');
+    if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
+      switch (type) {
+        case 0:
+          esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+            operateMeterTreeAjaxResult(response);
+          });
+          break;
+        case 1:
+          esdpec.framework.core.getJsonResult("common/gettree", function (response) {
+            operateMeterTreeAjaxResult(response);
+          });
+          break;
+      }
+    } else {
+      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+      renderMeterTree(meterTree, '#', 'forward');
     }
   };
   let loadFocusListData = function (pageNum, keyword, successCallback) {
@@ -503,8 +520,8 @@ $(function () {
         let node = _.find(meterNodes, a => a.id === meterId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
           if (isComparsionStatus) {
-            if (currentClickMeters.length >= 4) {
-              $.toast('目前最多只能接受4个仪表同时对比');
+            if (currentClickMeters.length >= 6) {
+              $.toast('目前最多只能接受6个仪表同时对比');
               return;
             }
             $(e.currentTarget).toggleClass('comparsionchecked');
@@ -926,6 +943,7 @@ $(function () {
       });
     });
     $('#add_comparsion').on('click', function (e) {
+      e.stopPropagation();
       $.allowPanelOpen = true;
       $.openPanel('#tree-panel');
       isComparsionStatus = true;
@@ -1050,10 +1068,10 @@ $(function () {
       name: '日总量'
     }, {
       id: 'sum_per',
-      name: '相对昨日同期'
+      name: '昨日同期'
     }, {
       id: 'avg_per',
-      name: '相对同期平均'
+      name: '同期平均'
     }, {
       id: 'avg_val',
       name: '平均'
@@ -1076,7 +1094,7 @@ $(function () {
       id: 'lower_wave',
       name: '下线波动'
     }];
-    let tableHtml = "<table class='multiple-container'><thead class='multiple-header'><th><i class='icon-electric'></i></th>";
+    let tableHtml = "<table class='multiple-container'><thead class='multiple-header'><th><i class='icon-electric'></i></th><th class='fixedColumn'></th>";
     let colNames = _.filter(dataList, a => a.name);
     _.forEach(colNames, col => {
       tableHtml += '<th>' + col.name + '</th>';
@@ -1087,7 +1105,7 @@ $(function () {
     }
     tableHtml += '<tbody class="multiple-body" id="summary-data-container">';
     _.forEach(rowNames, row => {
-      tableHtml += "<tr class='multiple-body-item'><td>" + row.name + "</td>";
+      tableHtml += "<tr class='multiple-body-item'><td>" + row.name + "</td><td class='fixedColumn'></td>";
       _.forEach(dataList, col => {
         if (row.id === 'sum_per' || row.id === 'avg_per') {
           if (col[row.id] > 0) {
@@ -1127,7 +1145,7 @@ $(function () {
           _.forEach(response.Content, a => {
             let para = _.find(parameters, p => p.id === a.mfid);
             let summaryData = {
-              name: para ? para.mName + '-' + para.name : '--',
+              name: para ? para.mName : '--',
               avg_val: a.avg_val ? a.avg_val.toFixed(2) : '--',
               max_val: a.max_val ? a.max_val.toFixed(2) : '--',
               min_val: a.min_val ? a.min_val.toFixed(2) : '--',
@@ -1143,7 +1161,7 @@ $(function () {
               summaryData.avg_per = a.avg_per ? (a.avg_per * 100).toFixed(2) : '--';
             }
             let sumVal = {
-              name: summaryData.name,
+              name: para.mName,
               value: a.sum_val ? a.sum_val.toFixed(2) : 0
             };
             summaryDataList.push(summaryData);
@@ -1350,6 +1368,7 @@ $(function () {
     });
   };
   $(document).on('click', '.tree-menu', function (e) {
+    e.stopPropagation();
     $.allowPanelOpen = true;
     $.openPanel('#tree-panel');
     $('.meter-list li.meter-item').each(function (i, dom) {
@@ -1665,7 +1684,7 @@ $(function () {
                 etime: globaleTime,
                 activeId: getActiveMeterId()
               }
-              esdpec.framework.core.doPostOperation('dataanalysis/subscribe', para, function (response) {
+              esdpec.framework.core.doPostOperation('subscribe/subscribe', para, function (response) {
                 if (response.IsSuccess) {
                   $.toast('关注成功');
                   $('#subscribe').text('取消关注');

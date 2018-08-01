@@ -595,11 +595,11 @@
 
 .multiple {
   background-color: #f9f9f9;
-  overflow-x: auto;
 }
 
 .multiple-container {
   font-size: 0.75rem;
+  width: 100%;
 }
 
 .multiple-header {
@@ -614,6 +614,12 @@
   padding-right: 1rem;
 }
 
+.multiple-header th:first-child {
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 3.5rem;
+}
+
 .multiple-body {}
 
 .multiple-body-item {
@@ -622,6 +628,10 @@
 }
 
 .multiple-body .multiple-body-item:nth-child(odd) {
+  background-color: rgb(238, 249, 255);
+}
+
+.multiple-body .multiple-body-item:nth-child(odd) td:first-child {
   background-color: rgb(238, 249, 255);
 }
 
@@ -636,9 +646,20 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  max-width: 5rem;
+  width: 3.5rem;
+  position: absolute;
+  background-color: #f9f9f9;
 }
 
 .multiple-margin {
-  margin: 0.5rem 0.8rem;
+  margin: 0rem 0.8rem;
+  overflow-x: auto;
+  background-color: #f9f9f9;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.fixedColumn {
+  width: 3.5rem;
+  min-width: 3.5rem;
 }

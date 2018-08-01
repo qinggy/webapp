@@ -39,7 +39,7 @@
 
 <body>
   <div class="page-group">
-    <div class="page" id="page-focus">
+    <div class="page close-panel" id="page-focus">
       <header class="bar bar-nav">
         <i class="icon icon-nav pull-left open-panel tree-menu"></i>
         <div class="searchbar row">
@@ -79,7 +79,7 @@
         </div>
       </div>
     </div>
-    <div class="page" id="focus-detail-page">
+    <div class="page close-panel" id="focus-detail-page">
       <header class="bar bar-nav focus-detail-nav">
         <a href="#page-focus" class="icon icon-jump pull-left"></a>
         <h1 class="title">日量</h1>
@@ -129,7 +129,7 @@
             </div>
           </div>
         </div>
-        <div class="parameter-container" id="parameter-container" data-toggle="open">
+        <div class="parameter-container" id="parameter-container" style="display: none;" data-toggle="close">
         </div>
         <div class="chart-container">
           <div class="chart-unit">
@@ -195,8 +195,8 @@
         <div class="icon-jump" id="backParent"></div>
         <input type="hidden" id="parentId" value="">
         <div class="operateContainer">
-          <i class="icon-refresh" id="refreshCurrentNodeData"></i>
-          <a href="#" class="icon-close close-panel" id="close-panel"></a>
+          <!-- <i class="icon-refresh" id="refreshCurrentNodeData"></i> -->
+          <a href="#" class="icon-close close-panel unvisiable" id="close-panel"></a>
         </div>
         <div class="list-block" id="meterListContainer">
           <div class="preloading">
@@ -279,7 +279,7 @@
         <span class="{{if summargyClass}}warn{{else}}great{{/if}} data-container">{{sum_per}}%</span>
         <div class="{{if summargyClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
       </div>
-      <div class="data-prompt">相对昨日同期</div>
+      <div class="data-prompt">昨日同期</div>
     </div>
   </script>
   <script type="text/html" id="avg-data-template">
@@ -292,7 +292,7 @@
         <span class="{{if avgClass}}warn{{else}}great{{/if}} data-container">{{avg_per}}%</span>
         <div class="{{if avgClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
       </div>
-      <div class="data-prompt">相对同期平均值</div>
+      <div class="data-prompt">同期平均值</div>
     </div>
   </script>
   <script type="text/html" id="rule-container-tbody-template">
