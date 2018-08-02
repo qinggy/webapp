@@ -230,26 +230,61 @@
   background-color: #f9f9f9;
 }
 
-.list {
+.list,
+.parameterList {
   color: #000;
+  background-color: #f9f9f9 !important;
 }
 
-.list li.item-content:nth-child(odd) {
+/* .list>li.item-content:nth-child(odd) {
   background-color: rgb(238, 249, 255);
+} */
+
+li.item-content {
+  border-bottom: 0.05rem solid #e7e7e7;
 }
 
-.list .item-inner:after {
+.list .item-inner:after,
+.parameterList .item-inner:after {
   content: none !important;
 }
 
-.list .item-inner {
+.list .item-inner,
+.parameterList .item-inner {
   background-image: none !important;
 }
 
-.list .item-title {
+.list .item-title,
+.parameterList .item-title {
   line-height: 1rem;
 }
 
 .item-href {
   color: #0894ec !important;
+}
+
+.sub-item-container {
+  padding-left: 1rem;
+  margin: 0 !important;
+}
+
+.communicate_chart {
+  position: relative;
+  margin-top: -0.5rem;
+}
+
+.communicate_chart canvas {
+  left: -0.4rem !important;
+}
+
+.parameter-charts {
+  height: 15rem;
+  width: 100%;
+}
+
+.unit {
+  position: absolute;
+  right: 0.4rem;
+  top: 1rem;
+  font-size: 0.65rem;
 }

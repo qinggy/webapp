@@ -81,13 +81,13 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
     .done(function (data) {
       $.hidePreloader();
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        location.href = location.origin + '/src/login.html'
+        location.href = location.origin + '/src/login.html';
       }
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
-        location.href = location.origin + '/src/login.html'
+        location.href = location.origin + '/src/login.html';
       }
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
@@ -106,7 +106,9 @@ esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, fail
   });
   $jQuery.getJSON(this.Config.APIBaseUrl + url + esdpec.framework.core.getRequestRandom(url))
     .done(function (data) {
-      if (data.Code != undefined && data.Code != null && data.Code == 401) {}
+      if (data.Code != undefined && data.Code != null && data.Code == 401) {
+        location.href = location.origin + '/src/login.html';
+      }
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {

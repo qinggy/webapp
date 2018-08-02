@@ -543,6 +543,8 @@ $(function () {
       }
     });
     $jQuery('#backParent').on('click', function (e) {
+      e.stopPropagation();
+      if (!operateBefore()) return;
       backNavigate();
     });
   };

@@ -5,46 +5,33 @@ $(function () {
     overRun: 0,
     communicate: 1
   };
+  let dataTypeEnum = {
+    Min: 0,
+    Hour: 1,
+    Day: 2,
+    Week: 3,
+    Month: 4,
+    Year: 5
+  };
   let chooseTypeEnum = {
     area: 0,
     meter: 1
   };
-  let meterInfoMap = [{
-    id: 'interrupt_count',
-    name: '中断次数'
-  }, {
-    id: 'offline_meter',
-    name: '离线数'
-  }, {
-    id: 'online_meter',
-    name: '在线数'
-  }, {
-    id: 'overrun_meter',
-    name: '超限数'
-  }, {
-    id: 'overrun_normal',
-    name: '正常数'
-  }, {
-    id: 'total_meter',
-    name: '区域总表数'
-  }, {
-    id: '',
-    name: '采集条数'
-  }, {
-    id: '',
-    name: '正常条数'
-  }, {
-    id: '',
-    name: '超限条数'
-  }];
-  let globalChooseMeterList = [];
   let globalSTime = new Date().format('yyyy-MM-dd 00:00:01'),
     globalETime = new Date().format('yyyy-MM-dd 23:59:59'),
+    globalDataType = dataTypeEnum.Hour,
     chooseType = chooseTypeEnum.area,
-    chooseId = '2787947a-ee0e-e711-80e8-a55521da1859';
+    chooseId = '',
+    defaultUri = '',
+    paraChart;
   let activeHealthType = healthType.overRun;
   let formatNumber = n => n < 10 ? "0" + n : n;
-  let getUrlPara = () => `areaId=${chooseId}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
+  let topNode = () => {
+    let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+    return _.head(meterTree, a => a.parent === '#');
+  };
+  let getChooseId = () => _.isEqual(chooseId, '') ? topNode().id : chooseId;
+  let getUrlPara = (paraName) => `${paraName}=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
   let getWeek = () => {
     let weekOfday = parseInt(moment().format('E'));
     let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:01');
@@ -107,33 +94,65 @@ $(function () {
     }
   };
   let switchInfo = type => {
-    switch (type) {
-      case healthType.overRun:
-        $('#alart-container').removeClass('hidden');
-        $('#offline-container').addClass('hidden');
-        break;
-      case healthType.communicate:
-        $('#alart-container').addClass('hidden');
-        $('#offline-container').removeClass('hidden');
-        break;
+    if (chooseType === chooseTypeEnum.area)
+      switch (type) {
+        case healthType.overRun:
+          $('#alart-container').removeClass('hidden');
+          $('#offline-container').addClass('hidden');
+          break;
+        case healthType.communicate:
+          $('#alart-container').addClass('hidden');
+          $('#offline-container').removeClass('hidden');
+          break;
+      }
+    else {
+      $('#alart-container').addClass('hidden');
+      $('#offline-container').addClass('hidden');
+      $('#detail-container').removeClass('hidden');
+    }
+  };
+  let changePageTitle = () => {
+    if (activeHealthType === healthType.overRun) {
+      if (chooseType === chooseTypeEnum.area) $('#page-title').text('区域超限仪表');
+      else $('#page-title').text('仪表超限详情');
+    } else {
+      if (chooseType === chooseTypeEnum.area) $('#page-title').text('区域通讯详情');
+      else $('#page-title').text('仪表通讯详情');
     }
   };
   let renderMeterInfo = (data) => {
     let healthInfoHtml = '<table class="infoTable">';
-    switch (activeHealthType) {
-      case healthType.overRun:
-        healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
-        healthInfoHtml += `<td style="width: 4rem">正常数:</td><td><span class="info-data">${data['overrun_normal']}</span>&nbsp;个</td></tr>`;
-        healthInfoHtml += `<tr><td style="width: 4rem">超限数:</td><td><span class="info-data">${data['overrun_meter']}</span>&nbsp;个</td></tr></table>`;
-        switchInfo(healthType.overRun);
-        break;
-      case healthType.communicate:
-        healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
-        healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;个</td></tr>`;
-        healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;个</td>`;
-        healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;个</td></tr></table>`;
-        switchInfo(healthType.communicate);
-        break;
+    if (chooseType === chooseTypeEnum.area) {
+      switch (activeHealthType) {
+        case healthType.overRun:
+          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
+          healthInfoHtml += `<td style="width: 4rem">正常数:</td><td><span class="info-data">${data['overrun_normal']}</span>&nbsp;个</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">超限数:</td><td><span class="info-data">${data['overrun_meter']}</span>&nbsp;个</td></tr></table>`;
+          switchInfo(healthType.overRun);
+          break;
+        case healthType.communicate:
+          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
+          healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;个</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;个</td>`;
+          healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;个</td></tr></table>`;
+          switchInfo(healthType.communicate);
+          break;
+      }
+    } else {
+      switch (activeHealthType) {
+        case healthType.overRun:
+          healthInfoHtml += `<tr><td style="width: 4rem">采集条数:</td><td><span class="info-data">${data['total_count']}</span>&nbsp;个</td>`;
+          healthInfoHtml += `<td style="width: 4rem">正常条数:</td><td><span class="info-data">${data['overrun_normal']}</span>&nbsp;个</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">超限条数:</td><td><span class="info-data">${data['overrun_count']}</span>&nbsp;个</td></tr></table>`;
+          switchInfo(healthType.overRun);
+          break;
+        case healthType.communicate:
+          healthInfoHtml += `<tr><td style="width: 4rem">总条数:</td><td><span class="info-data">${data['total_count']}</span>&nbsp;条</td>`;
+          healthInfoHtml += `<td style="width: 4rem">正常条数:</td><td><span class="info-data">${data['interrupt_normal']}</span>&nbsp;条</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">中断条数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;条</td></tr></table>`;
+          switchInfo(healthType.communicate);
+          break;
+      }
     }
     $('#health-info').html(healthInfoHtml);
   };
@@ -142,56 +161,275 @@ $(function () {
     _.forEach(data, a => {
       if (a.type === 1) a.ifShowMore = 'icon-more';
     });
-    switch (type) {
-      case healthType.overRun:
-        let alertData = {
-          alertMeterList: data
-        };
-        alertMeterHtml = template('alert-meter-tempalte', alertData);
-        $('#alert-meter-container').html(alertMeterHtml);
-        break;
-      case healthType.communicate:
-        let offlineData = {
-          offlineMeterList: data
-        };
-        alertMeterHtml = template('offline-meter-template', offlineData);
-        $('#offline-meter-container').html(alertMeterHtml);
-        break;
+    if (chooseType === chooseTypeEnum.area) {
+      switch (type) {
+        case healthType.overRun:
+          let alertData = {
+            alertMeterList: data
+          };
+          alertMeterHtml = template('alert-meter-tempalte', alertData);
+          $('#alert-meter-container').html(alertMeterHtml);
+          break;
+        case healthType.communicate:
+          let offlineData = {
+            offlineMeterList: data
+          };
+          alertMeterHtml = template('offline-meter-template', offlineData);
+          $('#offline-meter-container').html(alertMeterHtml);
+          break;
+      }
+    } else {
+      switch (type) {
+        case healthType.overRun:
+        case healthType.communicate:
+          let parameterData = {
+            parameterList: data
+          };
+          alertMeterHtml = template('meter-info-template', parameterData);
+          $('#meter-info-container').html(alertMeterHtml);
+          break;
+      }
     }
+  };
+  let getSeries = (data, xAxis) => {
+    let option = {};
+    option.type = 'line';
+    option.data = _.map(xAxis, a => {
+      var valueItem = _.find(data.now_data_list, b => b.date === a);
+      return !!valueItem ? valueItem.val : 0;
+    });
+    option.markLine = {
+      itemStyle: {
+        normal: {
+          borderWidth: 1,
+          lineStyle: {
+            type: 'dash',
+            color: '#c23531',
+            width: 2,
+          }
+        }
+      },
+      data: []
+    };
+    let rule = data.rule;
+    if (rule != null) {
+      if (rule.LowerLimit != null) {
+        option.markLine.data.push({
+          name: 'LowerLimit',
+          label: {
+            formatter: '下线报警(' + rule.LowerLimit + ')',
+            textStyle: {
+              fontSize: 12,
+            },
+            position: 'middle'
+          },
+          yAxis: rule.LowerLimit
+        });
+        if (rule.LowerWave != null) {
+          let waveValue = rule.LowerLimit + rule.LowerWave;
+          option.markLine.data.push({
+            name: 'LowerWave',
+            label: {
+              formatter: '下线预警(' + waveValue + ')',
+              textStyle: {
+                fontSize: 12,
+              },
+              position: 'middle'
+            },
+            yAxis: waveValue
+          });
+        }
+      }
+      if (rule.UpperLimit != null) {
+        option.markLine.data.push({
+          name: 'UpperLimit',
+          label: {
+            formatter: '上线报警(' + rule.UpperLimit + ')',
+            textStyle: {
+              fontSize: 12,
+            },
+            position: 'middle'
+          },
+          yAxis: rule.UpperLimit
+        });
+        if (rule.UpperWave != null) {
+          let waveValue = rule.UpperLimit - rule.UpperWave;
+          option.markLine.data.push({
+            name: 'LowerWave',
+            label: {
+              formatter: '上线预警(' + waveValue + ')',
+              textStyle: {
+                fontSize: 12,
+              },
+              position: 'middle'
+            },
+            yAxis: waveValue
+          });
+        }
+      }
+    }
+    return option;
+  };
+  let generateChart = function (chartDom, data, showPie = false) {
+    paraChart = echarts.init(chartDom, e_macarons);
+    let option = {
+      tooltip: {
+        trigger: 'axis'
+      },
+      toolbox: {
+        show: true,
+        x: 10,
+        y: 31,
+        orient: 'vertical',
+        feature: {
+          magicType: {
+            show: true,
+            icon: {
+              line: "image:///asserts/img/gz/line.png",
+              bar: "image:///asserts/img/gz/bar.png",
+            },
+            type: ['line', 'bar']
+          }
+        }
+      },
+      calculable: false,
+      dataZoom: {
+        show: true,
+        realtime: true,
+        start: 0,
+        end: 100
+      },
+      xAxis: [{
+        type: 'category',
+        data: data.xAxisData,
+        axisTick: {
+          alignWithLabel: true
+        }
+      }],
+      yAxis: [{
+        type: 'value',
+        position: 'right',
+        axisLabel: {
+          formatter: '{value} '
+        }
+      }],
+      series: data.series
+    };
+    paraChart.setOption(option, true);
+  };
+  let renderChartAndRule = (data, nodeId, unit) => {
+    if ((data.now_data_list === null || data.now_data_list.length <= 0) && paraChart) paraChart.clear();
+    let chartData = {
+      xAxisData: {},
+      series: []
+    };
+    $jQuery('#parameterDetail_' + nodeId).append("<div class='unit'>" + unit + "</div><div class='parameter-charts' id='chart_" + nodeId + "'></div>");
+    chartData.xAxisData = _.map(data.now_data_list, a => a.date);
+    chartData.series = [getSeries(data, chartData.xAxisData)];
+    generateChart(document.getElementById('chart_' + nodeId), chartData);
   };
   let bindDatePicker = function () {
     $("#datePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
     }, 'd');
   };
-  let getChooseObjHealthData = function () {
-    let urlPara = getUrlPara();
-    esdpec.framework.core.getJsonResult('health/getareahealth?' + urlPara, function (response) {
-      if (response.IsSuccess && response.Content) {
-        console.log(response.Content);
-        let rtnContent = response.Content;
-        let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-        $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
-        let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
-        cycleloader('#health-detail-cycle', 160, 160, score);
-        renderMeterInfo(rtnContent);
-        renderTableList(activeHealthType, rtnContent.list);
-      }
-    });
+  let getMeterCommucateData = (nodeId) => {
+    let node = $('#showMeterInfo_' + nodeId);
+    let nodeInnerHtml = node.html();
+    if (_.isEqual(nodeInnerHtml, '')) {
+      let urlPara = `meterId=${nodeId}&sTime=${globalSTime}&eTime=${globalETime}`;
+      esdpec.framework.core.getJsonResult('health/getareameternetworkhealth?' + urlPara, function (response) {
+        if (response.IsSuccess && response.Content) {
+          let meterInfoList = [{
+            title: '中断次数',
+            value: response.Content.interrupt_count + '次'
+          }, {
+            title: '仪表型号',
+            value: response.Content.meter_modelname
+          }, {
+            title: '采集器',
+            value: response.Content.collector_name
+          }, {
+            title: '串口',
+            value: response.Content.port_name
+          }, {
+            title: '位置',
+            value: response.Content.address
+          }];
+          let data = {
+            meterInfoList: meterInfoList
+          };
+          let meterInfoHtml = template('communicate-meter-detail-template', data);
+          $('#showMeterInfo_' + nodeId).html(meterInfoHtml);
+        }
+      });
+    }
+    if (node.attr('data-toggle') === 'open') {
+      $jQuery('#showMeterInfo_' + nodeId).attr('data-toggle', 'close').slideUp(300);
+    } else {
+      $jQuery('#showMeterInfo_' + nodeId).attr('data-toggle', 'open').slideDown(300);
+    }
   };
-  let getCommunicateData = function () {
-
+  let getMeterOverRunData = (nodeId) => {
+    if (activeHealthType === healthType.overRun) {
+      let urlPara = `meterId=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
+      esdpec.framework.core.getJsonResult('health/getmeterhealth?' + urlPara, function (response) {
+        if (response.IsSuccess && response.Content) {
+          let rtnContent = response.Content;
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+          cycleloader('#health-detail-cycle', 160, 160, score);
+          renderMeterInfo(rtnContent);
+          renderTableList(activeHealthType, rtnContent.mfid_list);
+        }
+      });
+    } else if (chooseType === chooseTypeEnum.area) getMeterCommucateData(nodeId);
+    else {
+      let urlPara = `meterId=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
+      esdpec.framework.core.getJsonResult('health/getmeterhealth?' + urlPara, function (response) {
+        if (response.IsSuccess && response.Content) {
+          console.log(response.Content);
+          let rtnContent = response.Content;
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+          cycleloader('#health-detail-cycle', 160, 160, score);
+          renderMeterInfo(rtnContent);
+          renderTableList(activeHealthType, rtnContent.mfid_list);
+        }
+      });
+    }
+  };
+  let getChooseObjHealthData = function () {
+    if (chooseType === chooseTypeEnum.area) {
+      let urlPara = getUrlPara('areaId');
+      esdpec.framework.core.getJsonResult('health/getareahealth?' + urlPara, function (response) {
+        if (response.IsSuccess && response.Content) {
+          let rtnContent = response.Content;
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+          cycleloader('#health-detail-cycle', 160, 160, score);
+          renderMeterInfo(rtnContent);
+          renderTableList(activeHealthType, rtnContent.list);
+        }
+      });
+    } else getMeterOverRunData();
   };
   $('.health-more a').on('click', function (e) {
     let currentDom = $(e.currentTarget);
     let type = currentDom.attr('data-type');
-    activeHealthType = type === '1' ? healthType.overRun : healthType.communicate;
+    activeHealthType = type === '0' ? healthType.overRun : healthType.communicate;
+    $('.healthType div').removeClass('active');
+    $(".healthType div[data-type= '" + type + "']").addClass('active');
     $.router.load('#page-health-detail');
   });
   $('.healthType div').on('click', function (e) {
     $('.healthType div').removeClass('active');
     $(e.currentTarget).addClass('active');
     activeHealthType = parseInt($(e.currentTarget).attr('data-type'));
+    changePageTitle();
     getChooseObjHealthData();
   });
   let renderMeterTree = function (list, parent, type) {
@@ -207,25 +445,34 @@ $(function () {
       meterList: children
     };
     let meterHtml = template('meter-list-template', data);
-    $jQuery('#meterListContainer').html(meterHtml);
-    $jQuery('.meter-list .meter-item').on('click', function (e) {
-      let meterId = $(e.currentTarget).attr('data-id');
+    $('#meterListContainer').html(meterHtml);
+    $('.meter-list .meter-item').on('click', function (e) {
+      e.stopPropagation();
+      let nodeId = $(e.currentTarget).attr('data-id');
       let meterTree = sessionStorage.getItem('meter_tree');
       let meterNodes = JSON.parse(meterTree);
-      let children = _.filter(meterNodes, a => a.parent === meterId);
-      if (children.length > 0)
-        renderMeterTree(children, meterId, 'forward');
-      else {
-        let node = _.find(meterNodes, a => a.id === meterId);
+      let children = _.filter(meterNodes, a => a.parent === nodeId);
+      if (children.length > 0) {
+        renderMeterTree(children, nodeId, 'forward');
+        chooseId = nodeId;
+        chooseType = chooseTypeEnum.area;
+        changePageTitle();
+        getChooseObjHealthData();
+      } else {
+        let node = _.find(meterNodes, a => a.id === nodeId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
-          globalChooseMeterList = [];
           node.checked = true;
-          globalChooseMeterList.push(node);
+          chooseId = nodeId;
+          chooseType = chooseTypeEnum.meter;
+          changePageTitle();
+          getChooseObjHealthData();
           $('#close-panel').click();
         }
       }
     });
-    $jQuery('#backParent').on('click', function (e) {
+    $('#meter-tree-panel').on('click', '#backParent', function (e) {
+      e.stopPropagation();
+      if (!operateBefore()) return;
       backNavigate();
     });
   };
@@ -250,6 +497,8 @@ $(function () {
       let meterList = response.Content;
       sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
       renderMeterTree(meterList, '#', 'forward');
+      chooseId = topNode().id;
+      getChooseObjHealthData();
     }
   };
   let loadMeterTree = function (type) {
@@ -270,12 +519,13 @@ $(function () {
     } else {
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       renderMeterTree(meterTree, '#', 'forward');
+      chooseId = topNode().id;
+      getChooseObjHealthData();
     }
   };
   let getHealthTotalData = function () {
     esdpec.framework.core.getJsonResult('health/getlist', function (response) {
       if (response.IsSuccess && response.Content) {
-        console.log(response.Content);
         $('#companyName').text(response.Content.company_name);
         cycleloader('#health-cycle', 160, 160, response.Content.overrun_score ? response.Content.overrun_score / 100 : 0);
         cycleloader('#communication-cycle', 160, 160, response.Content.network_score ? response.Content.network_score / 100 : 0);
@@ -310,6 +560,7 @@ $(function () {
       $jQuery('#showMoreBtn').attr('data-toggle', 'open');
     }
     toggleActive();
+    globalDataType = dataTypeEnum.Hour;
     ifShowSearch(true);
   });
   $('#showMenu').on("click", function (e) {
@@ -322,6 +573,7 @@ $(function () {
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showDay').addClass('active');
+    globalDataType = dataTypeEnum.Hour;
     ifShowSearch(false);
     globalSTime = new Date().format('yyyy-MM-dd 00:00:01');
     globalETime = new Date().format('yyyy-MM-dd 23:59:59');
@@ -331,6 +583,7 @@ $(function () {
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showWeek').addClass('active');
+    globalDataType = dataTypeEnum.Day;
     ifShowSearch(false);
     let week = getWeek();
     globalSTime = week.monday;
@@ -361,18 +614,74 @@ $(function () {
         }
       });
   });
+  $('.list-block').on('click', '.parameterList li', (e) => {
+    e.stopPropagation();
+    let node = $(e.currentTarget);
+    let nodeType = node.attr('data-type');
+    let nodeId = node.attr('data-id');
+    let unit = node.attr('data-unit');
+    let chartNode = $('#parameterDetail_' + nodeId);
+    let nodeInnerHtml = chartNode.html();
+    if (_.isEqual(nodeInnerHtml, '')) {
+      let uri = `meterId=${chooseId}&mfid=${nodeId}&type=${nodeType}&healthtype=${activeHealthType}
+      &dateType=${globalDataType}&sTime=${globalSTime}&eTime=${globalETime}`;
+      esdpec.framework.core.getJsonResult('health/getmeterparainfohealth?' + uri, (response) => {
+        if (response.IsSuccess && response.Content) {
+          console.log(response.Content);
+          if (activeHealthType === healthType.communicate) unit = '个';
+          renderChartAndRule(response.Content, nodeId, unit);
+        }
+      });
+    }
+    if (chartNode.attr('data-toggle') === 'open') {
+      $jQuery('#parameterDetail_' + nodeId).attr('data-toggle', 'close').slideUp(300);
+    } else {
+      $jQuery('#parameterDetail_' + nodeId).attr('data-toggle', 'open').slideDown(300);
+    }
+  });
+  $('.list-block').on('click', '.list li', function (e) {
+    e.stopPropagation();
+    let node = $(e.currentTarget);
+    let nodeType = node.attr('data-type');
+    if (nodeType === '0') {
+      if (activeHealthType === healthType.overRun) {
+        chooseId = node.attr('data-id');
+        chooseType = chooseTypeEnum.meter;
+        changePageTitle();
+        getMeterOverRunData();
+      } else {
+        getMeterOverRunData(node.attr('data-id'));
+      }
+    } else {
+      let nodeId = node.attr('data-id');
+      let childrenNode = $('#showChildren_' + nodeId);
+      let fixedHtml = childrenNode.html();
+      if (_.isEqual(fixedHtml, '')) {
+        let urlPara = `areaId=${nodeId}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
+        esdpec.framework.core.getJsonResult('health/getareanodechildhealth?' + urlPara, function (response) {
+          if (response.IsSuccess) {
+            let alertData = {
+              alertMeterList: response.Content
+            };
+            let alertDataHtml = template('sub-data-template', alertData);
+            $('#showChildren_' + nodeId).html(alertDataHtml);
+          }
+        });
+      }
+      if (childrenNode.attr('data-toggle') === 'open') {
+        $jQuery('#showChildren_' + nodeId).attr('data-toggle', 'close').slideUp(300);
+      } else {
+        $jQuery('#showChildren_' + nodeId).attr('data-toggle', 'open').slideDown(300);
+      }
+    }
+  });
   $(document).on("pageInit", "#page-health", function (e, id, page) {
     getHealthTotalData();
   });
   $(document).on('pageInit', '#page-health-detail', function (e, id, page) {
     loadMeterTree(0);
     bindDatePicker();
-    getChooseObjHealthData();
-    if (activeHealthType === healthType.overRun) {
-      $('#page-title').text('区域超限仪表');
-    } else {
-      $('#page-title').text('区域通讯详情');
-    }
+    changePageTitle();
   });
   $.init();
 });
