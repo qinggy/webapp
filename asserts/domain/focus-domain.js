@@ -358,6 +358,9 @@ $(function () {
           break;
         case 3:
         case 4:
+          sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
+          window.location.href = '../health/index.html#page-health-detail';
+          break;
         case 5:
         case 6:
 
@@ -537,7 +540,7 @@ $(function () {
             node.checked = true;
             currentClickMeters.push(node);
             $.router.load("#focus-detail-page", true);
-            $('#close-panel').click();
+            /*$('#close-panel').click();*/
           }
         }
       }
@@ -1636,7 +1639,7 @@ $(function () {
   $(document).on('click', '#subscribe', function (e) {
     if (globalFocusId === -1) {
       let meter = _.head(currentClickMeters);
-      let defaultTitle = energyEnum[meter.EnergyCode] + '-' + meter.text;
+      let defaultTitle = '日量-' + energyEnum[meter.EnergyCode] + '-' + meter.text;
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       let parentNode = _.find(meterTree, a => a.id === meter.parent);
       var modal = $.modal({
@@ -1715,7 +1718,7 @@ $(function () {
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
     isComparsionStatus = false;
-    $('#close-panel').click();
+    /* $('#close-panel').click();*/
     bindTabClick(page);
     renderFocusMeter();
     getMeterFocusData();

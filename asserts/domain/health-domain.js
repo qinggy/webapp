@@ -17,14 +17,28 @@ $(function () {
     area: 0,
     meter: 1
   };
+  let energyEnum = {
+    WAT001: '水',
+    ELE001: '电',
+    GAS001: '气',
+    COA001: '煤',
+    COL001: '冷量',
+    OTH: '其他',
+    PEO: '人数',
+    ARE: '面积',
+    Production: '产能',
+    GDP: '产值',
+    TheoreticalCollection: '理论采集量',
+    ActualCollection: '实际采集量'
+  };
   let globalSTime = new Date().format('yyyy-MM-dd 00:00:01'),
     globalETime = new Date().format('yyyy-MM-dd 23:59:59'),
     globalDataType = dataTypeEnum.Hour,
     chooseType = chooseTypeEnum.area,
+    activeHealthType = healthType.overRun,
     chooseId = '',
     defaultUri = '',
     paraChart;
-  let activeHealthType = healthType.overRun;
   let formatNumber = n => n < 10 ? "0" + n : n;
   let topNode = () => {
     let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
@@ -119,6 +133,9 @@ $(function () {
       if (chooseType === chooseTypeEnum.area) $('#page-title').text('区域通讯详情');
       else $('#page-title').text('仪表通讯详情');
     }
+    let subscribe = sessionStorage.getItem('current_health');
+    if (subscribe) $('#subscribe').text('取消关注');
+    else $('#subscribe').text('关注');
   };
   let renderMeterInfo = (data) => {
     let healthInfoHtml = '<table class="infoTable">';
@@ -292,7 +309,7 @@ $(function () {
           }
         }
       },
-      calculable: false,
+      calculable: true,
       dataZoom: {
         show: true,
         realtime: true,
@@ -332,6 +349,10 @@ $(function () {
     $("#datePicker").datePicker({
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
     }, 'd');
+  };
+  let bindSubscribe = _ => {
+    let subscribeHealth = sessionStorage.getItem('current_health');
+    if (subscribeHealth) $('#subscribe').text('取消关注');
   };
   let getMeterCommucateData = (nodeId) => {
     let node = $('#showMeterInfo_' + nodeId);
@@ -423,6 +444,7 @@ $(function () {
     activeHealthType = type === '0' ? healthType.overRun : healthType.communicate;
     $('.healthType div').removeClass('active');
     $(".healthType div[data-type= '" + type + "']").addClass('active');
+    sessionStorage.setItem('current_health', '');
     $.router.load('#page-health-detail');
   });
   $('.healthType div').on('click', function (e) {
@@ -454,6 +476,7 @@ $(function () {
       let children = _.filter(meterNodes, a => a.parent === nodeId);
       if (children.length > 0) {
         renderMeterTree(children, nodeId, 'forward');
+        sessionStorage.setItem('current_health', '');
         chooseId = nodeId;
         chooseType = chooseTypeEnum.area;
         changePageTitle();
@@ -461,7 +484,7 @@ $(function () {
       } else {
         let node = _.find(meterNodes, a => a.id === nodeId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
-          node.checked = true;
+          sessionStorage.setItem('current_health', '');
           chooseId = nodeId;
           chooseType = chooseTypeEnum.meter;
           changePageTitle();
@@ -491,11 +514,21 @@ $(function () {
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       renderMeterTree(meterTree, parent, 'back');
     }
-  }
+  };
+  let initDataAndHealthType = function () {
+    changePageTitle();
+    $('.healthType div').removeClass('active');
+    if (activeHealthType === healthType.overRun) $('.healthType div.health-overrun').addClass('active');
+    else $('.healthType div.health-communicate').addClass('active');
+    toggleActive();
+    if (globalDataType === dataTypeEnum.Day) $('#showWeek').addClass('active');
+    else $('#showDay').addClass('active');
+  };
   let operateMeterTreeAjaxResult = function (response) {
     if (response.IsSuccess && response.Content.length > 0) {
       let meterList = response.Content;
       sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
+      sessionStorage.setItem('current_health', '');
       renderMeterTree(meterList, '#', 'forward');
       chooseId = topNode().id;
       getChooseObjHealthData();
@@ -519,7 +552,17 @@ $(function () {
     } else {
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       renderMeterTree(meterTree, '#', 'forward');
-      chooseId = topNode().id;
+      let subscribe = sessionStorage.getItem('current_health');
+      if (subscribe) {
+        let subscribeObj = JSON.parse(subscribe);
+        chooseId = subscribeObj.activeId;
+        chooseType = subscribeObj.query_type;
+        activeHealthType = subscribeObj.date_type;
+        globalDataType = subscribeObj.data_type;
+        globalSTime = subscribeObj.stime;
+        globalETime = subscribeObj.etime;
+        initDataAndHealthType();
+      } else chooseId = topNode().id;
       getChooseObjHealthData();
     }
   };
@@ -628,7 +671,7 @@ $(function () {
       esdpec.framework.core.getJsonResult('health/getmeterparainfohealth?' + uri, (response) => {
         if (response.IsSuccess && response.Content) {
           console.log(response.Content);
-          if (activeHealthType === healthType.communicate) unit = '个';
+          if (activeHealthType === healthType.communicate) unit = '条';
           renderChartAndRule(response.Content, nodeId, unit);
         }
       });
@@ -645,6 +688,7 @@ $(function () {
     let nodeType = node.attr('data-type');
     if (nodeType === '0') {
       if (activeHealthType === healthType.overRun) {
+        sessionStorage.setItem('current_health', '');
         chooseId = node.attr('data-id');
         chooseType = chooseTypeEnum.meter;
         changePageTitle();
@@ -675,12 +719,78 @@ $(function () {
       }
     }
   });
+  $(document).on('click', '#subscribe', function (e) {
+    let subscribe = sessionStorage.getItem('current_health');
+    if (!subscribe) {
+      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+      let node = _.find(meterTree, a => a.id === chooseId);
+      let defaultTitle = '健康-' + node.text;
+      let parentNode = _.find(meterTree, a => a.id === node.parent);
+      var modal = $.modal({
+        title: '设置关注对象名称',
+        afterText: '<div >' +
+          '<div class="">' +
+          '<input type="text" value="' + defaultTitle + '" id="focusTitle" style="padding: 0.25rem;border-radius: 0.2rem;border: transparent;outline: transparent;">' +
+          '</div>' +
+          '</div>',
+        buttons: [{
+            text: '取消'
+          },
+          {
+            text: '确定',
+            bold: true,
+            onClick: function () {
+              let title = $('#focusTitle').val();
+              if (_.isEqual(title, '')) {
+                $.toast('请设置关注标题');
+                return;
+              }
+              let para = {
+                title: title,
+                sId: '',
+                areaId: node.parent,
+                area_name: parentNode ? parentNode.text : '',
+                slist: chooseId,
+                unit: '',
+                energy_code: node.EnergyCode,
+                description: (parentNode ? parentNode.text : '') + '-' + node.text,
+                stype: activeHealthType === healthType.overRun ? 4 : 3,
+                date_type: activeHealthType,
+                query_type: chooseType,
+                data_type: globalDataType,
+                stime: globalSTime,
+                etime: globalETime,
+                activeId: chooseId
+              }
+              esdpec.framework.core.doPostOperation('subscribe/subscribe', para, function (response) {
+                if (response.IsSuccess) {
+                  $.toast('关注成功');
+                  $('#subscribe').text('取消关注');
+                  sessionStorage.setItem('current_health', JSON.stringify({
+                    id: response.Content
+                  }));
+                }
+              });
+            }
+          },
+        ]
+      });
+    } else {
+      let subscribeObj = JSON.parse(subscribe);
+      esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + subscribeObj.id, {}, function (response) {
+        if (response.IsSuccess) {
+          $('#subscribe').text('关注');
+        }
+      });
+    }
+  });
   $(document).on("pageInit", "#page-health", function (e, id, page) {
     getHealthTotalData();
   });
   $(document).on('pageInit', '#page-health-detail', function (e, id, page) {
     loadMeterTree(0);
     bindDatePicker();
+    bindSubscribe();
     changePageTitle();
   });
   $.init();
