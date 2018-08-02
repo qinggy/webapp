@@ -1003,6 +1003,21 @@ $(function () {
     let alertHtml = template('alert-data-template', data);
     $('#alert-data-container').html(alertHtml);
   };
+  $(document).on('click', '.alert-data-item .item-more', function (e) {
+    let node = $(e.currentTarget);
+    let meterId = node.attr('data-id');
+    let healthObj = {
+      activeId: meterId,
+      data_type: globalDateType,
+      date_type: 0,
+      etime: globaleTime,
+      id: '',
+      query_type: 1,
+      stime: globalsTime
+    };
+    sessionStorage.setItem('current_health', JSON.stringify(healthObj));
+    window.location.href = '../health/index.html#page-health-detail';
+  });
   let renderGaugeData = function () {
     let currentMeterId = getActiveMeterId();
     let currentMeter = _.find(currentClickMeters, a => a.id === currentMeterId);

@@ -134,8 +134,14 @@ $(function () {
       else $('#page-title').text('仪表通讯详情');
     }
     let subscribe = sessionStorage.getItem('current_health');
-    if (subscribe) $('#subscribe').text('取消关注');
-    else $('#subscribe').text('关注');
+    if (subscribe) {
+      let subscribeObj = JSON.parse(subscribe);
+      if (subscribeObj.id !== '') {
+        $('#subscribe').text('取消关注');
+        return;
+      }
+    }
+    $('#subscribe').text('关注');
   };
   let renderMeterInfo = (data) => {
     let healthInfoHtml = '<table class="infoTable">';
@@ -352,7 +358,14 @@ $(function () {
   };
   let bindSubscribe = _ => {
     let subscribeHealth = sessionStorage.getItem('current_health');
-    if (subscribeHealth) $('#subscribe').text('取消关注');
+    if (subscribeHealth) {
+      let subscribeObj = JSON.parse(subscribeHealth)
+      if (subscribeObj.id !== '') {
+        $('#subscribe').text('取消关注');
+        return;
+      }
+    }
+    $('#subscribe').text('关注');
   };
   let getMeterCommucateData = (nodeId) => {
     let node = $('#showMeterInfo_' + nodeId);

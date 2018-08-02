@@ -267,6 +267,7 @@
   top: 1.8rem;
   color: rgb(0, 138, 205);
   z-index: 10086;
+  background-color: #f9f9f9;
 }
 
 .chart-container {
@@ -612,6 +613,9 @@
   padding: 0 0.2rem;
   white-space: nowrap;
   padding-right: 1rem;
+  max-width: 6.5rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .multiple-header th:first-child {
