@@ -1,3 +1,7 @@
+#page-focus .search-input .icon {
+  left: 0.7rem !important;
+}
+
 .focus-detail-nav {
   background-color: rgb(32, 157, 250);
 }

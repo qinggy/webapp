@@ -1,7 +1,9 @@
 $(function () {
   'use strict';
 
-  var reportEnum = {
+  let currentPageNum = 1,
+    keyword;
+  let reportEnum = {
     'bz': 'icon-bz',
     'fgp': 'icon-fgp',
     'hb': 'icon-hb',
@@ -13,38 +15,39 @@ $(function () {
     'tb': 'icon-tb',
     'ybb': 'icon-month-day'
   };
-
-  var getReportType = function (type) {
+  let getReportType = function (type) {
     return reportEnum[type];
   };
+  let urlParm = 'pageNum=' + currentPageNum + '&keyword=' + keyword;
 
   $(document).on("pageInit", '#page-report', function (e, id, page) {
-    esdpec.framework.core.getJsonResult("reportmodule/list1", function (response) {
-      var data = {
+    esdpec.framework.core.getJsonResult("report/getlist?" + urlParm, function (response) {
+      let data = {
         reportList: []
       };
-      var reportHtml = $jQuery('#report-no-content-template').html();
-      if (response.IsSuccess && response.Content.length > 0) {
+      let reportHtml = $('#report-no-content-template').html();
+      if (response.IsSuccess && response.Content && response.Content.datas.length > 0) {
         data.reportList = response.Content;
         $jQuery.each(data.reportList, function (index, item) {
           item.ReportType = getReportType(item.ReportType);
         });
         reportHtml = template('report-list-template', data);
-        $jQuery('#report-list-container').removeClass('report-no-margin').html(reportHtml);
+        $('#report-list-container').removeClass('report-no-margin').html(reportHtml);
         esdpec.framework.core.swipeDelete('.report-list .report-li', '#delete-action', function (deleteItem) {
           console.log(deleteItem);
         });
         $(page).on('click', 'li.report-li a', function (e) {
-          var reportDom = $jQuery(e.currentTarget);
-          var pageTitle = reportDom.attr('data-title');
-          var pdfUrl = reportDom.attr('data-url');
+          let reportDom = $jQuery(e.currentTarget);
+          let pageTitle = reportDom.attr('data-title');
+          let pdfUrl = reportDom.attr('data-url');
           if (!!pdfUrl && _.endsWith(pdfUrl, '.pdf'))
             window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + "src/report/viewer.html?file=" + pdfUrl + "&name=" + encodeURIComponent(pageTitle);
           else
             $.alert("没有获取到报表文件，无法预览");
         });
       } else {
-        $jQuery('#report-list-container').addClass('report-no-margin').html(reportHtml);
+        $('#report-list-container').addClass('report-no-margin').html(reportHtml);
+        $('#report-list-container').parent().addClass('inner-padding');
       }
     });
   });

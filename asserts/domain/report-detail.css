@@ -9,3 +9,7 @@
 .report-detail-nav .title {
   color: #fff;
 }
+
+.inner-padding {
+  padding-bottom: 0 !important;
+}
