@@ -238,7 +238,7 @@ $(function () {
         meterId: a.id,
         parameterList: []
       };
-      let checkedParams = _.filter(a.parameters, a => a.checked);
+      let checkedParams = _.filter(a.parameters, a => a.checked === 'checked');
       checkedType = checkedParams.length > 0 ? _.head(checkedParams).type : -1;
       _.forEach(checkedParams, a => meter.parameterList.push({
         id: a.id,
@@ -363,7 +363,6 @@ $(function () {
           break;
         case 5:
         case 6:
-
           break;
       }
     });
@@ -513,8 +512,10 @@ $(function () {
     let meterHtml = template('meter-list-template', data);
     $jQuery('#meterListContainer').html(meterHtml);
     $jQuery('.meter-list .meter-item').on('click', function (e) {
-      let meterId = $(e.currentTarget).attr('data-id');
+      let clickNode = $(e.currentTarget);
+      let meterId = clickNode.attr('data-id');
       let meterTree = sessionStorage.getItem('meter_tree');
+      let energyCode = clickNode.attr('data-energy-code');
       let meterNodes = JSON.parse(meterTree);
       let children = _.filter(meterNodes, a => a.parent === meterId);
       if (children.length > 0)
@@ -527,13 +528,19 @@ $(function () {
               $.toast('目前最多只能接受6个仪表同时对比');
               return;
             }
-            $(e.currentTarget).toggleClass('comparsionchecked');
-            if ($(e.currentTarget).hasClass('comparsionchecked')) {
-              let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-              let meterModel = _.find(meterTree, a => a.id === meterId);
-              currentClickMeters.push(meterModel);
+            if (_.find(currentClickMeters, a => a.EnergyCode === energyCode)) {
+              clickNode.toggleClass('comparsionchecked');
+              if (clickNode.hasClass('comparsionchecked')) {
+                currentClickMeters.push(node);
+                setTimeout(_ => {
+                  loadComparisonData(node);
+                }, 100);
+              } else {
+                _.remove(currentClickMeters, a => a.id === meterId);
+              }
             } else {
-              _.remove(currentClickMeters, a => a.id === meterId);
+              $.toast('不同类型仪表不能对比');
+              return;
             }
           } else {
             currentClickMeters = [];
@@ -551,11 +558,34 @@ $(function () {
       backNavigate();
     });
   };
+  let loadComparisonData = function (node) {
+    let existNode = _.head(currentClickMeters);
+    let chooseP = _.find(existNode.parameters, a => a.checked === 'checked');
+    let freshMan = _.find(currentClickMeters, a => a.id === node.id);
+    esdpec.framework.core.getJsonResultSilent('dataanalysis/getparasbymeterid?meterId=' + node.id, function (response) {
+      if (response.IsSuccess) {
+        freshMan.parameters = response.Content;
+        _.forEach(freshMan.parameters, a => {
+          if (_.toLower(a.unit) === _.toLower(chooseP.unit)) {
+            a.checked = 'checked';
+            return false;
+          }
+        });
+        let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
+        if (mfIds.length < currentClickMeters.length) {
+          $.toast('无法确定对比参数，请手动选择');
+          return;
+        }
+        getComparsionData(freshMan, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
+      }
+    });
+  };
   $('#tree-panel').on('close', function (e) {
     isComparsionStatus = false;
     renderFocusMeter();
     if (currentClickMeters.length === 1)
       getMeterFocusData();
+    else {}
   });
   let toggleActive = function () {
     let tabs = $jQuery('.focus-detail-header_tab a');
@@ -894,16 +924,16 @@ $(function () {
     return seriesOption;
   };
   let generateUrlPara = function (mId, qtype, ptype, dtype, stime, etime, mfIds) {
-    let urlPara = 'meterId=' + mId + '&queryType=' + qtype + '&paraType=' + ptype + '&dateType=' + dtype + '&sTime=' + stime + '&eTime=' + etime;
+    let urlPara = 'meterId=' + mId + '&queryType=' + qtype + '&paraType=' + ptype + '&dateType=' + dtype + '&sTime=' + stime + '&eTime=' + etime + '&mfids=';
     if (!!mfIds) {
-      let mfids = '&mfids='
+      let mfids = '';
       $jQuery.each(mfIds, function (index, mfId) {
         mfids += mfId + ',';
       });
       mfids = mfids.substring(0, mfids.length - 1);
       urlPara += mfids;
     }
-    return urlPara + '&mfids=';
+    return urlPara;
   };
   let renderFocusMeter = function () {
     if (globalFocusId !== -1) {
@@ -949,10 +979,22 @@ $(function () {
     });
     $('#add_comparsion').on('click', function (e) {
       e.stopPropagation();
+      let flag = true;
+      _.forEach(currentClickMeters, m => {
+        let checkedParas = _.filter(m.parameters, a => a.checked === 'checked');
+        if (checkedParas.length > 1) {
+          flag = false;
+          return flag;
+        }
+      });
+      if (!flag) {
+        $.toast('不能多参数对比');
+        return;
+      }
       $.allowPanelOpen = true;
       $.openPanel('#tree-panel');
       isComparsionStatus = true;
-      //highlight has been choosen
+      /*highlight has been choosen*/
       $('.meter-list li.meter-item').each(function (i, dom) {
         let type = $(dom).attr('data-type');
         let id = $(dom).attr('data-id');
@@ -997,6 +1039,10 @@ $(function () {
     $('#avg-total-data').html(avgHtml);
   };
   let renderAlartData = function (alertObjList) {
+    _.forEach(alertObjList, a => {
+      if (a.id) a.vtype = 'm';
+      else a.vtype = 'p';
+    });
     let data = {
       meterList: alertObjList
     }
@@ -1006,8 +1052,10 @@ $(function () {
   $(document).on('click', '.alert-data-item .item-more', function (e) {
     let node = $(e.currentTarget);
     let meterId = node.attr('data-id');
+    let vtype = node.attr('data-type');
+    let activeMeter = _.head(currentClickMeters);
     let healthObj = {
-      activeId: meterId,
+      activeId: vtype === 'm' ? meterId : activeMeter.id,
       data_type: globalDateType,
       date_type: 0,
       etime: globaleTime,
@@ -1149,7 +1197,6 @@ $(function () {
       let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
       esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
         if (response.IsSuccess) {
-          console.log(response.Content);
           let summaryDataList = [];
           let sumValList = [];
           let parameters = [];
@@ -1348,7 +1395,7 @@ $(function () {
     let activeNodeId = getActiveMeterId();
     let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
     var dateType = getDateType();
-    //new Promise
+    /*new Promise*/
     esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + activeNodeId, function (response) {
       if (response.IsSuccess) {
         activeNode.parameters = response.Content;
@@ -1363,7 +1410,7 @@ $(function () {
           }
           activeNode.checkedMfIds = [defaultChoosePara.id];
         }
-        //render parameter container
+        /*render parameter container*/
         _.map(activeNode.parameters, a => {
           if (_.includes(activeNode.checkedMfIds, a.id)) {
             a.checked = "checked";
@@ -1421,7 +1468,7 @@ $(function () {
     } else {
       $jQuery('#parameter-container').attr('data-toggle', 'open').slideDown(300);
     }
-  })
+  });
   $(document).on('click', '#search-btn', function (e) {
     let keyword = $jQuery('#search').val();
     loadFocusListData(1, keyword);
@@ -1588,64 +1635,88 @@ $(function () {
       year.firstDay, year.lastDay, mfIds);
   });
   $(document).on('click', '#parameter-container > a', function (e) {
-    let activeMeter = _.find(currentClickMeters, a => a.id === getActiveMeterId());
-    let existType = getActiveParameters().type;
     let currentDom = $(e.currentTarget);
     let chooseType = currentDom.attr('data-type');
-    globalDataType = parseInt(chooseType);
     let mfId = currentDom.attr('data-id');
     let unit = currentDom.attr('data-unit');
-    if (!_.isEqual(existType, -1) && !_.isEqual(existType, parseInt(chooseType))) {
-      $.toast('不同类型的参数不能对比');
-      return;
-    }
-    if (!_.isEqual(globalUnit, '') && !_.isEqual(unit, globalUnit)) {
-      $.toast('不同类型的参数不能对比');
-      return;
-    }
-    globalUnit = unit;
-    globalDataType = parseInt(chooseType);
-    currentDom.toggleClass('checked');
-    if (currentDom.hasClass('checked')) {
-      let para = _.find(activeMeter.parameters, a => a.id === mfId);
-      para.checked = 'checked';
-    } else {
-      let para = _.find(activeMeter.parameters, a => a.id === mfId);
-      para.checked = '';
-      let selectedUnit = '';
-      _.forEach(currentClickMeters, m => {
-        _.forEach(m.parameters, s => {
-          if (_.isEqual(s.checked, 'checked')) {
-            selectedUnit = s.unit;
-            return false;
-          }
-        });
-      });
-      globalUnit = selectedUnit;
-    }
-    $('#current-unit').text(globalUnit);
-    if (globalDataType === paraType.instantaneousValue) {
-      $('#showWeek').css('color', '#ddd !important');
-      $('#showMonth').css('color', '#ddd !important');
-      $('#showYear').css('color', '#ddd !important');
-      if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
-        globalDateType = dateType.day;
-        globalsTime = new Date().format('yyyy-MM-dd 00:00:01');;
-        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
-        $('.focus-detail-header_tab a.active').removeClass('active');
-        $('#showDay').addClass('active');
+    let text = currentDom.text();
+    let existType = getActiveParameters().type;
+    let activeMeter = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+    if (currentClickMeters.length === 1) {
+      if (!_.isEqual(existType, -1) && !_.isEqual(existType, parseInt(chooseType))) {
+        $.toast('不同类型的参数不能对比');
+        return;
       }
-      $('#aggregateValue-container').addClass('hidden');
-      $('#instantanousValue-container').removeClass('hidden');
-      $('#datePicker').datePicker({
-        value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-      }, 'd');
+      if (!_.isEqual(globalUnit, '') && !_.isEqual(unit, globalUnit)) {
+        $.toast('不同类型的参数不能对比');
+        return;
+      }
+      globalUnit = unit;
+      currentDom.toggleClass('checked');
+      globalDataType = parseInt(chooseType);
+      if (currentDom.hasClass('checked')) {
+        let para = _.find(activeMeter.parameters, a => a.id === mfId);
+        para.checked = 'checked';
+      } else {
+        let para = _.find(activeMeter.parameters, a => a.id === mfId);
+        para.checked = '';
+        let selectedUnit = '';
+        _.forEach(currentClickMeters, m => {
+          _.forEach(m.parameters, s => {
+            if (_.isEqual(s.checked, 'checked')) {
+              selectedUnit = s.unit;
+              return false;
+            }
+          });
+        });
+        globalUnit = selectedUnit;
+      }
+      $('#current-unit').text(globalUnit);
+      if (globalDataType === paraType.instantaneousValue) {
+        $('#showWeek').css('color', '#ddd !important');
+        $('#showMonth').css('color', '#ddd !important');
+        $('#showYear').css('color', '#ddd !important');
+        if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
+          globalDateType = dateType.day;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:01');;
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
+          $('.focus-detail-header_tab a.active').removeClass('active');
+          $('#showDay').addClass('active');
+        }
+        $('#aggregateValue-container').addClass('hidden');
+        $('#instantanousValue-container').removeClass('hidden');
+        $('#datePicker').datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+        }, 'd');
+      } else {
+        document.getElementById('showWeek').style = '';
+        document.getElementById('showMonth').style = '';
+        document.getElementById('showYear').style = '';
+        $('#aggregateValue-container').removeClass('hidden');
+        $('#instantanousValue-container').addClass('hidden');
+      }
     } else {
-      document.getElementById('showWeek').style = '';
-      document.getElementById('showMonth').style = '';
-      document.getElementById('showYear').style = '';
-      $('#aggregateValue-container').removeClass('hidden');
-      $('#instantanousValue-container').addClass('hidden');
+      let flag = true;
+      _.forEach(currentClickMeters, m => {
+        _.map(m.parameters, a => a.checked = '');
+        let willChecked = _.filter(m.parameters, a => _.toLower(a.unit) === _.toLower(unit));
+        if (willChecked.length > 1) {
+          let special = _.filter(willChecked, a => _.includes(a.name, text));
+          if (special.length !== 1) {
+            $.toast('存在多个相同参数，请手动选择');
+            flag = false;
+            return flag;
+          } else {
+            special[0].checked = 'checked';
+          }
+        } else {
+          willChecked[0].checked = 'checked';
+        }
+      });
+      globalDataType = parseInt(chooseType);
+      $('#parameter-container > a').removeClass('checked');
+      currentDom.toggleClass('checked');
+      if (!flag) return;
     }
     let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
     getFocusMeterData(activeMeter, globalQueryType, globalDataType, globalDateType,

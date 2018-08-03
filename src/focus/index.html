@@ -241,7 +241,7 @@
     <ul class="meter-list">
       {{if meterList.length > 0}} {{each meterList meter index}}
       <li class="item-content item-link meter-item {{meter.showChecked}} {{meter.hasChecked}}" data-type="{{meter.modeltype}}"
-        data-id="{{meter.id}}">
+        data-id="{{meter.id}}" data-energy-code="{{meter.EnergyCode}}">
         <div class="item-media">
           <i class="icon icon-f7"></i>
         </div>
@@ -312,7 +312,7 @@
     <div class="alert-data-item">
       <span class="item-name ellipsisTitle">{{meter.text}}</span>
       <span class="item-data">{{meter.alert_count}}次</span>
-      <span class="item-more" data-id="{{meter.id}}">查看详情</span>
+      <span class="item-more" data-id="{{meter.id}}" data-type="{{meter.vtype}}">查看详情</span>
     </div>
     {{/each}} {{/if}}
   </script>
