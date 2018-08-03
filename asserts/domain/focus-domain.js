@@ -176,7 +176,7 @@ $(function () {
           normal: {
             label: {
               show: true,
-              formatter: "{b} \n\r {c} ({d}%)"
+              formatter: "{c} ({d}%)"
             }
           },
           emphasis: {
@@ -477,7 +477,7 @@ $(function () {
       renderMeterTree(meterTree, '#', 'forward');
     }
   };
-  let loadFocusListData = function (pageNum, keyword, successCallback) {
+  let loadFocusListData = function (pageNum, keyword) {
     currentPage = pageNum;
     esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
       let data = {
@@ -491,7 +491,6 @@ $(function () {
         });
       }
       totalPage = response.Content.total_page;
-      if (!!successCallback) successCallback;
       renderFocusList(data);
     });
   };

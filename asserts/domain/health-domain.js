@@ -346,7 +346,8 @@ $(function () {
       xAxisData: {},
       series: []
     };
-    $jQuery('#parameterDetail_' + nodeId).append("<div class='unit'>" + unit + "</div><div class='parameter-charts' id='chart_" + nodeId + "'></div>");
+    if ($('chart_' + nodeId).length <= 0)
+      $jQuery('#parameterDetail_' + nodeId).append("<div class='unit'>" + unit + "</div><div class='parameter-charts' id='chart_" + nodeId + "'></div>");
     chartData.xAxisData = _.map(data.now_data_list, a => a.date);
     chartData.series = [getSeries(data, chartData.xAxisData)];
     generateChart(document.getElementById('chart_' + nodeId), chartData);

@@ -29,6 +29,7 @@ $(function () {
         if (response.IsSuccess && response.Code === '00') {
           sessionStorage.setItem("current_user", response.Content.userId);
           sessionStorage.setItem("user_token", response.Content.token);
+          sessionStorage.setItem('first_login', true);
           window.location.href = 'focus/index.html';
         } else {
           $.toast(response.Msg);
