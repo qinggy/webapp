@@ -584,8 +584,10 @@ $(function () {
     esdpec.framework.core.getJsonResult('health/getlist', function (response) {
       if (response.IsSuccess && response.Content) {
         $('#companyName').text(response.Content.company_name);
-        cycleloader('#health-cycle', 160, 160, response.Content.overrun_score ? response.Content.overrun_score / 100 : 0);
-        cycleloader('#communication-cycle', 160, 160, response.Content.network_score ? response.Content.network_score / 100 : 0);
+        let overrunScore = _.isFinite(response.Content.overrun_score) ? response.Content.overrun_score / 100 : 0;
+        let networkScore = _.isFinite(response.Content.network_score) ? response.Content.network_score / 100 : 0;
+        cycleloader('#health-cycle', 160, 160, overrunScore);
+        cycleloader('#communication-cycle', 160, 160, networkScore);
         $('#total_meter').text(response.Content.total_meter);
         $('#overrun_normal').text(response.Content.overrun_normal);
         $('#overrun').text(response.Content.overrun_meter);
