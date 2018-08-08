@@ -308,8 +308,8 @@ $(function () {
           magicType: {
             show: true,
             icon: {
-              line: "image:///asserts/img/gz/line.png",
-              bar: "image:///asserts/img/gz/bar.png",
+              line: "image://../../asserts/img/gz/line.png",
+              bar: "image://../../asserts/img/gz/bar.png",
             },
             type: ['line', 'bar']
           }

@@ -152,7 +152,7 @@ $(function () {
           myTool: {
             show: true,
             title: '换为柱状图',
-            icon: 'image:///asserts/img/gz/bar.png',
+            icon: 'image://../../asserts/img/gz/bar.png',
             onclick: function () {
               if (chart) chart.clear();
               if (!globalLineDataSource) return;
@@ -625,15 +625,15 @@ $(function () {
           magicType: {
             show: true,
             icon: {
-              line: "image:///asserts/img/gz/line.png",
-              bar: "image:///asserts/img/gz/bar.png",
+              line: "image://../../asserts/img/gz/line.png",
+              bar: "image://../../asserts/img/gz/bar.png",
             },
             type: ['line', 'bar']
           },
           myTool: {
             show: showPie,
             title: '换为饼图',
-            icon: 'image:///asserts/img/gz/pie.png',
+            icon: 'image://../../asserts/img/gz/pie.png',
             onclick: function () {
               if (chart) chart.clear();
               if (!globalPieDataSource) return;

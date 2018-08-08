@@ -244,7 +244,7 @@
 }
 
 .login-backgroud {
-  background-image: url(/asserts/img/dl/dlbj.jpg);
+  background-image: url(../img/dl/dlbj.jpg);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -261,7 +261,7 @@
 }
 
 .login-company-icon {
-  background-image: url(/asserts/img/dl/logo.png);
+  background-image: url(../img/dl/logo.png);
   background-color: #f9f9f9;
   background-repeat: no-repeat;
   background-size: 100% 100%;
@@ -299,7 +299,7 @@
 }
 
 .icon-year-month {
-  background-image: url(/asserts/img/bb/n.png);
+  background-image: url(../img/bb/n.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -308,7 +308,7 @@
 }
 
 .icon-month-day {
-  background-image: url(/asserts/img/bb/y.png);
+  background-image: url(../img/bb/y.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -317,7 +317,7 @@
 }
 
 .icon-bz {
-  background-image: url(/asserts/img/bb/bz.png);
+  background-image: url(../img/bb/bz.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -326,7 +326,7 @@
 }
 
 .icon-fgp {
-  background-image: url(/asserts/img/bb/fgp.png);
+  background-image: url(../img/bb/fgp.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -335,7 +335,7 @@
 }
 
 .icon-lhs {
-  background-image: url(/asserts/img/bb/lhs.png);
+  background-image: url(../img/bb/lhs.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -344,7 +344,7 @@
 }
 
 .icon-rcb {
-  background-image: url(/asserts/img/bb/rcb.png);
+  background-image: url(../img/bb/rcb.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -353,7 +353,7 @@
 }
 
 .icon-hb {
-  background-image: url(/asserts/img/bb/h.png);
+  background-image: url(../img/bb/h.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -362,7 +362,7 @@
 }
 
 .icon-tb {
-  background-image: url(/asserts/img/bb/t.png);
+  background-image: url(../img/bb/t.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -371,7 +371,7 @@
 }
 
 .icon-rksjhw {
-  background-image: url(/asserts/img/bb/rkb.png);
+  background-image: url(../img/bb/rkb.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -380,7 +380,7 @@
 }
 
 .icon-sjdcb {
-  background-image: url(/asserts/img/bb/sjd.png);
+  background-image: url(../img/bb/sjd.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -389,7 +389,7 @@
 }
 
 .icon-welcome {
-  background-image: url(/asserts/img/welcome.png);
+  background-image: url(../img/welcome.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -398,7 +398,7 @@
 }
 
 .icon-about-me {
-  background-image: url(/asserts/img/wd/bj.png);
+  background-image: url(../img/wd/bj.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -407,7 +407,7 @@
 }
 
 .icon-company-logon {
-  background-image: url(/asserts/img/wd/Logo.png);
+  background-image: url(../img/wd/Logo.png);
   background-repeat: no-repeat;
   background-color: #f9f9f9;
   background-size: 100% 100%;
@@ -422,47 +422,47 @@
 }
 
 .icon-commnunicate {
-  background-image: url(/asserts/img/gz/communication.png);
+  background-image: url(../img/gz/communication.png);
 }
 
 .icon-electronic-meter {
-  background-image: url(/asserts/img/gz/electronicmeter.png);
+  background-image: url(../img/gz/electronicmeter.png);
 }
 
 .icon-electronic-pk {
-  background-image: url(/asserts/img/gz/electronicpk.png);
+  background-image: url(../img/gz/electronicpk.png);
 }
 
 .icon-energy-efficient {
-  background-image: url(/asserts/img/gz/energy-efficient.png);
+  background-image: url(../img/gz/energy-efficient.png);
 }
 
 .icon-gas-meter {
-  background-image: url(/asserts/img/gz/gasmeter.png);
+  background-image: url(../img/gz/gasmeter.png);
 }
 
 .icon-gas-pk {
-  background-image: url(/asserts/img/gz/gaspk.png);
+  background-image: url(../img/gz/gaspk.png);
 }
 
 .icon-over-run {
-  background-image: url(/asserts/img/gz/overrun.png);
+  background-image: url(../img/gz/overrun.png);
 }
 
 .icon-water-meter {
-  background-image: url(/asserts/img/gz/watermeter.png);
+  background-image: url(../img/gz/watermeter.png);
 }
 
 .icon-water-pk {
-  background-image: url(/asserts/img/gz/waterpk.png);
+  background-image: url(../img/gz/waterpk.png);
 }
 
 .icon-focus-other {
-  background-image: url(/asserts/img/gz/other.png);
+  background-image: url(../img/gz/other.png);
 }
 
 .icon-focus-up {
-  background-image: url(/asserts/img/rl/up.png);
+  background-image: url(../img/rl/up.png);
   background-color: #f9f9f9;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -472,7 +472,7 @@
 }
 
 .icon-focus-down {
-  background-image: url(/asserts/img/rl/down.png);
+  background-image: url(../img/rl/down.png);
   background-color: #f9f9f9;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -490,7 +490,7 @@
 }
 
 .icon-loading {
-  background-image: url(/asserts/img/loading.gif);
+  background-image: url(../img/loading.gif);
   background-color: #f9f9f9;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -500,7 +500,7 @@
 }
 
 .icon-wechat-png {
-  background-image: url(/asserts/img/wd/WeChat.png);
+  background-image: url(../img/wd/WeChat.png);
   background-color: #f9f9f9;
   background-size: 100% 100%;
   background-repeat: no-repeat;
