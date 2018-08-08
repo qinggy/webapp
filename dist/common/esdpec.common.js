@@ -39,9 +39,6 @@ Date.prototype.addDays = function (days) {
   return this;
 }
 
-esdpec.framework.core.user_token = () => localStorage.getItem('user_token');
-esdpec.framework.core.redirectUrl = location.origin + '/webapp/src/login.html';
-
 esdpec.framework.core.Config = {
   APIBaseUrl: 'http://120.76.22.80:8089/api/', //'http://localhost:81/',
   BaseWebSiteUrl: 'http://cloud.esdgd.com/webapp/',
@@ -49,11 +46,14 @@ esdpec.framework.core.Config = {
   ajaxProcessedText: "完成"
 }
 
+esdpec.framework.core.user_token = () => localStorage.getItem('user_token');
+esdpec.framework.core.redirectUrl = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/login.html';
+
 esdpec.framework.core.completeRequest = function (XMLHttpRequest, textStatus, onCompleteCallBack) {
   var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
   var unauthorize = XMLHttpRequest.getResponseHeader("authorize");
   if (sessionstatus === "timeout" || unauthorize === "unauthorize") {
-    location.href = esdpec.framework.core.redirectUrl;
+    window.location.href = esdpec.framework.core.redirectUrl;
   }
   if (onCompleteCallBack != null) onCompleteCallBack;
 };
@@ -82,13 +82,13 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
     .done(function (data) {
       $.hidePreloader();
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl;
       }
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
-        location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl;
       }
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
@@ -108,7 +108,7 @@ esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, fail
   $jQuery.getJSON(this.Config.APIBaseUrl + url + esdpec.framework.core.getRequestRandom(url))
     .done(function (data) {
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl;
       }
       successCallBack(data);
     })
