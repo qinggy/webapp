@@ -7,11 +7,11 @@ $(function () {
     return regex.test(email);
   };
   let getQueryString = pName => {
-    let url = location.search; //获取url中"?"符后的字串
-    let theRequest = {};
+    let url = location.search;
+    let theRequest = [];
     if (url.indexOf("?") !== -1) {
       let str = url.substr(1);
-      strs = str.split("&");
+      let strs = str.split("&");
       for (let i = 0; i < strs.length; i++) {
         theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
       }
@@ -60,7 +60,6 @@ $(function () {
         $.toast(error.Msg);
       });
     });
-
     let token = localStorage.getItem('user_token');
     if (token) {
       window.location.href = 'focus/index.html';
