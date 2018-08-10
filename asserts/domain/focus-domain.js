@@ -545,8 +545,9 @@ $(function () {
             currentClickMeters = [];
             node.checked = true;
             currentClickMeters.push(node);
+            $('#close-panel').click();
             $.router.load("#focus-detail-page", true);
-            /*$('#close-panel').click();*/
+            //$('#close-panel').click();
           }
         }
       }
@@ -1803,10 +1804,12 @@ $(function () {
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
     isComparsionStatus = false;
-    /* $('#close-panel').click();*/
     bindTabClick(page);
     renderFocusMeter();
     getMeterFocusData();
+    console.log(11);
+    $('#close-panel').click();
   });
+
   $.init();
 });

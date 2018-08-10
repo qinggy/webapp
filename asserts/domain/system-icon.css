@@ -407,9 +407,9 @@
 }
 
 .icon-company-logon {
-  background-image: url(../img/wd/Logo.png);
+  /* background-image: url(../img/wd/Logo.png); */
   background-repeat: no-repeat;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   background-size: 100% 100%;
 }
 

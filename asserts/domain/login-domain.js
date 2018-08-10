@@ -60,12 +60,12 @@ $(function () {
         $.toast(error.Msg);
       });
     });
-    let token = localStorage.getItem('user_token');
-    if (token) {
-      window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/focus/index.html';
-    } else if (!hasLogined()) {
-      window.location.href = authUri;
-    }
+    // let token = localStorage.getItem('user_token');
+    // if (token) {
+    //   window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/focus/index.html';
+    // } else if (!hasLogined()) {
+    //   window.location.href = authUri;
+    // }
   });
 
   $.init();

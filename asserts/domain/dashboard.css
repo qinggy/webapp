@@ -1,5 +1,5 @@
 .unvisiable {
-  visibility: hidden;
+  opacity: 0;
 }
 
 /* start focus module */
@@ -527,7 +527,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
-  max-width: 6rem;
+  max-width: 12rem;
+  height: 1rem;
 }
 
 .about-contain {}
