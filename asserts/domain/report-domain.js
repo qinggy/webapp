@@ -2,6 +2,7 @@ $(function () {
   'use strict';
 
   let currentPageNum = 1,
+    totalPage = 1,
     keyword;
   let reportEnum = {
     'bz': 'icon-bz',
@@ -19,8 +20,7 @@ $(function () {
     return reportEnum[type];
   };
   let urlParm = 'pageNum=' + currentPageNum + '&keyword=' + keyword;
-
-  $(document).on("pageInit", '#page-report', function (e, id, page) {
+  let loadReportListData = () => {
     esdpec.framework.core.getJsonResult("report/getlist?" + urlParm, function (response) {
       let data = {
         reportList: []
@@ -50,6 +50,19 @@ $(function () {
         $('#report-list-container').parent().addClass('inner-padding');
       }
     });
+  };
+  let pullToLoadReportList = page => {
+    let $content = $(page).find(".content").on('refresh', function (e) {
+      currentPageNum = parseFloat(currentPageNum) + 1;
+      if (currentPageNum <= parseInt(totalPage))
+        loadReportListData(currentPageNum, '');
+      setTimeout(() => $.pullToRefreshDone($content), 2000);
+    });
+  };
+  $(document).on("pageInit", '#page-report', function (e, id, page) {
+    currentPageNum = 1;
+    loadReportListData();
+    pullToLoadReportList(page);
   });
 
   $.init();
