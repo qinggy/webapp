@@ -61,7 +61,7 @@ $(function () {
     else {
       let currentTime = new Date();
       if (parseInt(currentTime - lastclicktime) <= 300) {
-        console.log('Frequent operation, no response!');
+        // console.log('Frequent operation, no response!');
         return false;
       } else {
         lastclicktime = currentTime;
@@ -424,7 +424,7 @@ $(function () {
       let urlPara = `meterId=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
       esdpec.framework.core.getJsonResult('health/getmeterhealth?' + urlPara, function (response) {
         if (response.IsSuccess && response.Content) {
-          console.log(response.Content);
+          // console.log(response.Content);
           let rtnContent = response.Content;
           let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
           $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
@@ -503,7 +503,7 @@ $(function () {
           chooseType = chooseTypeEnum.meter;
           changePageTitle();
           getChooseObjHealthData();
-          $('#close-panel').click();
+          setTimeout(() => $.closePanel(), 300);
         }
       }
     });
@@ -598,7 +598,7 @@ $(function () {
     });
   };
   $('#meter-tree-panel').on('close', function (e) {
-    console.log('close panel now');
+    // console.log('close panel now');
   });
   $('#searchmorebtn').on("click", function (e) {
     let time = $('#datePicker').val();
@@ -686,7 +686,7 @@ $(function () {
       &dateType=${globalDataType}&sTime=${globalSTime}&eTime=${globalETime}`;
       esdpec.framework.core.getJsonResult('health/getmeterparainfohealth?' + uri, (response) => {
         if (response.IsSuccess && response.Content) {
-          console.log(response.Content);
+          //console.log(response.Content);
           if (activeHealthType === healthType.communicate) unit = '条';
           renderChartAndRule(response.Content, nodeId, unit);
         }

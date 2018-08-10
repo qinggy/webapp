@@ -21,6 +21,7 @@ $(function () {
       localStorage.removeItem('authorization_code');
       sessionStorage.removeItem('meter_tree');
       sessionStorage.removeItem('current_health');
+      sessionStorage.removeItem('first_login');
       window.location.href = authUri;
     });
   });

@@ -15,7 +15,8 @@ $(function () {
     isComparsionStatus = false,
     globalFocusId = -1,
     globalLineDataSource = null,
-    globalPieDataSource = null;
+    globalPieDataSource = null,
+    globalCurrentPage = null;
   let chart = null;
   let focusEnum = {
     // 'commnunicate': 'icon-commnunicate',
@@ -477,6 +478,33 @@ $(function () {
       renderMeterTree(meterTree, '#', 'forward');
     }
   };
+  let leadToHomePage = function (focusList) {
+    let homePage = _.find(focusList, a => a.is_index);
+    if (homePage) {
+      globalDataType = homePage.data_type;
+      globalDateType = homePage.date_type;
+      globalsTime = homePage.stime;
+      globaleTime = homePage.etime;
+      globalQueryType = homePage.query_type;
+      currentClickMeters = [];
+      let meterJson = sessionStorage.getItem('meter_tree');
+      let meterTree = null;
+      if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
+        esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+          if (response.IsSuccess) {
+            sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
+            meterTree = response.Content;
+            currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+            $.router.load("#focus-detail-page", true);
+          }
+        });
+      } else {
+        meterTree = JSON.parse(meterJson);
+        currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+        $.router.load("#focus-detail-page", true);
+      }
+    }
+  };
   let loadFocusListData = function (pageNum, keyword) {
     currentPage = pageNum;
     esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
@@ -489,6 +517,11 @@ $(function () {
           item.focusType = getFocusType(item.stype);
           if (item.is_index) item.isHomePage = 'home-page-color';
         });
+        let isFirstLogin = sessionStorage.getItem("first_login");
+        if (isFirstLogin === '1') {
+          sessionStorage.setItem("first_login", '0');
+          leadToHomePage(data.focusList);
+        }
       }
       totalPage = response.Content.total_page;
       renderFocusList(data);
@@ -496,8 +529,8 @@ $(function () {
   };
   let renderMeterTree = function (list, parent, type) {
     if (type === 'forward') {
-      let path = $jQuery('#parentId').val();
-      $jQuery('#parentId').val(path + '||' + parent);
+      let path = $('#parentId').val();
+      $('#parentId').val(path + '||' + parent);
     }
     let children = _.filter(list, a => a.parent === parent);
     _.map(children, a => {
@@ -509,8 +542,8 @@ $(function () {
       meterList: children
     };
     let meterHtml = template('meter-list-template', data);
-    $jQuery('#meterListContainer').html(meterHtml);
-    $jQuery('.meter-list .meter-item').on('click', function (e) {
+    $('#meterListContainer').html(meterHtml);
+    $('.meter-list .meter-item').on('click', function (e) {
       let clickNode = $(e.currentTarget);
       let meterId = clickNode.attr('data-id');
       let meterTree = sessionStorage.getItem('meter_tree');
@@ -545,9 +578,9 @@ $(function () {
             currentClickMeters = [];
             node.checked = true;
             currentClickMeters.push(node);
-            $('#close-panel').click();
-            $.router.load("#focus-detail-page", true);
-            //$('#close-panel').click();
+            if (globalCurrentPage === 'focus-detail-page') getMeterFocusData();
+            else $.router.load("#focus-detail-page", true);
+            setTimeout(() => $.closePanel(), 300);
           }
         }
       }
@@ -1798,17 +1831,17 @@ $(function () {
   });
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
     globalFocusId = -1;
+    globalCurrentPage = 'page-focus';
     loadFocusListData(1, '');
     loadMeterTree(0);
     pullToLoadFocusList(page);
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
     isComparsionStatus = false;
+    globalCurrentPage = 'focus-detail-page';
     bindTabClick(page);
     renderFocusMeter();
     getMeterFocusData();
-    console.log(11);
-    $('#close-panel').click();
   });
 
   $.init();
