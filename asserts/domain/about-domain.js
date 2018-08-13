@@ -22,6 +22,7 @@ $(function () {
       sessionStorage.removeItem('meter_tree');
       sessionStorage.removeItem('current_health');
       sessionStorage.removeItem('first_login');
+      sessionStorage.removeItem('current_select_meters');
       window.location.href = authUri;
     });
   });

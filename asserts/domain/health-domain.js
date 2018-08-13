@@ -108,7 +108,8 @@ $(function () {
     }
   };
   let switchInfo = type => {
-    if (chooseType === chooseTypeEnum.area)
+    if (chooseType === chooseTypeEnum.area) {
+      $('#detail-container').addClass('hidden');
       switch (type) {
         case healthType.overRun:
           $('#alart-container').removeClass('hidden');
@@ -119,7 +120,7 @@ $(function () {
           $('#offline-container').removeClass('hidden');
           break;
       }
-    else {
+    } else {
       $('#alart-container').addClass('hidden');
       $('#offline-container').addClass('hidden');
       $('#detail-container').removeClass('hidden');
@@ -154,19 +155,19 @@ $(function () {
           switchInfo(healthType.overRun);
           break;
         case healthType.communicate:
-          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
-          healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;个</td></tr>`;
-          healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;个</td>`;
-          healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;个</td></tr></table>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;条</td>`;
+          healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;条</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;条</td>`;
+          healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;条</td></tr></table>`;
           switchInfo(healthType.communicate);
           break;
       }
     } else {
       switch (activeHealthType) {
         case healthType.overRun:
-          healthInfoHtml += `<tr><td style="width: 4rem">采集条数:</td><td><span class="info-data">${data['total_count']}</span>&nbsp;个</td>`;
-          healthInfoHtml += `<td style="width: 4rem">正常条数:</td><td><span class="info-data">${data['overrun_normal']}</span>&nbsp;个</td></tr>`;
-          healthInfoHtml += `<tr><td style="width: 4rem">超限条数:</td><td><span class="info-data">${data['overrun_count']}</span>&nbsp;个</td></tr></table>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">采集条数:</td><td><span class="info-data">${data['total_count']}</span>&nbsp;条</td>`;
+          healthInfoHtml += `<td style="width: 4rem">正常条数:</td><td><span class="info-data">${data['overrun_normal']}</span>&nbsp;条</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">超限条数:</td><td><span class="info-data">${data['overrun_count']}</span>&nbsp;条</td></tr></table>`;
           switchInfo(healthType.overRun);
           break;
         case healthType.communicate:
@@ -459,6 +460,7 @@ $(function () {
     $('.healthType div').removeClass('active');
     $(".healthType div[data-type= '" + type + "']").addClass('active');
     sessionStorage.setItem('current_health', '');
+    chooseType = chooseTypeEnum.area;
     $.router.load('#page-health-detail');
   });
   $('.healthType div').on('click', function (e) {
@@ -698,11 +700,40 @@ $(function () {
       $jQuery('#parameterDetail_' + nodeId).attr('data-toggle', 'open').slideDown(300);
     }
   });
+  $('.health-detail-nav').on('click', '#health-back', function (e) {
+    let ifGoback = sessionStorage.getItem('if-goback');
+    if (ifGoback === '1') {
+      sessionStorage.setItem('if-goback', '0');
+      $.router.back();
+    } else if (chooseType === chooseTypeEnum.area) {
+      $.router.load('#page-health', true);
+    } else if (chooseType === chooseTypeEnum.meter) {
+      let parentNodeJson = sessionStorage.getItem('health_parent_node');
+      let parentNode = JSON.parse(parentNodeJson);
+      chooseId = parentNode.chooseId;
+      chooseType = parentNode.chooseType;
+      activeHealthType = parentNode.activeHealthType;
+      globalDataType = parentNode.globalDataType;
+      globalETime = parentNode.globalETime;
+      globalSTime = parentNode.globalSTime;
+      sessionStorage.setItem('health_parent_node', '');
+      changePageTitle();
+      getChooseObjHealthData();
+    }
+  });
   $('.list-block').on('click', '.list li', function (e) {
     e.stopPropagation();
     let node = $(e.currentTarget);
     let nodeType = node.attr('data-type');
     if (nodeType === '0') {
+      sessionStorage.setItem('health_parent_node', JSON.stringify({
+        chooseId,
+        chooseType,
+        activeHealthType,
+        globalDataType,
+        globalETime,
+        globalSTime
+      }));
       if (activeHealthType === healthType.overRun) {
         sessionStorage.setItem('current_health', '');
         chooseId = node.attr('data-id');

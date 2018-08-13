@@ -360,6 +360,7 @@ $(function () {
         case 3:
         case 4:
           sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
+          sessionStorage.setItem('if-goback', '1');
           window.location.href = '../health/index.html#page-health-detail';
           break;
         case 5:
@@ -1097,6 +1098,8 @@ $(function () {
       stime: globalsTime
     };
     sessionStorage.setItem('current_health', JSON.stringify(healthObj));
+    sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+    sessionStorage.setItem('if-goback', '1');
     window.location.href = '../health/index.html#page-health-detail';
   });
   let renderGaugeData = function () {
@@ -1839,9 +1842,17 @@ $(function () {
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
     isComparsionStatus = false;
     globalCurrentPage = 'focus-detail-page';
+    if (currentClickMeters.length === 0) {
+      let selectMetersJson = sessionStorage.getItem('current_select_meters');
+      currentClickMeters = JSON.parse(selectMetersJson);
+      sessionStorage.setItem('current_select_meters', '[]');
+    }
     bindTabClick(page);
     renderFocusMeter();
     getMeterFocusData();
+  });
+  $(document).on('beforePageRemove', '#focus-detail-page', function (e, id, page) {
+    console.log(currentClickMeters);
   });
 
   $.init();
