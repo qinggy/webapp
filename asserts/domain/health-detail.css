@@ -59,6 +59,10 @@
   color: #0894ec !important;
 }
 
+.active i.icon-jump:before {
+  color: #0894ec !important;
+}
+
 .health-detail-header_more span {
   line-height: 3.25rem;
   margin-left: 0.5rem;

@@ -225,6 +225,7 @@ $(function () {
     return $('#datatab a.active').attr('data-type');
   };
   let getActiveMeterId = () => {
+    if (currentClickMeters.length === 1) return currentClickMeters[0].id;
     let currentNode = _.find(currentClickMeters, a => a.checked);
     return currentNode ? currentNode.id : -1;
   };
@@ -341,8 +342,10 @@ $(function () {
     $('.focus-list li.focus-item').on('click', function (e) {
       let focusId = $(e.currentTarget).attr('id');
       globalFocusId = focusId;
+      sessionStorage.setItem('current_focus_id', globalFocusId);
       let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
       currentClickMeters = [];
+      sessionStorage.setItem('current_select_meters', '[]');
       switch (clickFocus.stype) {
         case 1:
         case 2:
@@ -356,6 +359,7 @@ $(function () {
             m.checkedMfIds = mfids.plist;
             if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
           });
+          sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
           break;
         case 3:
         case 4:
@@ -496,12 +500,14 @@ $(function () {
             sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
             meterTree = response.Content;
             currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+            sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             $.router.load("#focus-detail-page", true);
           }
         });
       } else {
         meterTree = JSON.parse(meterJson);
         currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+        sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
         $.router.load("#focus-detail-page", true);
       }
     }
@@ -571,6 +577,7 @@ $(function () {
               } else {
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
+              sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
               $.toast('不同类型仪表不能对比');
               return;
@@ -579,6 +586,7 @@ $(function () {
             currentClickMeters = [];
             node.checked = true;
             currentClickMeters.push(node);
+            sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             if (globalCurrentPage === 'focus-detail-page') getMeterFocusData();
             else $.router.load("#focus-detail-page", true);
             setTimeout(() => $.closePanel(), 300);
@@ -982,6 +990,7 @@ $(function () {
         checkedNode.checked = true;
     }
     _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
+    sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
     let meterHeaderData = {
       focusMeterList: currentClickMeters
     };
@@ -994,6 +1003,7 @@ $(function () {
           a.checked = true;
         else a.checked = false;
       });
+      sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       $('#headerContainer span').removeClass('current-active');
       $('#meter_' + meterId).addClass('current-active');
       let activeNode = _.find(currentClickMeters, a => a.checked);
@@ -1048,6 +1058,7 @@ $(function () {
         return;
       }
       _.remove(currentClickMeters, a => a.checked);
+      sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       $('#parameter-container').empty();
       renderFocusMeter();
       if (currentClickMeters.length === 1)
@@ -1749,6 +1760,7 @@ $(function () {
           willChecked[0].checked = 'checked';
         }
       });
+      sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       globalDataType = parseInt(chooseType);
       $('#parameter-container > a').removeClass('checked');
       currentDom.toggleClass('checked');
@@ -1816,6 +1828,7 @@ $(function () {
                   $.toast('关注成功');
                   $('#subscribe').text('取消关注');
                   globalFocusId = response.Content;
+                  sessionStorage.setItem('current_focus_id', globalFocusId);
                 }
               });
             }
@@ -1828,12 +1841,14 @@ $(function () {
           _.remove(globalFocusList.focusList, a => a.id === globalFocusId);
           globalFocusId = -1;
           $('#subscribe').text('关注');
+          sessionStorage.setItem('current_focus_id', globalFocusId);
         }
       });
     }
   });
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
     globalFocusId = -1;
+    sessionStorage.setItem('current_focus_id', globalFocusId);
     globalCurrentPage = 'page-focus';
     loadFocusListData(1, '');
     loadMeterTree(0);
@@ -1846,13 +1861,12 @@ $(function () {
       let selectMetersJson = sessionStorage.getItem('current_select_meters');
       currentClickMeters = JSON.parse(selectMetersJson);
       sessionStorage.setItem('current_select_meters', '[]');
+      globalFocusId = sessionStorage.getItem('current_focus_id');
+      sessionStorage.setItem('current_focus_id', -1);
     }
     bindTabClick(page);
     renderFocusMeter();
     getMeterFocusData();
-  });
-  $(document).on('beforePageRemove', '#focus-detail-page', function (e, id, page) {
-    console.log(currentClickMeters);
   });
 
   $.init();
