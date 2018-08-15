@@ -18,9 +18,9 @@
   <link rel="shortcut icon" href="../../favicon.ico" />
   <link rel="stylesheet" href="../../dist/sui/css/sm.css">
   <link rel="stylesheet" href="../../dist/sui/css/sm-extend.css">
-  <link rel="stylesheet" href="../../asserts/domain/system-icon.css?_t=201808150924">
-  <link rel="stylesheet" href="../../asserts/domain/dashboard.css?_t=201808150924">
-  <link rel="stylesheet" href="../../asserts/domain/focus-detail.css?_t=201808150924">
+  <link rel="stylesheet" href="../../asserts/domain/system-icon.css?_t=201808150926">
+  <link rel="stylesheet" href="../../asserts/domain/dashboard.css?_t=201808150925">
+  <link rel="stylesheet" href="../../asserts/domain/focus-detail.css?_t=201808150925">
 
   <link rel="apple-touch-icon-precomposed" href="../../assets/img/apple-touch-icon-114x114.png">
   <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
@@ -40,7 +40,7 @@
 
 <body>
   <div class="page-group">
-    <div class="page close-panel" id="page-focus">
+    <div class="page" id="page-focus">
       <header class="bar bar-nav">
         <i class="icon icon-nav pull-left open-panel tree-menu"></i>
         <div class="searchbar row">
@@ -80,9 +80,9 @@
         </div>
       </div>
     </div>
-    <div class="page close-panel" id="focus-detail-page">
+    <div class="page" id="focus-detail-page">
       <header class="bar bar-nav focus-detail-nav">
-        <a href="#page-focus" class="icon icon-jump pull-left"></a>
+        <a class="icon icon-jump pull-left" id="navigation-back"></a>
         <h1 class="title">日量</h1>
       </header>
       <div class="content">
@@ -134,7 +134,7 @@
         </div>
         <div class="chart-container">
           <div class="chart-unit">
-            <span>Unit: </span>
+            <span>单位: </span>
             <span id="current-unit">kWh</span>
           </div>
           <div class="focus-charts" id="echarts"></div>
@@ -349,10 +349,10 @@
         </div>
         <div class="item-inner">
           <div class="item-title">采集频率</div>
-          <div class="item-after">{{interval}}</div>
+          <div class="item-after">{{interval}}&nbsp;S</div>
         </div>
       </li>
-      <li class="item-content item-link">
+      <!-- <li class="item-content item-link">
         <div class="item-media">
           <i class="icon icon-f7"></i>
         </div>
@@ -360,7 +360,7 @@
           <div class="item-title">存储时间</div>
           <div class="item-after">{{storage_time}}S</div>
         </div>
-      </li>
+      </li> -->
       <li class="item-content item-link">
         <div class="item-media">
           <i class="icon icon-f7"></i>
@@ -376,8 +376,9 @@
         </div>
         <div class="item-inner">
           <div class="item-title">查询超时</div>
-          <div>
-            <input type="text" id="seachBox_{{mfId}}" class="search-overrun-input" placeholder="5S 请输入超限时间">
+          <div style="display: flex">
+            <input type="text" id="seachBox_{{mfId}}" value=5 class="search-overrun-input" placeholder="5S 请输入超限时间">
+            <span style="margin-left:0.2rem">S</span>
           </div>
           <div class="item-after search-more" id="seachbtn_{{mfId}}">查询</div>
         </div>
@@ -417,7 +418,7 @@
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
   <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150924"></script>
-  <script src="../../asserts/domain/focus-domain.js?_t=201808150924"></script>
+  <script src="../../asserts/domain/focus-domain.js?_t=201808150939"></script>
 </body>
 
 </html>

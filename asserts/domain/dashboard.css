@@ -12,6 +12,7 @@
   -webkit-align-items: flex-start;
   -webkit-box-align: start;
   margin-left: 0.75rem;
+  margin-right: 2rem;
 }
 
 .focus-title {
@@ -183,7 +184,7 @@
   background-color: #f9f9f9;
   height: 2rem;
   margin-left: 1rem;
-  color: #bbb;
+  color: #000;
 }
 
 .email-input {

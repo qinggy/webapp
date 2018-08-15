@@ -194,7 +194,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  max-width: 4rem;
+  max-width: 8rem;
   margin-bottom: 0.5rem;
   display: inline-block;
   border-bottom: 0.05rem solid #ddd;
@@ -670,4 +670,8 @@
 .fixedColumn {
   width: 3.5rem;
   min-width: 3.5rem;
+}
+
+.tree-menu {
+  width: 2rem;
 }

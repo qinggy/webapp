@@ -240,6 +240,10 @@
   background-color: #f9f9f9 !important;
 }
 
+.parameterList .item-title {
+  font-size: 0.65rem;
+}
+
 /* .list>li.item-content:nth-child(odd) {
   background-color: rgb(238, 249, 255);
 } */

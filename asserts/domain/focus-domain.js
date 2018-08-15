@@ -339,7 +339,8 @@ $(function () {
         }
       });
     });
-    $('.focus-list li.focus-item').on('click', function (e) {
+    $('.focus-list').on('click', 'li.focus-item', function (e) {
+      e.stopPropagation();
       let focusId = $(e.currentTarget).attr('id');
       globalFocusId = focusId;
       sessionStorage.setItem('current_focus_id', globalFocusId);
@@ -360,6 +361,8 @@ $(function () {
             if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
           });
           sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
+          // loadFocusDetailPage();
+          $.router.load('#focus-detail-page');
           break;
         case 3:
         case 4:
@@ -372,7 +375,8 @@ $(function () {
           break;
       }
     });
-    $('.set-home').on('click', function (e) {
+    $('.focus-item').on('click', '.set-home', function (e) {
+      e.stopPropagation();
       let currentDom = $(e.currentTarget);
       let focusId = currentDom.attr('data-id');
       if (_.isEqual(focusId, '')) {
@@ -417,7 +421,8 @@ $(function () {
       }
       e.stopPropagation();
     });
-    $('.set-index').on('click', function (e) {
+    $('.focus-item').on('click', '.set-index', function (e) {
+      e.stopPropagation();
       let currentDom = $(e.currentTarget);
       let focusId = currentDom.attr('data-id');
       if (_.isEqual(focusId, '')) {
@@ -462,6 +467,21 @@ $(function () {
       sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
       renderMeterTree(meterList, '#', 'forward');
     }
+  };
+  let loadFocusDetailPage = () => {
+    isComparsionStatus = false;
+    globalCurrentPage = 'focus-detail-page';
+    if (!currentClickMeters || currentClickMeters.length === 0) {
+      let selectMetersJson = sessionStorage.getItem('current_select_meters');
+      currentClickMeters = JSON.parse(selectMetersJson) || [];
+      sessionStorage.setItem('current_select_meters', '[]');
+      globalFocusId = sessionStorage.getItem('current_focus_id');
+      sessionStorage.setItem('current_focus_id', -1);
+    }
+    bindTabClick();
+    loadMeterTree(0);
+    renderFocusMeter();
+    getMeterFocusData();
   };
   let loadMeterTree = function (type) {
     let meterJson = sessionStorage.getItem('meter_tree');
@@ -550,7 +570,8 @@ $(function () {
     };
     let meterHtml = template('meter-list-template', data);
     $('#meterListContainer').html(meterHtml);
-    $('.meter-list .meter-item').on('click', function (e) {
+    $('.meter-list').on('click', '.meter-item', function (e) {
+      e.stopPropagation();
       let clickNode = $(e.currentTarget);
       let meterId = clickNode.attr('data-id');
       let meterTree = sessionStorage.getItem('meter_tree');
@@ -587,14 +608,16 @@ $(function () {
             node.checked = true;
             currentClickMeters.push(node);
             sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-            if (globalCurrentPage === 'focus-detail-page') getMeterFocusData();
-            else $.router.load("#focus-detail-page", true);
+            if (globalCurrentPage === 'focus-detail-page') {
+              renderFocusMeter();
+              getMeterFocusData();
+            } else $.router.load("#focus-detail-page", true);
             setTimeout(() => $.closePanel(), 300);
           }
         }
       }
     });
-    $jQuery('#backParent').on('click', function (e) {
+    $('.meter-tree').on('click', '#backParent', function (e) {
       e.stopPropagation();
       if (!operateBefore()) return;
       backNavigate();
@@ -614,21 +637,14 @@ $(function () {
           }
         });
         let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
-        if (mfIds.length < currentClickMeters.length) {
-          $.toast('无法确定对比参数，请手动选择');
-          return;
-        }
+        // if (mfIds.length < currentClickMeters.length) {
+        //   $.toast('无法确定对比参数，请手动选择');
+        //   return;
+        // }
         getComparsionData(freshMan, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
       }
     });
   };
-  $('#tree-panel').on('close', function (e) {
-    isComparsionStatus = false;
-    renderFocusMeter();
-    if (currentClickMeters.length === 1)
-      getMeterFocusData();
-    else {}
-  });
   let toggleActive = function () {
     let tabs = $jQuery('.focus-detail-header_tab a');
     $jQuery(tabs).each(function (index, item) {
@@ -636,7 +652,6 @@ $(function () {
     });
   };
   let ifShowSearch = function (flag) {
-    let container = $jQuery('#search-container');
     if (flag) {
       if ($jQuery('#showMoreBtn').attr('data-toggle') === 'open') {
         $jQuery('#search-container').slideDown(300);
@@ -745,7 +760,7 @@ $(function () {
     }
     return true;
   }
-  let bindTabClick = function (page) {
+  let bindTabClick = function () {
     $("#dataTypePicker").picker({
       toolbarTemplate: '<header class="bar bar-nav">\
     <button class="button button-link pull-right close-picker">\
@@ -890,7 +905,7 @@ $(function () {
           option.markLine.data.push({
             name: 'LowerLimit',
             label: {
-              formatter: '下线报警(' + rule.LowerLimit + ')',
+              formatter: '下限报警(' + rule.LowerLimit + ')',
               textStyle: {
                 fontSize: 12,
               },
@@ -903,7 +918,7 @@ $(function () {
             option.markLine.data.push({
               name: 'LowerWave',
               label: {
-                formatter: '下线预警(' + waveValue + ')',
+                formatter: '下限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
                 },
@@ -917,7 +932,7 @@ $(function () {
           option.markLine.data.push({
             name: 'UpperLimit',
             label: {
-              formatter: '上线报警(' + rule.UpperLimit + ')',
+              formatter: '上限报警(' + rule.UpperLimit + ')',
               textStyle: {
                 fontSize: 12,
               },
@@ -930,7 +945,7 @@ $(function () {
             option.markLine.data.push({
               name: 'LowerWave',
               label: {
-                formatter: '上线预警(' + waveValue + ')',
+                formatter: '上限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
                 },
@@ -978,7 +993,7 @@ $(function () {
     return urlPara;
   };
   let renderFocusMeter = function () {
-    if (globalFocusId !== -1) {
+    if (globalFocusId !== "-1" && globalFocusId !== -1) {
       $('#subscribe').text('取消关注');
     } else {
       $('#subscribe').text('关注');
@@ -992,11 +1007,12 @@ $(function () {
     _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
     sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
     let meterHeaderData = {
-      focusMeterList: currentClickMeters
+      focusMeterList: currentClickMeters || []
     };
     let meterNameTemplate = template('meter-header-template', meterHeaderData);
     $('#headerContainer').html(meterNameTemplate);
-    $('#headerContainer span').on('click', function (e) {
+    $('#headerContainer').on('click', 'span', function (e) {
+      e.stopPropagation();
       let meterId = $(e.currentTarget).attr('data-id');
       _.forEach(currentClickMeters, a => {
         if (a.id === meterId)
@@ -1021,7 +1037,7 @@ $(function () {
         }
       });
     });
-    $('#add_comparsion').on('click', function (e) {
+    $('#headerContainer').on('click', '#add_comparsion', function (e) {
       e.stopPropagation();
       let flag = true;
       _.forEach(currentClickMeters, m => {
@@ -1051,7 +1067,8 @@ $(function () {
         } else $(dom).removeClass('comparsionchecked');
       });
     });
-    $('#remove_comparsion').on('click', function (e) {
+    $('#headerContainer').on('click', '#remove_comparsion', function (e) {
+      e.stopPropagation();
       let activeNode = _.find(currentClickMeters, a => a.checked);
       if (!activeNode) {
         $.toast('请选择要删除的仪表');
@@ -1094,7 +1111,8 @@ $(function () {
     let alertHtml = template('alert-data-template', data);
     $('#alert-data-container').html(alertHtml);
   };
-  $(document).on('click', '.alert-data-item .item-more', function (e) {
+  $('#alert-data-container').on('click', '.alert-data-item', function (e) {
+    e.stopPropagation();
     let node = $(e.currentTarget);
     let meterId = node.attr('data-id');
     let vtype = node.attr('data-type');
@@ -1124,7 +1142,8 @@ $(function () {
       };
       let gaugeDataHtml = template('gaugeData-template', data);
       $('#gaugeDataContainer').html(gaugeDataHtml);
-      $('#gaugeDataContainer li.item-content').on('click', function (e) {
+      $('#gaugeDataContainer').on('click', 'li.item-content', function (e) {
+        e.stopPropagation();
         let currentDom = e.currentTarget;
         let mfId = $(currentDom).attr('data-id');
         let fixedParaDom = $('#showParamMore_' + mfId);
@@ -1141,7 +1160,8 @@ $(function () {
               };
               let fixedParaHtml = template('fixed-parameter-template', data);
               fixedParaDom.html(fixedParaHtml);
-              $('#seachbtn_' + mfId).on('click', function (e) {
+              $('.item-inner').on('click', '#seachbtn_' + mfId, function (e) {
+                e.stopPropagation();
                 let timeout = $('#seachBox_' + mfId).val();
                 if (_.isEqual(timeout, '')) {
                   $.toast('请输入超限时间，默认为5单位秒');
@@ -1207,7 +1227,7 @@ $(function () {
       name: '上限波动'
     }, {
       id: 'lower_wave',
-      name: '下线波动'
+      name: '下限波动'
     }];
     let tableHtml = "<table class='multiple-container'><thead class='multiple-header'><th><i class='icon-electric'></i></th><th class='fixedColumn'></th>";
     let colNames = _.filter(dataList, a => a.name);
@@ -1362,7 +1382,9 @@ $(function () {
           if (response.IsSuccess) {
             //console.log(response.Content);
             if (_.isEqual(paraType, 0)) {
-              $('#summary-container').removeClass('hidden');
+              if (globalQueryType === queryType.custom) {
+                $('#summary-container').addClass('hidden');
+              } else $('#summary-container').removeClass('hidden');
               $('#rule-container').addClass('hidden');
               let data = getChartData(dateType, searchType, sTime, eTime, response.Content, response.Content.rule);
               renderAggregateData({
@@ -1375,7 +1397,6 @@ $(function () {
                 avgClass: response.Content.avg_per > 0,
               });
               generateChart(document.getElementById('echarts'), data);
-              let alertObjList = [];
               let meter = _.head(currentClickMeters);
               meter.alert_count = response.Content.alarm_sum;
               renderAlartData([meter]);
@@ -1481,7 +1502,7 @@ $(function () {
       }
     });
   };
-  $(document).on('click', '.tree-menu', function (e) {
+  $('#datatab').on('click', '.tree-menu', function (e) {
     e.stopPropagation();
     $.allowPanelOpen = true;
     $.openPanel('#tree-panel');
@@ -1489,7 +1510,39 @@ $(function () {
       $(dom).removeClass('showCheckBox');
     });
   });
-  $(document).on('click', '#refreshCurrentNodeData', function () {
+  $('.bar-nav').on('click', '.tree-menu', function (e) {
+    e.stopPropagation();
+    $.allowPanelOpen = true;
+    $.openPanel('#tree-panel');
+    $('.meter-list li.meter-item').each(function (i, dom) {
+      $(dom).removeClass('showCheckBox');
+    });
+  });
+  $('.page-group').on('click', '#page-focus', function (e) {
+    e.stopPropagation();
+    $.closePanel();
+  });
+  $('.page-group').on('click', '#focus-detail-page', function (e) {
+    e.stopPropagation();
+    if (ifComparsion()) {
+      if (currentClickMeters.length > 1) {
+        isComparsionStatus = false;
+        renderFocusMeter();
+        getMeterFocusData();
+        $.closePanel();
+        return;
+      }
+      $.toast('至少要选择一个仪表');
+      return;
+    }
+    $.closePanel();
+  });
+  $('.focus-detail-nav').on('click', '#navigation-back', function (e) {
+    e.stopPropagation();
+    $.router.load('#page-focus', true);
+  });
+  $('.operateContainer').on('click', '#refreshCurrentNodeData', function (e) {
+    e.stopPropagation();
     let path = $jQuery('#parentId').val();
     let pathStack = path.split('||');
     let parentId = pathStack[pathStack.length - 1];
@@ -1508,7 +1561,8 @@ $(function () {
         }
       });
   });
-  $('#param-switch').on('click', function (e) {
+  $('.focus-div').on('click', '#param-switch', function (e) {
+    e.stopPropagation();
     let toggleStatus = $('#parameter-container').attr('data-toggle');
     if (toggleStatus === 'open') {
       $jQuery('#parameter-container').attr('data-toggle', 'close').slideUp(300);
@@ -1516,11 +1570,13 @@ $(function () {
       $jQuery('#parameter-container').attr('data-toggle', 'open').slideDown(300);
     }
   });
-  $(document).on('click', '#search-btn', function (e) {
+  $('.searchbar').on('click', '#search-btn', function (e) {
+    e.stopPropagation();
     let keyword = $jQuery('#search').val();
     loadFocusListData(1, keyword);
   });
-  $('#searchmorebtn').on("click", function (e) {
+  $('#search-container').on("click", '#searchmorebtn', function (e) {
+    e.stopPropagation();
     globalQueryType = queryType.custom;
     let sTime = $('#startDatePicker').val();
     let eTime = $('#endDatePicker').val();
@@ -1577,6 +1633,7 @@ $(function () {
     }
   });
   $('#showMoreBtn').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     let toggle = $jQuery('#showMoreBtn').attr('data-toggle');
     if (toggle === 'open') {
@@ -1588,12 +1645,14 @@ $(function () {
     ifShowSearch(true);
   });
   $('#showMenu').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showMenu').addClass('active');
     ifShowSearch(false);
   });
   $('#showDay').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     toggleActive();
     $jQuery('#showDay').addClass('active');
@@ -1614,6 +1673,7 @@ $(function () {
       globalsTime, globaleTime, mfIds);
   });
   $('#showWeek').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
@@ -1636,6 +1696,7 @@ $(function () {
       week.monday, week.sunday, mfIds);
   });
   $('#showMonth').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
@@ -1659,6 +1720,7 @@ $(function () {
       month.firstDay, month.lastDay, mfIds);
   });
   $('#showYear').on("click", function (e) {
+    e.stopPropagation();
     if (!operateBefore()) return;
     if (globalDataType === paraType.instantaneousValue) return;
     toggleActive();
@@ -1681,7 +1743,8 @@ $(function () {
     getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.year,
       year.firstDay, year.lastDay, mfIds);
   });
-  $(document).on('click', '#parameter-container > a', function (e) {
+  $('#parameter-container').on('click', 'a', function (e) {
+    e.stopPropagation();
     let currentDom = $(e.currentTarget);
     let chooseType = currentDom.attr('data-type');
     let mfId = currentDom.attr('data-id');
@@ -1690,13 +1753,12 @@ $(function () {
     let existType = getActiveParameters().type;
     let activeMeter = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     if (currentClickMeters.length === 1) {
-      if (!_.isEqual(existType, -1) && !_.isEqual(existType, parseInt(chooseType))) {
-        $.toast('不同类型的参数不能对比');
-        return;
-      }
-      if (!_.isEqual(globalUnit, '') && !_.isEqual(unit, globalUnit)) {
-        $.toast('不同类型的参数不能对比');
-        return;
+      if ((!_.isEqual(existType, -1) && !_.isEqual(existType, parseInt(chooseType))) ||
+        (!_.isEqual(globalUnit, '') && !_.isEqual(unit, globalUnit))) {
+        $('#parameter-container > a').removeClass('checked');
+        _.forEach(activeMeter.parameters, a => {
+          a.checked = '';
+        });
       }
       globalUnit = unit;
       currentDom.toggleClass('checked');
@@ -1746,41 +1808,42 @@ $(function () {
       let flag = true;
       _.forEach(currentClickMeters, m => {
         _.map(m.parameters, a => a.checked = '');
-        let willChecked = _.filter(m.parameters, a => _.toLower(a.unit) === _.toLower(unit));
-        if (willChecked.length > 1) {
-          let special = _.filter(willChecked, a => _.includes(a.name, text));
-          if (special.length !== 1) {
-            $.toast('存在多个相同参数，请手动选择');
-            flag = false;
-            return flag;
-          } else {
-            special[0].checked = 'checked';
-          }
+        let willChecked = _.filter(m.parameters, a => _.toLower(a.name) === _.toLower(text));
+        if (willChecked.length !== 1) {
+          // let special = _.filter(willChecked, a => _.includes(a.name, text));
+          // if (special.length !== 1) {
+          //   $.toast('存在多个相同参数，请手动选择');
+          //   flag = false;
+          //   return flag;
+          // } else {
+          //   special[0].checked = 'checked';
+          // }
         } else {
           willChecked[0].checked = 'checked';
         }
       });
-      sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       globalDataType = parseInt(chooseType);
       $('#parameter-container > a').removeClass('checked');
       currentDom.toggleClass('checked');
       if (!flag) return;
     }
+    sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
     let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
     getFocusMeterData(activeMeter, globalQueryType, globalDataType, globalDateType,
       globalsTime, globaleTime, mfIds);
   });
-  $(document).on('click', '#subscribe', function (e) {
-    if (globalFocusId === -1) {
+  $('.focus-div').on('click', '#subscribe', function (e) {
+    e.stopPropagation();
+    if (globalFocusId === -1 || globalFocusId === "-1") {
       let meter = _.head(currentClickMeters);
       let defaultTitle = '日量-' + energyEnum[meter.EnergyCode] + '-' + meter.text;
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       let parentNode = _.find(meterTree, a => a.id === meter.parent);
-      var modal = $.modal({
+      $.modal({
         title: '设置关注对象名称',
-        afterText: '<div >' +
-          '<div class="">' +
-          '<input type="text" value="' + defaultTitle + '" id="focusTitle" style="padding: 0.25rem;border-radius: 0.2rem;border: transparent;outline: transparent;">' +
+        afterText: '<div class="width:100%">' +
+          '<div class="width:100%">' +
+          '<input type="text" value="' + defaultTitle + '" id="focusTitle" style="padding: 0.25rem;border-radius: 0.2rem;border: transparent;outline: transparent; width: 100%;">' +
           '</div>' +
           '</div>',
         buttons: [{
@@ -1855,19 +1918,7 @@ $(function () {
     pullToLoadFocusList(page);
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {
-    isComparsionStatus = false;
-    globalCurrentPage = 'focus-detail-page';
-    if (currentClickMeters.length === 0) {
-      let selectMetersJson = sessionStorage.getItem('current_select_meters');
-      currentClickMeters = JSON.parse(selectMetersJson);
-      sessionStorage.setItem('current_select_meters', '[]');
-      globalFocusId = sessionStorage.getItem('current_focus_id');
-      sessionStorage.setItem('current_focus_id', -1);
-    }
-    bindTabClick(page);
-    loadMeterTree(0);
-    renderFocusMeter();
-    getMeterFocusData();
+    loadFocusDetailPage();
   });
 
   $.init();
