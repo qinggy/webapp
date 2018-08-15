@@ -31,7 +31,7 @@ $(function () {
     TheoreticalCollection: '理论采集量',
     ActualCollection: '实际采集量'
   };
-  let globalSTime = new Date().format('yyyy-MM-dd 00:00:01'),
+  let globalSTime = new Date().format('yyyy-MM-dd 00:00:00'),
     globalETime = new Date().format('yyyy-MM-dd 23:59:59'),
     globalDataType = dataTypeEnum.Hour,
     chooseType = chooseTypeEnum.area,
@@ -48,7 +48,7 @@ $(function () {
   let getUrlPara = (paraName) => `${paraName}=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
   let getWeek = () => {
     let weekOfday = parseInt(moment().format('E'));
-    let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:01');
+    let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:00');
     let last_sunday = moment().add(7 - weekOfday, 'days').format('YYYY-MM-DD 23:59:59');
     return {
       monday: last_monday,
@@ -608,7 +608,7 @@ $(function () {
       $.toast('请选择查询时间');
       return;
     }
-    globalSTime = time + ' 00:00:01';
+    globalSTime = time + ' 00:00:00';
     globalETime = time + ' 23:59:59';
     getChooseObjHealthData();
   });
@@ -636,7 +636,7 @@ $(function () {
     $jQuery('#showDay').addClass('active');
     globalDataType = dataTypeEnum.Hour;
     ifShowSearch(false);
-    globalSTime = new Date().format('yyyy-MM-dd 00:00:01');
+    globalSTime = new Date().format('yyyy-MM-dd 00:00:00');
     globalETime = new Date().format('yyyy-MM-dd 23:59:59');
     getChooseObjHealthData();
   });

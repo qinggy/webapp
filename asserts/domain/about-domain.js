@@ -23,6 +23,7 @@ $(function () {
       sessionStorage.removeItem('current_health');
       sessionStorage.removeItem('first_login');
       sessionStorage.removeItem('current_select_meters');
+      sessionStorage.removeItem('current_focus_id');
       window.location.href = authUri;
     });
   });

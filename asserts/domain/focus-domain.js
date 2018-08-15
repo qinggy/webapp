@@ -274,7 +274,7 @@ $(function () {
   };
   let getWeek = () => {
     let weekOfday = parseInt(moment().format('E'));
-    let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:01');
+    let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:00');
     let last_sunday = moment().add(7 - weekOfday, 'days').format('YYYY-MM-DD 23:59:59');
     return {
       monday: last_monday,
@@ -282,7 +282,7 @@ $(function () {
     };
   };
   let getMonth = (date) => {
-    let vStartDate = new moment().add('month', date).format("YYYY-MM") + '-01 00:00:01';
+    let vStartDate = new moment().add('month', date).format("YYYY-MM") + '-01 00:00:00';
     let vEndM = moment(vStartDate).add('month', 1).add('days', -1);
     let vEndDate = moment(vEndM).format("YYYY-MM-DD 23:59:59");
     return {
@@ -291,7 +291,7 @@ $(function () {
     }
   };
   let getYear = (date) => {
-    let vStartDate = new moment().add('year', date).format('YYYY') + "-01-01 00:00:01";
+    let vStartDate = new moment().add('year', date).format('YYYY') + "-01-01 00:00:00";
     let vEndM = moment(vStartDate).add('year', 1).add('year', -1);
     let vEndDate = moment(vEndM).format("YYYY") + "-12-31 23:59:59";
     return {
@@ -1470,7 +1470,7 @@ $(function () {
           parameterList: activeNode.parameters
         });
         $('#parameter-container').html(parameterHtml);
-        globalsTime = new Date().format('yyyy-MM-dd 00:00:01');
+        globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
         globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
         globalQueryType = queryType.convenient;
         globalDataType = parameterType;
@@ -1538,18 +1538,18 @@ $(function () {
       let type = dateType.day;
       switch (dataType) {
         case '日':
-          sTime = sTime + ' 00:00:01';
+          sTime = sTime + ' 00:00:00';
           eTime = eTime + ' 23:59:59';
           type = dateType.day;
           break;
         case '月':
           let days = getDaysOfMonth(eTime.split('-')[0], eTime.split('-')[1])
-          sTime = sTime + '-01 00:00:01';
+          sTime = sTime + '-01 00:00:00';
           eTime = eTime + '-' + days + ' 23:59:59';
           type = dateType.month;
           break;
         case '年':
-          sTime = sTime + '-01-01 00:00:01';
+          sTime = sTime + '-01-01 00:00:00';
           eTime = eTime + '-12-31 23:59:59';
           type = dateType.year;
           break;
@@ -1564,7 +1564,7 @@ $(function () {
         sTime, eTime, mfIds);
     } else {
       let time = $('#datePicker').val();
-      globalsTime = time + ' 00:00:01';
+      globalsTime = time + ' 00:00:00';
       globaleTime = time + ' 23:59:59';
       globalQueryType = queryType.custom;
       globalDataType = paraType.instantaneousValue;
@@ -1603,7 +1603,7 @@ $(function () {
       $.toast('请选择查询参数');
       return;
     }
-    globalsTime = new Date().format('yyyy-MM-dd 00:00:01');
+    globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
     globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
     globalQueryType = queryType.convenient;
     globalDataType = params.type;
@@ -1725,7 +1725,7 @@ $(function () {
         $('#showYear').css('color', '#ddd !important');
         if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
           globalDateType = dateType.day;
-          globalsTime = new Date().format('yyyy-MM-dd 00:00:01');;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');;
           globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
           $('.focus-detail-header_tab a.active').removeClass('active');
           $('#showDay').addClass('active');
@@ -1865,6 +1865,7 @@ $(function () {
       sessionStorage.setItem('current_focus_id', -1);
     }
     bindTabClick(page);
+    loadMeterTree(0);
     renderFocusMeter();
     getMeterFocusData();
   });
