@@ -197,13 +197,13 @@ $(function () {
         case '1':
           break;
         case '2':
-          return searchType === queryType.convenient ? ['昨日', '今日'] : ['日数据'];
+          return searchType === queryType.convenient ? ['今日', '昨日'] : ['日数据'];
         case '3':
-          return ['上周', '本周'];
+          return ['本周', '上周'];
         case '4':
-          return searchType === queryType.convenient ? ['上月', '本月'] : ['月数据'];
+          return searchType === queryType.convenient ? ['本月', '上月'] : ['月数据'];
         case '5':
-          return searchType === queryType.convenient ? ['去年', '今年'] : ['年数据'];
+          return searchType === queryType.convenient ? ['今年', '去年'] : ['年数据'];
         case '6':
           break;
       }
@@ -371,7 +371,7 @@ $(function () {
         case 3:
         case 4:
           sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
-          sessionStorage.setItem('if-goback', '1');
+          sessionStorage.setItem('if-goback', '2');
           window.location.href = '../health/index.html#page-health-detail';
           break;
         case 5:
@@ -838,11 +838,11 @@ $(function () {
   };
   let getSeriesPara = (response, searchType, legendTitle) =>
     !ifComparsion() ? searchType === queryType.convenient ? [{
-      data: response.last_data_list === null ? [] : response.last_data_list,
-      name: _.head(legendTitle)
-    }, {
       data: response.now_data_list === null ? [] : response.now_data_list,
       name: _.last(legendTitle)
+    }, {
+      data: response.last_data_list === null ? [] : response.last_data_list,
+      name: _.head(legendTitle)
     }] : [{
       data: response.now_data_list,
       name: _.last(legendTitle)
@@ -869,6 +869,7 @@ $(function () {
   };
   let getChartSeries = function (SeriesData, xAxis, rule, dateType, searchType) {
     let seriesOption = [];
+    let index = 0;
     _.forEach(SeriesData, s => {
       let formatData = [];
       if (searchType === queryType.convenient) {
@@ -901,31 +902,51 @@ $(function () {
       let option = {};
       option.name = s.name;
       option.type = 'line';
+      option.itemStyle = {
+        normal: {
+          color: index > 0 ? "#2ec7c9" : '#bbb',
+          lineStyle: {
+            color: index > 0 ? "#2ec7c9" : '#bbb'
+          }
+        }
+      };
+      index++;
       option.data = _.map(xAxis, a => {
         var valueItem = _.find(formatData, b => b.date === _.toString(a));
-        return !!valueItem ? valueItem.val : 0;
+        if (!!valueItem) return valueItem.val;
       });
       option.markLine = {
-        itemStyle: {
-          normal: {
-            borderWidth: 1,
-            lineStyle: {
-              type: 'dash',
-              color: '#c23531',
-              width: 2,
+        data: [{
+          type: 'average',
+          name: '平均值',
+          itemStyle: {
+            normal: {
+              color: '#aaa'
             }
+          },
+          label: {
+            formatter: function (data) {
+              return data.seriesName + "平均值(" + data.value + ")";
+            },
+            position: 'middle',
+            color: '#aaa'
           }
-        },
-        data: []
+        }]
       };
       if (rule != null) {
         if (rule.LowerLimit != null) {
           option.markLine.data.push({
             name: 'LowerLimit',
+            itemStyle: {
+              normal: {
+                color: '#dc143c'
+              }
+            },
             label: {
               formatter: '下限报警(' + rule.LowerLimit + ')',
               textStyle: {
                 fontSize: 12,
+                color: '#dc143c'
               },
               position: 'middle'
             },
@@ -935,10 +956,16 @@ $(function () {
             let waveValue = rule.LowerLimit + rule.LowerWave;
             option.markLine.data.push({
               name: 'LowerWave',
+              itemStyle: {
+                normal: {
+                  color: '#FF6347'
+                }
+              },
               label: {
                 formatter: '下限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
+                  color: '#FF6347'
                 },
                 position: 'middle'
               },
@@ -949,10 +976,16 @@ $(function () {
         if (rule.UpperLimit != null) {
           option.markLine.data.push({
             name: 'UpperLimit',
+            itemStyle: {
+              normal: {
+                color: '#dc143c'
+              }
+            },
             label: {
               formatter: '上限报警(' + rule.UpperLimit + ')',
               textStyle: {
                 fontSize: 12,
+                color: '#dc143c'
               },
               position: 'middle'
             },
@@ -962,10 +995,16 @@ $(function () {
             let waveValue = rule.UpperLimit - rule.UpperWave;
             option.markLine.data.push({
               name: 'LowerWave',
+              itemStyle: {
+                normal: {
+                  color: '#FF6347'
+                }
+              },
               label: {
                 formatter: '上限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
+                  color: '#FF6347'
                 },
                 position: 'middle'
               },
@@ -1011,17 +1050,28 @@ $(function () {
     return urlPara;
   };
   let renderFocusMeter = function () {
-    if (globalFocusId !== "-1" && globalFocusId !== -1) {
-      $('#subscribe').text('取消关注');
-    } else {
-      $('#subscribe').text('关注');
-    }
     let checkedNode = _.find(currentClickMeters, a => a.checked);
     if (!checkedNode) {
       checkedNode = _.head(currentClickMeters);
       if (checkedNode)
         checkedNode.checked = true;
     }
+    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + checkedNode.id, function (response) {
+      if (response.IsSuccess && response.Content) {
+        //globalIfFocus = response.Content.state;
+        if (response.Content.state) {
+          $('#subscribe').text('取消关注');
+          globalFocusId = response.Content.id;
+        } else {
+          $('#subscribe').text('关注');
+          globalFocusId = -1;
+        }
+        return;
+      }
+      //globalIfFocus = false;
+      globalFocusId = -1;
+      $('#subscribe').text('关注');
+    });
     _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
     sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
     let meterHeaderData = {
@@ -1130,26 +1180,6 @@ $(function () {
     let alertHtml = template('alert-data-template', data);
     $('#alert-data-container').html(alertHtml);
   };
-  $('#alert-data-container').on('click', '.alert-data-item', function (e) {
-    e.stopPropagation();
-    let node = $(e.currentTarget);
-    let meterId = node.attr('data-id');
-    let vtype = node.attr('data-type');
-    let activeMeter = _.head(currentClickMeters);
-    let healthObj = {
-      activeId: vtype === 'm' ? meterId : activeMeter.id,
-      data_type: globalDateType,
-      date_type: 1,
-      etime: globaleTime,
-      id: '',
-      query_type: 1,
-      stime: globalsTime
-    };
-    sessionStorage.setItem('current_health', JSON.stringify(healthObj));
-    sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-    sessionStorage.setItem('if-goback', '1');
-    window.location.href = '../health/index.html#page-health-detail';
-  });
   let renderGaugeData = function () {
     let currentMeterId = getActiveMeterId();
     let currentMeter = _.find(currentClickMeters, a => a.id === currentMeterId);
@@ -1542,6 +1572,26 @@ $(function () {
       $('#total-title').text('年总量');
     }
   };
+  $('#alert-data-container').on('click', '.alert-data-item', function (e) {
+    e.stopPropagation();
+    let node = $(e.currentTarget);
+    let meterId = node.attr('data-id');
+    let vtype = node.attr('data-type');
+    let activeMeter = _.head(currentClickMeters);
+    let healthObj = {
+      activeId: vtype === 'm' ? meterId : activeMeter.id,
+      data_type: globalDateType,
+      date_type: 1,
+      etime: globaleTime,
+      id: '',
+      query_type: 1,
+      stime: globalsTime
+    };
+    sessionStorage.setItem('current_health', JSON.stringify(healthObj));
+    sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+    sessionStorage.setItem('if-goback', '1');
+    window.location.href = '../health/index.html#page-health-detail';
+  });
   $('#datatab').on('click', '.tree-menu', function (e) {
     e.stopPropagation();
     $.allowPanelOpen = true;
@@ -1884,7 +1934,7 @@ $(function () {
     e.stopPropagation();
     if (globalFocusId === -1 || globalFocusId === "-1") {
       let meter = _.head(currentClickMeters);
-      let defaultTitle = '日量-' + energyEnum[meter.EnergyCode] + '-' + meter.text;
+      let defaultTitle = '数据详情-' + energyEnum[meter.EnergyCode] + '-' + meter.text;
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       let parentNode = _.find(meterTree, a => a.id === meter.parent);
       $.modal({

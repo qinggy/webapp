@@ -37,7 +37,8 @@ $(function () {
     chooseType = chooseTypeEnum.area,
     activeHealthType = healthType.overRun,
     chooseId = '',
-    defaultUri = '',
+    globalIfFocus = false,
+    globalFocusId,
     paraChart;
   let formatNumber = n => n < 10 ? "0" + n : n;
   let topNode = () => {
@@ -93,7 +94,6 @@ $(function () {
     });
   };
   let ifShowSearch = function (flag) {
-    let container = $jQuery('#search-container');
     if (flag) {
       if ($jQuery('#showMoreBtn').attr('data-toggle') === 'open') {
         $jQuery('#search-container').slideDown(300);
@@ -134,15 +134,22 @@ $(function () {
       if (chooseType === chooseTypeEnum.area) $('#page-title').text('区域通讯详情');
       else $('#page-title').text('仪表通讯详情');
     }
-    let subscribe = sessionStorage.getItem('current_health');
-    if (subscribe) {
-      let subscribeObj = JSON.parse(subscribe);
-      if (subscribeObj.id !== '') {
-        $('#subscribe').text('取消关注');
+    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + chooseId, function (response) {
+      if (response.IsSuccess && response.Content) {
+        globalIfFocus = response.Content.state;
+        if (globalIfFocus) {
+          $('#subscribe').text('取消关注');
+          globalFocusId = response.Content.id;
+        } else {
+          globalFocusId = -1;
+          $('#subscribe').text('关注');
+        }
         return;
       }
-    }
-    $('#subscribe').text('关注');
+      globalIfFocus = false;
+      globalFocusId = -1;
+      $('#subscribe').text('关注');
+    });
   };
   let renderMeterInfo = (data) => {
     let healthInfoHtml = '<table class="infoTable">';
@@ -358,17 +365,6 @@ $(function () {
       value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
     }, 'd');
   };
-  let bindSubscribe = _ => {
-    let subscribeHealth = sessionStorage.getItem('current_health');
-    if (subscribeHealth) {
-      let subscribeObj = JSON.parse(subscribeHealth)
-      if (subscribeObj.id !== '') {
-        $('#subscribe').text('取消关注');
-        return;
-      }
-    }
-    $('#subscribe').text('关注');
-  };
   let getMeterCommucateData = (nodeId) => {
     let node = $('#showMeterInfo_' + nodeId);
     let nodeInnerHtml = node.html();
@@ -500,7 +496,9 @@ $(function () {
       } else {
         let node = _.find(meterNodes, a => a.id === nodeId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
-          sessionStorage.setItem('current_health', '');
+          sessionStorage.setItem('current_health', {
+            activeId: nodeId
+          });
           chooseId = nodeId;
           chooseType = chooseTypeEnum.meter;
           changePageTitle();
@@ -585,7 +583,7 @@ $(function () {
   let getHealthTotalData = function () {
     esdpec.framework.core.getJsonResult('health/getlist', function (response) {
       if (response.IsSuccess && response.Content) {
-        $('#companyName').text(response.Content.company_name);
+        $('#companyName').text(response.Content.company_name + '健康评测');
         let overrunScore = _.isFinite(response.Content.overrun_score) ? response.Content.overrun_score / 100 : 0;
         let networkScore = _.isFinite(response.Content.network_score) ? response.Content.network_score / 100 : 0;
         cycleloader('#health-cycle', 160, 160, overrunScore);
@@ -708,10 +706,17 @@ $(function () {
     if (ifGoback === '1') {
       sessionStorage.setItem('if-goback', '0');
       $.router.back();
+    } else if (ifGoback === '2') {
+      sessionStorage.setItem('if-goback', '0');
+      window.location.href = '../focus/index.html';
     } else if (chooseType === chooseTypeEnum.area) {
       $.router.load('#page-health', true);
     } else if (chooseType === chooseTypeEnum.meter) {
       let parentNodeJson = sessionStorage.getItem('health_parent_node');
+      if (!parentNodeJson || parentNodeJson === '') {
+        $.router.load('#page-health', true);
+        return;
+      }
       let parentNode = JSON.parse(parentNodeJson);
       chooseId = parentNode.chooseId;
       chooseType = parentNode.chooseType;
@@ -770,13 +775,12 @@ $(function () {
     }
   });
   $(document).on('click', '#subscribe', function (e) {
-    let subscribe = sessionStorage.getItem('current_health');
-    if (!subscribe) {
+    if (!globalIfFocus) {
       let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
       let node = _.find(meterTree, a => a.id === chooseId);
       let defaultTitle = '健康-' + node.text;
       let parentNode = _.find(meterTree, a => a.id === node.parent);
-      var modal = $.modal({
+      $.modal({
         title: '设置关注对象名称',
         afterText: '<div >' +
           '<div class="">' +
@@ -816,6 +820,7 @@ $(function () {
                 if (response.IsSuccess) {
                   $.toast('关注成功');
                   $('#subscribe').text('取消关注');
+                  globalIfFocus = true;
                   sessionStorage.setItem('current_health', JSON.stringify({
                     id: response.Content
                   }));
@@ -826,10 +831,10 @@ $(function () {
         ]
       });
     } else {
-      let subscribeObj = JSON.parse(subscribe);
-      esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + subscribeObj.id, {}, function (response) {
+      esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + globalFocusId, {}, function (response) {
         if (response.IsSuccess) {
           $('#subscribe').text('关注');
+          globalIfFocus = false;
         }
       });
     }
@@ -840,7 +845,12 @@ $(function () {
   $(document).on('pageInit', '#page-health-detail', function (e, id, page) {
     loadMeterTree(0);
     bindDatePicker();
-    bindSubscribe();
+    let subscribeHealth = sessionStorage.getItem('current_health');
+    if (subscribeHealth) {
+      let subscribeObj = JSON.parse(subscribeHealth);
+      chooseId = subscribeObj.activeId;
+      //globalFocusId = subscribeObj.id;
+    }
     changePageTitle();
   });
   $.init();

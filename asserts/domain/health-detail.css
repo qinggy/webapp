@@ -290,6 +290,10 @@ li.item-content {
   margin: 0 !important;
 }
 
+.sub-item-container li {
+  font-size: 0.65rem;
+}
+
 .communicate_chart {
   position: relative;
   margin-top: -0.5rem;

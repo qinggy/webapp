@@ -12,18 +12,20 @@
   -webkit-align-items: flex-start;
   -webkit-box-align: start;
   margin-left: 0.75rem;
-  margin-right: 2rem;
+  margin-right: 0.5rem;
 }
 
 .focus-title {
   margin-top: 0.2rem;
   font-size: 0.8rem;
+  width: 85%;
 }
 
 .focus-description {
   margin-bottom: 0.2rem;
   font-size: 0.65rem;
   color: #666;
+  width: 90%;
 }
 
 .list-block {
@@ -66,7 +68,7 @@
 
 .top-position {
   position: absolute;
-  right: 2.1rem;
+  right: 2.4rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.7rem;
