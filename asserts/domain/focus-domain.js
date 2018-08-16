@@ -839,13 +839,13 @@ $(function () {
   let getSeriesPara = (response, searchType, legendTitle) =>
     !ifComparsion() ? searchType === queryType.convenient ? [{
       data: response.now_data_list === null ? [] : response.now_data_list,
-      name: _.last(legendTitle)
+      name: _.head(legendTitle)
     }, {
       data: response.last_data_list === null ? [] : response.last_data_list,
-      name: _.head(legendTitle)
+      name: _.last(legendTitle)
     }] : [{
       data: response.now_data_list,
-      name: _.last(legendTitle)
+      name: _.head(legendTitle)
     }] : [];
   let getInstantanousSeriesPara = (response, legendTitle) => {
     let seriesParas = [];
@@ -904,9 +904,9 @@ $(function () {
       option.type = 'line';
       option.itemStyle = {
         normal: {
-          color: index > 0 ? "#2ec7c9" : '#bbb',
+          color: index > 0 ? '#bbb' : "#2ec7c9",
           lineStyle: {
-            color: index > 0 ? "#2ec7c9" : '#bbb'
+            color: index > 0 ? '#bbb' : "#2ec7c9"
           }
         }
       };
