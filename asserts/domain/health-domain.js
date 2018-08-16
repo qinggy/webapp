@@ -155,10 +155,10 @@ $(function () {
           switchInfo(healthType.overRun);
           break;
         case healthType.communicate:
-          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;条</td>`;
-          healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;条</td></tr>`;
-          healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;条</td>`;
-          healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;条</td></tr></table>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">区域总表数:</td><td><span class="info-data">${data['total_meter']}</span>&nbsp;个</td>`;
+          healthInfoHtml += `<td style="width: 4rem">在线数:</td><td><span class="info-data">${data['online_meter']}</span>&nbsp;个</td></tr>`;
+          healthInfoHtml += `<tr><td style="width: 4rem">离线数:</td><td><span class="info-data">${data['offline_meter']}</span>&nbsp;个</td>`;
+          // healthInfoHtml += `<td style="width: 4rem">中断次数:</td><td><span class="info-data">${data['interrupt_count']}</span>&nbsp;条</td></tr></table>`;
           switchInfo(healthType.communicate);
           break;
       }
@@ -389,7 +389,7 @@ $(function () {
             title: '串口',
             value: response.Content.port_name
           }, {
-            title: '位置',
+            title: '表地址',
             value: response.Content.address
           }];
           let data = {
@@ -623,6 +623,7 @@ $(function () {
     toggleActive();
     globalDataType = dataTypeEnum.Hour;
     ifShowSearch(true);
+    $('#moreexpand').toggleClass('i-expand');
   });
   $('#showMenu').on("click", function (e) {
     if (!operateBefore()) return;
@@ -636,6 +637,7 @@ $(function () {
     $jQuery('#showDay').addClass('active');
     globalDataType = dataTypeEnum.Hour;
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     globalSTime = new Date().format('yyyy-MM-dd 00:00:00');
     globalETime = new Date().format('yyyy-MM-dd 23:59:59');
     getChooseObjHealthData();
@@ -646,6 +648,7 @@ $(function () {
     $jQuery('#showWeek').addClass('active');
     globalDataType = dataTypeEnum.Day;
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     let week = getWeek();
     globalSTime = week.monday;
     globalETime = week.sunday;

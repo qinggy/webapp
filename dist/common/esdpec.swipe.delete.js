@@ -29,7 +29,7 @@ esdpec.framework.core.swipeDelete = function (select, deleteBtn, deleteAction) {
 
     movebox.querySelector(deleteBtn).onclick = function (e) {
       e.stopPropagation();
-      var deleteId = $jQuery(deleteBtn).attr('data-id');
+      var deleteId = $jQuery(e.currentTarget).attr('data-id');
       if (deleteAction) deleteAction(deleteId);
     }
   });

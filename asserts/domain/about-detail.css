@@ -190,3 +190,16 @@
 .h5-margin {
   margin-bottom: 0.5rem;
 }
+
+.address {
+  display: inline-block;
+  white-space: normal;
+  position: absolute;
+  right: 0rem;
+  width: calc(100% - 4.1rem);
+}
+
+.address-title {
+  height: 2.2rem;
+  line-height: 2.2rem;
+}

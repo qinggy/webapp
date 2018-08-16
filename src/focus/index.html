@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="../../dist/sui/css/sm-extend.css">
   <link rel="stylesheet" href="../../asserts/domain/system-icon.css?_t=201808150926">
   <link rel="stylesheet" href="../../asserts/domain/dashboard.css?_t=201808150925">
-  <link rel="stylesheet" href="../../asserts/domain/focus-detail.css?_t=201808150925">
+  <link rel="stylesheet" href="../../asserts/domain/focus-detail.css?_t=201808150931">
 
   <link rel="apple-touch-icon-precomposed" href="../../assets/img/apple-touch-icon-114x114.png">
   <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
@@ -83,7 +83,7 @@
     <div class="page" id="focus-detail-page">
       <header class="bar bar-nav focus-detail-nav">
         <a class="icon icon-jump pull-left" id="navigation-back"></a>
-        <h1 class="title">日量</h1>
+        <h1 class="title">数据详情</h1>
       </header>
       <div class="content">
         <div class="focus-detail-header">
@@ -94,7 +94,7 @@
             <a id="showMonth" class="tab-link button" data-type="4">1月</a>
             <a id="showYear" class="tab-link button" data-type="5">1年</a>
             <a class="tab-link button" id="showMoreBtn" data-toggle="close" data-type="6">更多
-              <i class="icon-jump"></i>
+              <i class="icon-jump" id="moreexpand"></i>
             </a>
           </div>
         </div>
@@ -146,7 +146,7 @@
           <div class="summary-container" id="summary-container">
             <div class="summary-total">
               <div class="summary-header-container">
-                <span>日总量</span>
+                <span id="total-title">日总量</span>
               </div>
               <div class="summary-total-data" id="summary-total-data"></div>
             </div>
@@ -220,7 +220,7 @@
           </div>
         </a>
         <i class="icon-home home-position set-home {{focus.isHomePage}}" data-id="{{focus.id}}"></i>
-        <div class="icon-arrow top-position set-index" data-id="{{focus.id}}"></div>
+        <div class="icon-arrow top-position set-index" data-id="{{focus.id}}" data-value="{{focus.is_index}}"></div>
         <div class="delete-action" id="delete-action" data-id="{{focus.id}}">
           <span style="color:#fff!important">取消关注</span>
         </div>
@@ -230,8 +230,8 @@
         <a href="#" class="item-link item-content">
           <div class="icon-welcome"></div>
           <div class="item-inner">
-            <div class="item-title focus-title">欢迎光临数据邦</div>
-            <div class="item-title focus-description">您可通过上方导航图标、搜索框查询及关注</div>
+            <div class="item-title focus-title">欢迎使用数据邦</div>
+            <div class="item-title focus-description">您可通过上方导航图标、搜索框查询及关注相关数据</div>
           </div>
         </a>
       </li>
@@ -280,7 +280,7 @@
         <span class="{{if summargyClass}}warn{{else}}great{{/if}} data-container">{{sum_per}}%</span>
         <div class="{{if summargyClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
       </div>
-      <div class="data-prompt">昨日同期</div>
+      <div class="data-prompt" id="data-prompt">昨日同期</div>
     </div>
   </script>
   <script type="text/html" id="avg-data-template">
@@ -417,8 +417,8 @@
   </script>
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
-  <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150924"></script>
-  <script src="../../asserts/domain/focus-domain.js?_t=201808150939"></script>
+  <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150930"></script>
+  <script src="../../asserts/domain/focus-domain.js?_t=201808150942"></script>
 </body>
 
 </html>

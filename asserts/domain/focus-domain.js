@@ -16,7 +16,8 @@ $(function () {
     globalFocusId = -1,
     globalLineDataSource = null,
     globalPieDataSource = null,
-    globalCurrentPage = null;
+    globalCurrentPage = null,
+    presentType = 'd';
   let chart = null;
   let focusEnum = {
     // 'commnunicate': 'icon-commnunicate',
@@ -336,6 +337,9 @@ $(function () {
         if (response.IsSuccess) {
           _.remove(globalFocusList.focusList, a => a.id === deleteItem);
           $('#' + deleteItem).remove();
+          if (globalFocusList.focusList.length === 0) {
+            renderFocusList(globalFocusList.focusList);
+          }
         }
       });
     });
@@ -379,13 +383,26 @@ $(function () {
       e.stopPropagation();
       let currentDom = $(e.currentTarget);
       let focusId = currentDom.attr('data-id');
+      // let isHome = currentDom.attr('data-value');
       if (_.isEqual(focusId, '')) {
         $.toast('请刷新列表后，再重试');
         return;
       }
       let currentHome = _.find(globalFocusList.focusList, a => a.is_index);
-      if (currentHome) {
-        $.confirm('当前账号已设置主页，重复设置会覆盖原有的设置，是否继续？',
+      if (currentHome && currentHome.id === focusId) {
+        esdpec.framework.core.doPutOperation('subscribe/unsetindex?id=' + focusId, {}, function (response) {
+          if (response.IsSuccess) {
+            _.forEach(globalFocusList.focusList, a => {
+              if (a.id === focusId) {
+                a.is_index = false;
+                a.isHomePage = '';
+              }
+            });
+            renderFocusList(globalFocusList);
+          }
+        });
+      } else if (currentHome) {
+        $.confirm('当前账号已设置了主页，是否取消原来的主页，设置当前关注为主页？',
           () => {
             esdpec.framework.core.doPutOperation('subscribe/setindex?id=' + focusId, {}, function (response) {
               if (response.IsSuccess && response.Content) {
@@ -397,7 +414,7 @@ $(function () {
                     a.is_index = false;
                     a.isHomePage = '';
                   }
-                })
+                });
                 renderFocusList(globalFocusList);
               }
             });
@@ -414,12 +431,11 @@ $(function () {
                 a.is_index = false;
                 a.isHomePage = '';
               }
-            })
+            });
             renderFocusList(globalFocusList);
           }
         });
       }
-      e.stopPropagation();
     });
     $('.focus-item').on('click', '.set-index', function (e) {
       e.stopPropagation();
@@ -458,7 +474,6 @@ $(function () {
           renderFocusList(globalFocusList);
         }
       });
-      e.stopPropagation();
     });
   };
   let operateMeterTreeAjaxResult = function (response) {
@@ -588,20 +603,22 @@ $(function () {
               $.toast('目前最多只能接受6个仪表同时对比');
               return;
             }
-            if (_.find(currentClickMeters, a => a.EnergyCode === energyCode)) {
-              clickNode.toggleClass('comparsionchecked');
-              if (clickNode.hasClass('comparsionchecked')) {
-                currentClickMeters.push(node);
-                setTimeout(_ => {
-                  loadComparisonData(node);
-                }, 100);
-              } else {
-                _.remove(currentClickMeters, a => a.id === meterId);
-              }
+            if (currentClickMeters.length === 0) {
+              clickNode.addClass('comparsionchecked');
+              currentClickMeters.push(node);
+              setTimeout(_ => loadComparisonData(node), 100);
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
-              $.toast('不同类型仪表不能对比');
-              return;
+              if (_.find(currentClickMeters, a => a.EnergyCode === energyCode)) {
+                clickNode.toggleClass('comparsionchecked');
+                if (clickNode.hasClass('comparsionchecked')) currentClickMeters.push(node);
+                else _.remove(currentClickMeters, a => a.id === meterId);
+                setTimeout(_ => loadComparisonData(node), 100);
+                sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+              } else {
+                $.toast('不同类型仪表不能对比');
+                return;
+              }
             }
           } else {
             currentClickMeters = [];
@@ -624,23 +641,24 @@ $(function () {
     });
   };
   let loadComparisonData = function (node) {
+    if (currentClickMeters.length === 0) return;
     let existNode = _.head(currentClickMeters);
     let chooseP = _.find(existNode.parameters, a => a.checked === 'checked');
     let freshMan = _.find(currentClickMeters, a => a.id === node.id);
     esdpec.framework.core.getJsonResultSilent('dataanalysis/getparasbymeterid?meterId=' + node.id, function (response) {
       if (response.IsSuccess) {
         freshMan.parameters = response.Content;
+        let currentUnit = !chooseP ? globalUnit : chooseP.unit;
+        let mfId;
         _.forEach(freshMan.parameters, a => {
-          if (_.toLower(a.unit) === _.toLower(chooseP.unit)) {
+          if (_.toLower(a.unit) === _.toLower(currentUnit)) {
             a.checked = 'checked';
+            mfId = a.id;
             return false;
           }
         });
+        freshMan.checkedMfIds = [mfId] || [];
         let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
-        // if (mfIds.length < currentClickMeters.length) {
-        //   $.toast('无法确定对比参数，请手动选择');
-        //   return;
-        // }
         getComparsionData(freshMan, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
       }
     });
@@ -1069,6 +1087,7 @@ $(function () {
     });
     $('#headerContainer').on('click', '#remove_comparsion', function (e) {
       e.stopPropagation();
+      if (!operateBefore()) return;
       let activeNode = _.find(currentClickMeters, a => a.checked);
       if (!activeNode) {
         $.toast('请选择要删除的仪表');
@@ -1078,8 +1097,7 @@ $(function () {
       sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       $('#parameter-container').empty();
       renderFocusMeter();
-      if (currentClickMeters.length === 1)
-        getMeterFocusData();
+      getMeterFocusData();
     });
   };
   let renderAggregateData = function (data) {
@@ -1097,6 +1115,7 @@ $(function () {
     else data.sum_font_size = '0.65rem';
     let aggregateHtml = template('data-template', data);
     $('#summary-total-data').html(aggregateHtml);
+    shiftPresent(presentType);
     let avgHtml = template('avg-data-template', data);
     $('#avg-total-data').html(avgHtml);
   };
@@ -1120,7 +1139,7 @@ $(function () {
     let healthObj = {
       activeId: vtype === 'm' ? meterId : activeMeter.id,
       data_type: globalDateType,
-      date_type: 0,
+      date_type: 1,
       etime: globaleTime,
       id: '',
       query_type: 1,
@@ -1260,6 +1279,12 @@ $(function () {
   let getComparsionData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
     $('#single').addClass('hidden');
     $('#multiple').removeClass('hidden');
+    mfIds = [];
+    let mfObjs = [];
+    _.forEach(currentClickMeters, a => {
+      mfObjs = _.concat(mfObjs, _.filter(a.parameters, a => a.checked === 'checked'));
+    });
+    mfIds = _.map(mfObjs, a => a.id);
     if (mfIds.length > 0) {
       let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
       esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
@@ -1502,6 +1527,21 @@ $(function () {
       }
     });
   };
+  let shiftPresent = (type) => {
+    if (type === 'd') {
+      $('#data-prompt').text('昨日同期');
+      $('#total-title').text('日总量');
+    } else if (type === 'w') {
+      $('#data-prompt').text('上周同期');
+      $('#total-title').text('周总量');
+    } else if (type === 'm') {
+      $('#data-prompt').text('上月同期');
+      $('#total-title').text('月总量');
+    } else {
+      $('#data-prompt').text('去年同期');
+      $('#total-title').text('年总量');
+    }
+  };
   $('#datatab').on('click', '.tree-menu', function (e) {
     e.stopPropagation();
     $.allowPanelOpen = true;
@@ -1524,16 +1564,13 @@ $(function () {
   });
   $('.page-group').on('click', '#focus-detail-page', function (e) {
     e.stopPropagation();
-    if (ifComparsion()) {
-      if (currentClickMeters.length > 1) {
-        isComparsionStatus = false;
-        renderFocusMeter();
-        getMeterFocusData();
-        $.closePanel();
+    if (isComparsionStatus) {
+      if (currentClickMeters.length <= 0) {
+        $.toast('至少要选择一个仪表');
         return;
       }
-      $.toast('至少要选择一个仪表');
-      return;
+      renderFocusMeter();
+      isComparsionStatus = false;
     }
     $.closePanel();
   });
@@ -1628,6 +1665,7 @@ $(function () {
       let params = getActiveParameters();
       let mfIds = _.map(params.parameterList, a => a.id);
       let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+      presentType = 'c';
       getFocusMeterData(activeNode, queryType.custom, paraType.instantaneousValue, dateType.day,
         globalsTime, globaleTime, mfIds);
     }
@@ -1643,6 +1681,7 @@ $(function () {
     }
     toggleActive();
     ifShowSearch(true);
+    $('#moreexpand').toggleClass('i-expand');
   });
   $('#showMenu').on("click", function (e) {
     e.stopPropagation();
@@ -1650,6 +1689,7 @@ $(function () {
     toggleActive();
     $jQuery('#showMenu').addClass('active');
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
   });
   $('#showDay').on("click", function (e) {
     e.stopPropagation();
@@ -1657,6 +1697,7 @@ $(function () {
     toggleActive();
     $jQuery('#showDay').addClass('active');
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     let params = getActiveParameters();
     if (params.type === -1) {
       $.toast('请选择查询参数');
@@ -1669,6 +1710,7 @@ $(function () {
     globalDateType = dateType.day;
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+    presentType = 'd';
     getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.day,
       globalsTime, globaleTime, mfIds);
   });
@@ -1679,6 +1721,7 @@ $(function () {
     toggleActive();
     $jQuery('#showWeek').addClass('active');
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     let params = getActiveParameters();
     if (params.type === -1) {
       $.toast('请选择查询参数');
@@ -1692,6 +1735,7 @@ $(function () {
     globalDateType = dateType.week;
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+    presentType = 'w';
     getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.week,
       week.monday, week.sunday, mfIds);
   });
@@ -1702,6 +1746,7 @@ $(function () {
     toggleActive();
     $jQuery('#showMonth').addClass('active');
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     let params = getActiveParameters();
     if (params.type === -1) {
       $.toast('请选择查询参数');
@@ -1716,6 +1761,7 @@ $(function () {
     let month = getMonth(today);
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+    presentType = 'm';
     getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.month,
       month.firstDay, month.lastDay, mfIds);
   });
@@ -1726,6 +1772,7 @@ $(function () {
     toggleActive();
     $jQuery('#showYear').addClass('active');
     ifShowSearch(false);
+    $('#moreexpand').removeClass('i-expand');
     let params = getActiveParameters();
     if (params.type === -1) {
       $.toast('请选择查询参数');
@@ -1740,6 +1787,7 @@ $(function () {
     globalDateType = dateType.year;
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+    presentType = 'y';
     getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.year,
       year.firstDay, year.lastDay, mfIds);
   });

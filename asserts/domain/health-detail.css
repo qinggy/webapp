@@ -72,9 +72,15 @@
 
 .health-detail-header_tab i.icon-jump {
   margin-left: 0.25rem;
-  transform: rotate(270deg);
+  transform: rotate(180deg);
   display: inline-block;
   color: #000;
+  width: 0.5rem;
+  font-size: 0.65rem;
+}
+
+.i-expand {
+  transform: rotate(-90deg) !important;
 }
 
 .pull-left {
@@ -103,6 +109,10 @@
 
 .instantanous-value-date {
   height: 2rem;
+}
+
+.instantanous-value-date input {
+  text-align: center;
 }
 
 .search-input {
@@ -241,6 +251,10 @@
 }
 
 .parameterList .item-title {
+  font-size: 0.65rem;
+}
+
+.health-alart-container .list {
   font-size: 0.65rem;
 }
 
