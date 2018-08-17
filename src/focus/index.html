@@ -190,7 +190,7 @@
             </div>
             <div id="alert-data-container"></div>
           </div>
-          <div class="focus-table-values">
+          <div class="focus-table-values" id="realmetershow">
             <div class="alert-container">
               <div class="alert-header">
                 <span>表底数</span>
@@ -258,7 +258,7 @@
           <i class="icon icon-f7"></i>
         </div>
         <div class="item-inner {{meter.baseInstrument}}">
-          <div class="item-title">{{meter.text}}</div>
+          <div class="item-title">{{meter.displayText}}</div>
           <div class="checkbox comparsion-for-checked" data-id="{{meter.id}}">
             <i class="icon icon-tick"></i>
           </div>
@@ -269,7 +269,7 @@
   </script>
   <script type="text/html" id="meter-header-template">
     {{if focusMeterList.length > 0}} {{each focusMeterList meter index}}
-    <span class="{{meter.activeClass}}" id="meter_{{meter.id}}" data-id="{{meter.id}}">{{meter.text}}</span>
+    <span class="{{meter.activeClass}}" id="meter_{{meter.id}}" data-id="{{meter.id}}">{{meter.displayText}}</span>
     {{/each}} {{/if}}
     <div class="icon-add_to operate-icon" id="add_comparsion"></div>
     {{if focusMeterList.length > 1}}

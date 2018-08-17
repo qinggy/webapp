@@ -150,6 +150,8 @@ $(function () {
         x: 10,
         y: 31,
         orient: 'vertical',
+        showTitle: false,
+        itemSize: 20,
         feature: {
           myTool: {
             show: true,
@@ -479,6 +481,13 @@ $(function () {
   let operateMeterTreeAjaxResult = function (response) {
     if (response.IsSuccess && response.Content.length > 0) {
       let meterList = response.Content;
+      _.forEach(meterList, a => {
+        if (a.text.length > 7) {
+          a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
+        } else {
+          a.displayText = a.text;
+        }
+      });
       sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
       renderMeterTree(meterList, '#', 'forward');
     }
@@ -599,26 +608,38 @@ $(function () {
         let node = _.find(meterNodes, a => a.id === meterId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
           if (isComparsionStatus) {
-            if (currentClickMeters.length >= 6) {
-              $.toast('目前最多只能接受6个仪表同时对比');
-              return;
-            }
+            let ifAdd = true;
             if (currentClickMeters.length === 0) {
-              clickNode.addClass('comparsionchecked');
-              currentClickMeters.push(node);
-              setTimeout(_ => loadComparisonData(node), 100);
+              clickNode.toggleClass('comparsionchecked');
+              if (clickNode.hasClass('comparsionchecked')) {
+                ifAdd = true;
+                currentClickMeters.push(node);
+              } else {
+                ifAdd = false;
+                _.remove(currentClickMeters, a => a.id === meterId);
+              }
+              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
-              if (_.find(currentClickMeters, a => a.EnergyCode === energyCode)) {
-                clickNode.toggleClass('comparsionchecked');
-                if (clickNode.hasClass('comparsionchecked')) currentClickMeters.push(node);
-                else _.remove(currentClickMeters, a => a.id === meterId);
-                setTimeout(_ => loadComparisonData(node), 100);
-                sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+              clickNode.toggleClass('comparsionchecked');
+              if (clickNode.hasClass('comparsionchecked')) {
+                if (currentClickMeters.length >= 6) {
+                  clickNode.toggleClass('comparsionchecked');
+                  $.toast('目前最多只能接受6个仪表同时对比');
+                  return;
+                } else if (_.find(currentClickMeters, a => a.EnergyCode === energyCode)) {
+                  currentClickMeters.push(node);
+                  ifAdd = true;
+                } else {
+                  $.toast('不同类型仪表不能对比');
+                  return;
+                }
               } else {
-                $.toast('不同类型仪表不能对比');
-                return;
+                ifAdd = false;
+                _.remove(currentClickMeters, a => a.id === meterId);
               }
+              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             }
           } else {
             currentClickMeters = [];
@@ -640,28 +661,33 @@ $(function () {
       backNavigate();
     });
   };
-  let loadComparisonData = function (node) {
+  let loadComparisonData = function (node, ifNeedLoad) {
     if (currentClickMeters.length === 0) return;
     let existNode = _.head(currentClickMeters);
     let chooseP = _.find(existNode.parameters, a => a.checked === 'checked');
     let freshMan = _.find(currentClickMeters, a => a.id === node.id);
-    esdpec.framework.core.getJsonResultSilent('dataanalysis/getparasbymeterid?meterId=' + node.id, function (response) {
-      if (response.IsSuccess) {
-        freshMan.parameters = response.Content;
-        let currentUnit = !chooseP ? globalUnit : chooseP.unit;
-        let mfId;
-        _.forEach(freshMan.parameters, a => {
-          if (_.toLower(a.unit) === _.toLower(currentUnit)) {
-            a.checked = 'checked';
-            mfId = a.id;
-            return false;
-          }
-        });
-        freshMan.checkedMfIds = [mfId] || [];
-        let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
-        getComparsionData(freshMan, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
-      }
-    });
+    if (ifNeedLoad) {
+      esdpec.framework.core.getJsonResultSilent('dataanalysis/getparasbymeterid?meterId=' + node.id, function (response) {
+        if (response.IsSuccess) {
+          freshMan.parameters = response.Content;
+          let currentUnit = !chooseP ? globalUnit : chooseP.unit;
+          let mfId;
+          _.forEach(freshMan.parameters, a => {
+            if (_.toLower(a.unit) === _.toLower(currentUnit)) {
+              a.checked = 'checked';
+              mfId = a.id;
+              return false;
+            }
+          });
+          freshMan.checkedMfIds = [mfId] || [];
+          let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
+          getComparsionData(freshMan, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
+        }
+      });
+    } else {
+      let mfIds = _.map(getActiveParameters().parameterList, a => a.id);
+      getComparsionData(node, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds);
+    }
   };
   let toggleActive = function () {
     let tabs = $jQuery('.focus-detail-header_tab a');
@@ -697,6 +723,8 @@ $(function () {
         x: 10,
         y: 31,
         orient: 'vertical',
+        showTitle: false,
+        itemSize: 20,
         feature: {
           magicType: {
             show: true,
@@ -721,12 +749,17 @@ $(function () {
         }
       },
       calculable: true,
-      dataZoom: {
-        show: true,
+      dataZoom: [{
+        show: false,
         realtime: true,
         start: 0,
         end: 100 //data.dataZoom.end
-      },
+      }, {
+        type: 'inside',
+        realtime: true,
+        start: 0,
+        end: 100
+      }],
       xAxis: [{
         type: 'category',
         data: data.xAxisData,
@@ -1056,7 +1089,8 @@ $(function () {
       if (checkedNode)
         checkedNode.checked = true;
     }
-    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + checkedNode.id, function (response) {
+    let stype = currentClickMeters.length > 1 ? 2 : 1;
+    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + checkedNode.id + '&stype=' + stype, function (response) {
       if (response.IsSuccess && response.Content) {
         //globalIfFocus = response.Content.state;
         if (response.Content.state) {
@@ -1494,6 +1528,12 @@ $(function () {
               renderAlartData(alertList);
               renderGaugeData();
             }
+            let meter = _.head(currentClickMeters);
+            if (meter.modeltype === 'vmeter') {
+              $('#realmetershow').hide();
+            } else {
+              $('#realmetershow').show();
+            }
           }
         });
       } else {
@@ -1628,7 +1668,7 @@ $(function () {
     e.stopPropagation();
     $.router.load('#page-focus', true);
   });
-  $('.operateContainer').on('click', '#refreshCurrentNodeData', function (e) {
+  $('.operateContainer').on('click', '#refreshCurrentNodeData', function (e) { // has been deprecated
     e.stopPropagation();
     let path = $jQuery('#parentId').val();
     let pathStack = path.split('||');
@@ -1976,7 +2016,7 @@ $(function () {
                 unit: currentUnit,
                 energy_code: meter.EnergyCode,
                 description: (parentNode ? parentNode.text : '') + '-' + meter.text,
-                stype: currentClickMeters.length > 1 ? 0 : 1,
+                stype: currentClickMeters.length > 1 ? 2 : 1,
                 date_type: globalDateType,
                 query_type: globalQueryType,
                 data_type: globalDataType,

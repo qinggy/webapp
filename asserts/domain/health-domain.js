@@ -134,7 +134,7 @@ $(function () {
       if (chooseType === chooseTypeEnum.area) $('#page-title').text('区域通讯详情');
       else $('#page-title').text('仪表通讯详情');
     }
-    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + chooseId, function (response) {
+    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + chooseId + '&stype=' + getStype(), function (response) {
       if (response.IsSuccess && response.Content) {
         globalIfFocus = response.Content.state;
         if (globalIfFocus) {
@@ -312,6 +312,7 @@ $(function () {
         x: 10,
         y: 31,
         orient: 'vertical',
+        showTitle: false,
         feature: {
           magicType: {
             show: true,
@@ -324,12 +325,17 @@ $(function () {
         }
       },
       calculable: true,
-      dataZoom: {
-        show: true,
+      dataZoom: [{
+        show: false,
         realtime: true,
         start: 0,
         end: 100
-      },
+      }, {
+        type: 'inside',
+        realtime: true,
+        start: 0,
+        end: 100
+      }],
       xAxis: [{
         type: 'category',
         data: data.xAxisData,
@@ -580,6 +586,15 @@ $(function () {
       getChooseObjHealthData();
     }
   };
+  let getStype = () => {
+    if (chooseType === chooseTypeEnum.area) {
+      if (activeHealthType === healthType.overRun) return 4;
+      else return 3;
+    } else {
+      if (activeHealthType === healthType.overRun) return 6;
+      else return 5;
+    }
+  };
   let getHealthTotalData = function () {
     esdpec.framework.core.getJsonResult('health/getlist', function (response) {
       if (response.IsSuccess && response.Content) {
@@ -808,7 +823,7 @@ $(function () {
                 unit: '',
                 energy_code: node.EnergyCode,
                 description: (parentNode ? parentNode.text : '') + '-' + node.text,
-                stype: activeHealthType === healthType.overRun ? 4 : 3,
+                stype: getStype(),
                 date_type: activeHealthType,
                 query_type: chooseType,
                 data_type: globalDataType,
