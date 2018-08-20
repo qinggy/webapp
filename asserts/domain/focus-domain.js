@@ -69,6 +69,7 @@ $(function () {
     year: 5,
     more: 6
   };
+  let getPlaceHolder = () => '                                                            ';
   let getXAxisData = function (type) {
     switch (type) {
       case '1':
@@ -959,7 +960,7 @@ $(function () {
           },
           label: {
             formatter: function (data) {
-              return data.seriesName + "平均值(" + data.value + ")";
+              return data.seriesName + "平均值(" + data.value + ")" + getPlaceHolder();
             },
             position: 'middle',
             color: '#aaa'
@@ -991,14 +992,15 @@ $(function () {
               name: 'LowerWave',
               itemStyle: {
                 normal: {
-                  color: '#FF6347'
+                  color: '#FF8C00'
                 }
               },
               label: {
-                formatter: '下限预警(' + waveValue + ')',
+                formatter: getPlaceHolder() + '下限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
-                  color: '#FF6347'
+                  color: '#FF8C00',
+                  marginRight: '2rem'
                 },
                 position: 'middle'
               },
@@ -1030,14 +1032,14 @@ $(function () {
               name: 'LowerWave',
               itemStyle: {
                 normal: {
-                  color: '#FF6347'
+                  color: '#FF8C00'
                 }
               },
               label: {
-                formatter: '上限预警(' + waveValue + ')',
+                formatter: getPlaceHolder() + '上限预警(' + waveValue + ')',
                 textStyle: {
                   fontSize: 12,
-                  color: '#FF6347'
+                  color: '#FF8C00'
                 },
                 position: 'middle'
               },

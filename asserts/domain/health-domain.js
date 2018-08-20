@@ -313,6 +313,7 @@ $(function () {
         y: 31,
         orient: 'vertical',
         showTitle: false,
+        itemSize: 20,
         feature: {
           magicType: {
             show: true,
