@@ -1320,7 +1320,10 @@ $(function () {
     let tableHtml = "<table class='multiple-container'><thead class='multiple-header'><th><i class='icon-electric'></i></th><th class='fixedColumn'></th>";
     let colNames = _.filter(dataList, a => a.name);
     _.forEach(colNames, col => {
-      tableHtml += '<th>' + col.name + '</th>';
+      if (col.name.length > 7) {
+        tableHtml += '<th>' + col.name.substring(0, 4) + '...' + col.name.substring(col.name.length - 5) + '</th>';
+      } else
+        tableHtml += '<th>' + col.name + '</th>';
     });
     tableHtml += "</thead>";
     if (type === 1) {

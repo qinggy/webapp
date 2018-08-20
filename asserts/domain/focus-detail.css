@@ -629,9 +629,9 @@
   padding: 0 0.2rem;
   white-space: nowrap;
   padding-right: 1rem;
-  max-width: 6.5rem;
+  /* max-width: 6.5rem;
   text-overflow: ellipsis;
-  overflow: hidden;
+  overflow: hidden; */
 }
 
 .multiple-header th:first-child {
