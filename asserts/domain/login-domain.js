@@ -53,7 +53,7 @@ $(function () {
           localStorage.setItem("user_token", response.Content.token);
           localStorage.setItem('authorization_code', authorizationCode);
           sessionStorage.setItem('first_login', '1');
-          window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/focus/index.html';
+          window.location.href = esdpec.framework.core.BaseWeb + 'src/focus/index.html';
         } else {
           $.toast(response.Msg);
         }
@@ -64,7 +64,7 @@ $(function () {
     // let token = localStorage.getItem('user_token');
     // if (token) {
     //   sessionStorage.setItem('first_login', '1');
-    //   window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/focus/index.html';
+    //   window.location.href = esdpec.framework.core.BaseWeb + 'src/focus/index.html';
     // } else if (!hasLogined()) {
     //   window.location.href = authUri;
     // }

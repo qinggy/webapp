@@ -227,7 +227,7 @@ $(function () {
     option.type = 'line';
     option.data = _.map(xAxis, a => {
       var valueItem = _.find(data.now_data_list, b => b.date === a);
-      return !!valueItem ? valueItem.val : 0;
+      if(!!valueItem) return valueItem.val;
     });
     option.markLine = {
       itemStyle: {
@@ -362,7 +362,7 @@ $(function () {
       series: []
     };
     if ($('chart_' + nodeId).length <= 0)
-      $jQuery('#parameterDetail_' + nodeId).append("<div class='unit'>" + unit + "</div><div class='parameter-charts' id='chart_" + nodeId + "'></div>");
+      $jQuery('#parameterDetail_' + nodeId).append("<div class='unit'>单位:&nbsp;" + unit + "</div><div class='parameter-charts' id='chart_" + nodeId + "'></div>");
     chartData.xAxisData = _.map(data.now_data_list, a => a.date);
     chartData.series = [getSeries(data, chartData.xAxisData)];
     generateChart(document.getElementById('chart_' + nodeId), chartData);
@@ -712,8 +712,10 @@ $(function () {
       });
     }
     if (chartNode.attr('data-toggle') === 'open') {
+      $(node).removeClass('click-item-style');
       $jQuery('#parameterDetail_' + nodeId).attr('data-toggle', 'close').slideUp(300);
     } else {
+      $(node).addClass('click-item-style');
       $jQuery('#parameterDetail_' + nodeId).attr('data-toggle', 'open').slideDown(300);
     }
   });
@@ -784,8 +786,10 @@ $(function () {
         });
       }
       if (childrenNode.attr('data-toggle') === 'open') {
+        $(node).removeClass('click-item-style');
         $jQuery('#showChildren_' + nodeId).attr('data-toggle', 'close').slideUp(300);
       } else {
+        $(node).addClass('click-item-style');
         $jQuery('#showChildren_' + nodeId).attr('data-toggle', 'open').slideDown(300);
       }
     }

@@ -41,7 +41,7 @@ $(function () {
           let pageTitle = reportDom.attr('data-title');
           let pdfUrl = reportDom.attr('data-url');
           if (!!pdfUrl && _.endsWith(pdfUrl, '.pdf'))
-            window.location.href = esdpec.framework.core.Config.BaseWebSiteUrl + "src/report/viewer.html?file=" + pdfUrl + "&name=" + encodeURIComponent(pageTitle);
+            window.location.href = esdpec.framework.core.BaseWeb + "src/report/viewer.html?file=" + pdfUrl + "&name=" + encodeURIComponent(pageTitle);
           else
             $.alert("没有获取到报表文件，无法预览");
         });

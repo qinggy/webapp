@@ -1066,7 +1066,7 @@ $(function () {
       option.type = 'line';
       option.data = _.map(xAxis, a => {
         var valueItem = _.find(formatData, b => b.date === _.toString(a));
-        return !!valueItem ? valueItem.val : 0;
+        if (!!valueItem) return valueItem.val;
       });
       seriesOption.push(option);
     });
@@ -1264,6 +1264,7 @@ $(function () {
                 });
               });
               fixedParaDom.attr('data-toggle', 'open');
+              $(currentDom).addClass('item-click-style');
               let lastData = {
                 lastDataList: response.Content.last_datas
               };
@@ -1275,8 +1276,10 @@ $(function () {
           });
         }
         if (fixedParaDom.attr('data-toggle') === 'open') {
+          $(currentDom).removeClass('item-click-style');
           $jQuery('#showParamMore_' + mfId).attr('data-toggle', 'close').slideUp(300);
         } else {
+          $(currentDom).addClass('item-click-style');
           $jQuery('#showParamMore_' + mfId).attr('data-toggle', 'open').slideDown(300);
         }
       });
@@ -1599,6 +1602,19 @@ $(function () {
       }
     });
   };
+  let getDateTypeForHealth = () => {
+    let type = parseInt(globalDateType);
+    switch (type) {
+      case 1:
+      case 2:
+      case 4:
+      case 5:
+      case 6:
+        return 1;
+      case 3:
+        return 2;
+    }
+  };
   let shiftPresent = (type) => {
     if (type === 'd') {
       $('#data-prompt').text('昨日同期');
@@ -1622,7 +1638,7 @@ $(function () {
     let activeMeter = _.head(currentClickMeters);
     let healthObj = {
       activeId: vtype === 'm' ? meterId : activeMeter.id,
-      data_type: globalDateType,
+      data_type: getDateTypeForHealth(),
       date_type: 1,
       etime: globaleTime,
       id: '',

@@ -487,6 +487,8 @@
   transform: rotate(180deg);
   position: absolute;
   right: 1rem;
+  transition: .3s;
+  font-size: 0.65rem;
 }
 
 .icon-loading {

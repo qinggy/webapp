@@ -296,7 +296,7 @@ li.item-content {
 
 .communicate_chart {
   position: relative;
-  margin-top: -0.5rem;
+  /* margin-top: -0.5rem; */
 }
 
 .communicate_chart canvas {
@@ -306,6 +306,7 @@ li.item-content {
 .parameter-charts {
   height: 15rem;
   width: 100%;
+  border-bottom: 0.05rem solid #eaeaea;
 }
 
 .unit {
@@ -313,4 +314,9 @@ li.item-content {
   right: 0.4rem;
   top: 1rem;
   font-size: 0.65rem;
+  color: #0894ec !important;
+}
+
+.click-item-style:after {
+  transform: rotate(270deg) !important;
 }

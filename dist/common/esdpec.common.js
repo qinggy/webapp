@@ -41,15 +41,17 @@ Date.prototype.addDays = function (days) {
 
 esdpec.framework.core.Config = {
   APIBaseUrl: 'http://172.17.0.21/api/',
-  BaseWebSiteUrl: 'http://172.17.0.48/webapp/',
+  BaseWebSiteUrl: 'http://172.17.0.48/',
   // APIBaseUrl: 'http://120.76.22.80:8089/api/',
-  // BaseWebSiteUrl: 'http://cloud.esdgd.com/webapp/',
+  // BaseWebSiteUrl: 'http://cloud.esdgd.com/',
+  BaseSiteRoot: 'webapp/',
   ajaxProcessingText: "加载中....",
   ajaxProcessedText: "完成"
 }
 
+esdpec.framework.core.BaseWeb = esdpec.framework.core.Config.BaseWebSiteUrl + esdpec.framework.core.Config.BaseSiteRoot;
 esdpec.framework.core.user_token = () => localStorage.getItem('user_token');
-esdpec.framework.core.redirectUrl = esdpec.framework.core.Config.BaseWebSiteUrl + 'src/login.html';
+esdpec.framework.core.redirectUrl = esdpec.framework.core.BaseWeb + 'src/login.html';
 
 esdpec.framework.core.completeRequest = function (XMLHttpRequest, textStatus, onCompleteCallBack) {
   var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");

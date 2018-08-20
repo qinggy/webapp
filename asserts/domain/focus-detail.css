@@ -466,7 +466,7 @@
 
 .search-overrun-input {
   width: 6.5rem !important;
-  background-color: #f9f9f9 !important;
+  background-color: #fff !important;
   border-radius: 0.3rem !important;
   color: #333;
   margin-top: 0.125rem !important;
@@ -690,4 +690,9 @@
 
 .instantanous-value-date input {
   text-align: center;
+}
+
+.item-click-style:after {
+  transition: .3s;
+  transform: rotate(270deg) !important;
 }
