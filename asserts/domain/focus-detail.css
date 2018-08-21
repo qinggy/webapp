@@ -696,3 +696,7 @@
   transition: .3s;
   transform: rotate(270deg) !important;
 }
+
+.input-center {
+  text-align: center;
+}

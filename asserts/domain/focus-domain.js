@@ -373,12 +373,11 @@ $(function () {
           break;
         case 3:
         case 4:
+        case 5:
+        case 6:
           sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
           sessionStorage.setItem('if-goback', '2');
           window.location.href = '../health/index.html#page-health-detail';
-          break;
-        case 5:
-        case 6:
           break;
       }
     });
@@ -576,7 +575,10 @@ $(function () {
         }
       }
       totalPage = response.Content.total_page;
-      renderFocusList(data);
+      let totalList = _.concat(globalFocusList.focusList || [], data.focusList);
+      renderFocusList({
+        focusList: totalList
+      });
     });
   };
   let renderMeterTree = function (list, parent, type) {
@@ -586,8 +588,8 @@ $(function () {
     }
     let children = _.filter(list, a => a.parent === parent);
     _.map(children, a => {
-      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '';
-      a.showChecked = (isComparsionStatus && (a.modeltype === 'meter' || a.modeltype === 'vmeter')) ? 'showCheckBox' : '';
+      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter' || a.modeltype === 'hmeter') ? 'isBasic-instrument' : '';
+      a.showChecked = (isComparsionStatus && (a.modeltype === 'meter' || a.modeltype === 'vmeter' || a.modeltype === 'hmeter')) ? 'showCheckBox' : '';
       a.hasChecked = _.find(currentClickMeters, m => m.id === a.id) ? 'comparsionchecked' : '';
     });
     let data = {
@@ -607,7 +609,7 @@ $(function () {
         renderMeterTree(children, meterId, 'forward');
       else {
         let node = _.find(meterNodes, a => a.id === meterId);
-        if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
+        if (node.modeltype === 'vmeter' || node.modeltype === 'meter' || node.modeltype === 'hmeter') {
           if (isComparsionStatus) {
             let ifAdd = true;
             if (currentClickMeters.length === 0) {
@@ -619,7 +621,11 @@ $(function () {
                 ifAdd = false;
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
-              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              if (currentClickMeters.length > 1) {
+                setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              } else {
+                setTimeout(_ => getMeterFocusData(), 100);
+              }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
               clickNode.toggleClass('comparsionchecked');
@@ -639,7 +645,11 @@ $(function () {
                 ifAdd = false;
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
-              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              if (currentClickMeters.length > 1) {
+                setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              } else {
+                setTimeout(_ => getMeterFocusData(), 100);
+              }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             }
           } else {
@@ -1117,6 +1127,7 @@ $(function () {
     $('#headerContainer').html(meterNameTemplate);
     $('#headerContainer').on('click', 'span', function (e) {
       e.stopPropagation();
+      if (!operateBefore()) return;
       let meterId = $(e.currentTarget).attr('data-id');
       _.forEach(currentClickMeters, a => {
         if (a.id === meterId)
@@ -1141,8 +1152,9 @@ $(function () {
         }
       });
     });
-    $('#headerContainer').on('click', '#add_comparsion', function (e) {
+    $('#addcomparsion').on('click', '#add_comparsion', function (e) {
       e.stopPropagation();
+      if (!operateBefore()) return;
       let flag = true;
       _.forEach(currentClickMeters, m => {
         let checkedParas = _.filter(m.parameters, a => a.checked === 'checked');
@@ -1162,7 +1174,7 @@ $(function () {
       $('.meter-list li.meter-item').each(function (i, dom) {
         let type = $(dom).attr('data-type');
         let id = $(dom).attr('data-id');
-        if (!_.isEqual(type, 'meter') && !_.isEqual(type, 'vmeter'))
+        if (!_.isEqual(type, 'meter') && !_.isEqual(type, 'vmeter') && !_.isEqual(type, 'hmeter'))
           $(dom).removeClass('showCheckBox');
         else $(dom).addClass('showCheckBox');
         let meter = _.find(currentClickMeters, a => a.id === id);
@@ -1171,7 +1183,7 @@ $(function () {
         } else $(dom).removeClass('comparsionchecked');
       });
     });
-    $('#headerContainer').on('click', '#remove_comparsion', function (e) {
+    $('#removecomparsion').on('click', '#remove_comparsion', function (e) {
       e.stopPropagation();
       if (!operateBefore()) return;
       let activeNode = _.find(currentClickMeters, a => a.checked);
@@ -1179,12 +1191,25 @@ $(function () {
         $.toast('请选择要删除的仪表');
         return;
       }
-      _.remove(currentClickMeters, a => a.checked);
+      let removeItem = _.remove(currentClickMeters, a => a.checked);
       sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       $('#parameter-container').empty();
       renderFocusMeter();
-      getMeterFocusData();
+      // getMeterFocusData();
+      removeSearchMeter(removeItem);
     });
+  };
+  let removeSearchMeter = removeItem => {
+    if (currentClickMeters.length <= 0) return;
+    let activeNodeId = getActiveMeterId();
+    let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
+    let mfIds = [];
+    _.forEach(currentClickMeters, a => {
+      let params = _.filter(a.parameters, p => p.checked === 'checked');
+      mfIds = _.concat(mfIds, params);
+    });
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, _.uniq(_.map(mfIds, a => a.id)));
   };
   let renderAggregateData = function (data) {
     if (data.avg_val < 1000) data.avg_font_size = '1.25rem';
@@ -1711,6 +1736,23 @@ $(function () {
   });
   $('.focus-div').on('click', '#param-switch', function (e) {
     e.stopPropagation();
+    if ($('#parameter-container').html() === '') {
+      let meterId = getActiveMeterId();
+      let activeNode = _.find(currentClickMeters, a => a.id === meterId);
+      esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + meterId, function (response) {
+        if (response.IsSuccess) {
+          _.map(response.Content, p => {
+            let existP = _.find(activeNode.parameters, a => a.id === p.id);
+            _.assign(p, existP);
+          })
+          activeNode.parameters = response.Content;
+          let parameterHtml = template('parameter-template', {
+            parameterList: activeNode.parameters
+          });
+          $('#parameter-container').html(parameterHtml);
+        }
+      });
+    }
     let toggleStatus = $('#parameter-container').attr('data-toggle');
     if (toggleStatus === 'open') {
       $jQuery('#parameter-container').attr('data-toggle', 'close').slideUp(300);
@@ -1822,7 +1864,7 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'd';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.day,
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
       globalsTime, globaleTime, mfIds);
   });
   $('#showWeek').on("click", function (e) {
@@ -1847,8 +1889,8 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'w';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.week,
-      week.monday, week.sunday, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#showMonth').on("click", function (e) {
     e.stopPropagation();
@@ -1864,17 +1906,17 @@ $(function () {
       return;
     }
     let today = new Date().format('yyyy-MM-dd');
-    globalsTime = today.firstDay;
-    globaleTime = today.lastDay;
+    let month = getMonth(today);
+    globalsTime = month.firstDay;
+    globaleTime = month.lastDay;
     globalQueryType = queryType.convenient;
     globalDataType = params.type;
     globalDateType = dateType.month;
-    let month = getMonth(today);
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'm';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.month,
-      month.firstDay, month.lastDay, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#showYear').on("click", function (e) {
     e.stopPropagation();
@@ -1899,8 +1941,8 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'y';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.year,
-      year.firstDay, year.lastDay, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#parameter-container').on('click', 'a', function (e) {
     e.stopPropagation();
@@ -1965,6 +2007,16 @@ $(function () {
       }
     } else {
       let flag = true;
+      globalDataType = parseInt(chooseType);
+      if (globalDataType === paraType.instantaneousValue) {
+        $('#showWeek').css('color', '#ddd !important');
+        $('#showMonth').css('color', '#ddd !important');
+        $('#showYear').css('color', '#ddd !important');
+      } else {
+        document.getElementById('showWeek').style = '';
+        document.getElementById('showMonth').style = '';
+        document.getElementById('showYear').style = '';
+      }
       _.forEach(currentClickMeters, m => {
         _.map(m.parameters, a => a.checked = '');
         let willChecked = _.filter(m.parameters, a => _.toLower(a.name) === _.toLower(text));
@@ -1981,7 +2033,6 @@ $(function () {
           willChecked[0].checked = 'checked';
         }
       });
-      globalDataType = parseInt(chooseType);
       $('#parameter-container > a').removeClass('checked');
       currentDom.toggleClass('checked');
       if (!flag) return;

@@ -115,16 +115,16 @@
               <input type="text" id="dataTypePicker" class="search-input" value="日" readonly>
             </div>
             <div class="search-date">
-              <input type="text" id="startDatePicker" class="search-input" placeholder="起始时间" readonly>
+              <input type="text" id="startDatePicker" class="search-input input-center" placeholder="起始时间" readonly>
             </div>
             <span class="search-data-span">至</span>
             <div class="search-date">
-              <input type="text" id="endDatePicker" class="search-input" placeholder="终止时间" readonly>
+              <input type="text" id="endDatePicker" class="search-input input-center" placeholder="终止时间" readonly>
             </div>
           </div>
           <div class="condition-row hidden" id="instantanousValue-container">
             <div class="search-date instantanous-value-date" style="width: 100%">
-              <input type="text" id="datePicker" class="search-input" placeholder="查询时间" readonly>
+              <input type="text" id="datePicker" class="search-input input-center" placeholder="查询时间" readonly>
             </div>
           </div>
           <div>
@@ -271,9 +271,13 @@
     {{if focusMeterList.length > 0}} {{each focusMeterList meter index}}
     <span class="{{meter.activeClass}}" id="meter_{{meter.id}}" data-id="{{meter.id}}">{{meter.displayText}}</span>
     {{/each}} {{/if}}
-    <div class="icon-add_to operate-icon" id="add_comparsion"></div>
+    <div id="addcomparsion">
+      <div class="icon-add_to operate-icon" id="add_comparsion"></div>
+    </div>
     {{if focusMeterList.length > 1}}
-    <div class="icon-reduce operate-icon" id="remove_comparsion"></div>
+    <div id="removecomparsion">
+      <div class="icon-reduce operate-icon" id="remove_comparsion"></div>
+    </div>
     {{/if}}
   </script>
   <script type="text/html" id="parameter-template">
@@ -428,12 +432,12 @@
   </script>
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
-  <!-- <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150930"></script>
-  <script src="../../asserts/domain/focus-domain.js?_t=201808150942"></script> -->
-  <script>
+  <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150930"></script>
+  <script src="../../asserts/domain/focus-domain.js?_t=201808150942"></script>
+  <!-- <script>
     document.write('<script src="../../dist/common/esdpec.swipe.delete.js?_t=' + Math.random() +
       '"><\/script><script src="../../asserts/domain/focus-domain.js?_t=' + Math.random() + '"><\/script>');
-  </script>
+  </script> -->
 </body>
 
 </html>

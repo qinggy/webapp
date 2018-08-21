@@ -43,7 +43,7 @@ $(function () {
   let formatNumber = n => n < 10 ? "0" + n : n;
   let topNode = () => {
     let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-    return _.head(meterTree, a => a.parent === '#');
+    return _.head(_.filter(meterTree, a => a.parent === '#'));
   };
   let getChooseId = () => _.isEqual(chooseId, '') ? topNode().id : chooseId;
   let getUrlPara = (paraName) => `${paraName}=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
@@ -227,7 +227,7 @@ $(function () {
     option.type = 'line';
     option.data = _.map(xAxis, a => {
       var valueItem = _.find(data.now_data_list, b => b.date === a);
-      if(!!valueItem) return valueItem.val;
+      if (!!valueItem) return valueItem.val;
     });
     option.markLine = {
       itemStyle: {
@@ -480,14 +480,14 @@ $(function () {
     }
     let children = _.filter(list, a => a.parent === parent);
     _.map(children, a => {
-      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '';
+      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter' || a.modeltype === 'hmeter') ? 'isBasic-instrument' : '';
     });
     let data = {
       meterList: children
     };
     let meterHtml = template('meter-list-template', data);
     $('#meterListContainer').html(meterHtml);
-    $('.meter-list .meter-item').on('click', function (e) {
+    $('.meter-list').on('click', '.meter-item', function (e) {
       e.stopPropagation();
       let nodeId = $(e.currentTarget).attr('data-id');
       let meterTree = sessionStorage.getItem('meter_tree');
@@ -502,10 +502,10 @@ $(function () {
         getChooseObjHealthData();
       } else {
         let node = _.find(meterNodes, a => a.id === nodeId);
-        if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
-          sessionStorage.setItem('current_health', {
+        if (node.modeltype === 'vmeter' || node.modeltype === 'meter' || node.modeltype === 'hmeter') {
+          sessionStorage.setItem('current_health', JSON.stringify({
             activeId: nodeId
-          });
+          }));
           chooseId = nodeId;
           chooseType = chooseTypeEnum.meter;
           changePageTitle();
@@ -583,7 +583,9 @@ $(function () {
         globalSTime = subscribeObj.stime;
         globalETime = subscribeObj.etime;
         initDataAndHealthType();
-      } else chooseId = topNode().id;
+      } else {
+        chooseId = topNode().id;
+      }
       getChooseObjHealthData();
     }
   };
@@ -841,8 +843,9 @@ $(function () {
                   $.toast('关注成功');
                   $('#subscribe').text('取消关注');
                   globalIfFocus = true;
+                  globalFocusId = response.Content;
                   sessionStorage.setItem('current_health', JSON.stringify({
-                    id: response.Content
+                    id: response.Content,
                   }));
                 }
               });
