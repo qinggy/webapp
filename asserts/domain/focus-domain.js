@@ -505,7 +505,7 @@ $(function () {
     bindTabClick();
     loadMeterTree(0);
     renderFocusMeter();
-    getMeterFocusData();
+    getMeterFocusData('init');
   };
   let loadMeterTree = function (type) {
     let meterJson = sessionStorage.getItem('meter_tree');
@@ -556,7 +556,7 @@ $(function () {
       }
     }
   };
-  let loadFocusListData = function (pageNum, keyword) {
+  let loadFocusListData = function (pageNum, keyword, type) {
     currentPage = pageNum;
     esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
       let data = {
@@ -574,11 +574,15 @@ $(function () {
           leadToHomePage(data.focusList);
         }
       }
-      totalPage = response.Content.total_page;
-      let totalList = _.concat(globalFocusList.focusList || [], data.focusList);
-      renderFocusList({
-        focusList: totalList
-      });
+      if (!!type) {
+        totalPage = response.Content.total_page;
+        let totalList = _.concat(globalFocusList.focusList || [], data.focusList);
+        renderFocusList({
+          focusList: totalList
+        });
+      } else {
+        renderFocusList(data);
+      }
     });
   };
   let renderMeterTree = function (list, parent, type) {
@@ -648,7 +652,7 @@ $(function () {
               if (currentClickMeters.length > 1) {
                 setTimeout(_ => loadComparisonData(node, ifAdd), 100);
               } else {
-                setTimeout(_ => getMeterFocusData(), 100);
+                setTimeout(_ => removeSearchMeter(), 100);
               }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             }
@@ -876,8 +880,8 @@ $(function () {
     let $content = $(page).find(".content").on('refresh', function (e) {
       let pageNum = parseFloat(currentPage) + 1;
       if (pageNum <= parseInt(totalPage))
-        loadFocusListData(pageNum, '');
-      setTimeout(() => $.pullToRefreshDone($content), 2000);
+        loadFocusListData(pageNum, '', 'append');
+      setTimeout(() => $.pullToRefreshDone($content), 1000);
     });
   };
   let getSeriesPara = (response, searchType, legendTitle) =>
@@ -1252,7 +1256,8 @@ $(function () {
       };
       let gaugeDataHtml = template('gaugeData-template', data);
       $('#gaugeDataContainer').html(gaugeDataHtml);
-      $('#gaugeDataContainer').on('click', 'li.item-content', function (e) {
+      $('#gaugeDataContainer .item-content').off('click');
+      $('#gaugeDataContainer .item-content').on('click', function (e) {
         e.stopPropagation();
         let currentDom = e.currentTarget;
         let mfId = $(currentDom).attr('data-id');
@@ -1310,13 +1315,23 @@ $(function () {
       });
     }
   };
+  let getLabel = () => {
+    if (globalQueryType === queryType.convenient)
+      return ['日总量', '周总量', '月总量', '年总量', '总量'][parseInt(globalDateType) - 2];
+    return ['总量'];
+  };
+  let getValue = () => {
+    if (globalQueryType === queryType.convenient)
+      return ['昨日同期', '上周同期', '上月同期', '去年同期', '同期'][parseInt(globalDateType) - 2];
+    return ['同期'];
+  };
   let generateSummaryTable = (type, dataList) => {
     let rowNames = [{
       id: 'sum_val',
-      name: '日总量'
+      name: getLabel()
     }, {
       id: 'sum_per',
-      name: '昨日同期'
+      name: getValue()
     }, {
       id: 'avg_per',
       name: '同期平均'
@@ -1586,7 +1601,7 @@ $(function () {
       }
     } else getComparsionData(node, searchType, paraType, dateType, sTime, eTime, mfIds);
   };
-  let getMeterFocusData = function () {
+  let getMeterFocusData = function (type) {
     if (currentClickMeters.length <= 0) return;
     let activeNodeId = getActiveMeterId();
     let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
@@ -1619,12 +1634,14 @@ $(function () {
           parameterList: activeNode.parameters
         });
         $('#parameter-container').html(parameterHtml);
-        globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
-        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
-        globalQueryType = queryType.convenient;
-        globalDataType = parameterType;
-        globalDateType = dateType;
-        globalUnit = unit;
+        if (type === 'init') {
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+          globalQueryType = queryType.convenient;
+          globalDataType = parameterType;
+          globalDateType = dateType;
+          globalUnit = unit;
+        }
         getFocusMeterData(activeNode, queryType.convenient, parameterType, dateType,
           globalsTime, globaleTime, activeNode.checkedMfIds);
       }

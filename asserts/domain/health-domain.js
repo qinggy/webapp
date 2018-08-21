@@ -414,13 +414,15 @@ $(function () {
       let urlPara = `meterId=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
       esdpec.framework.core.getJsonResult('health/getmeterhealth?' + urlPara, function (response) {
         if (response.IsSuccess && response.Content) {
-          let rtnContent = response.Content;
-          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
-          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
-          cycleloader('#health-detail-cycle', 160, 160, score);
-          renderMeterInfo(rtnContent);
-          renderTableList(activeHealthType, rtnContent.mfid_list);
+          if (chooseId === response.Content.meterId) {
+            let rtnContent = response.Content;
+            let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+            $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+            let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+            cycleloader('#health-detail-cycle', 160, 160, score);
+            renderMeterInfo(rtnContent);
+            renderTableList(activeHealthType, rtnContent.mfid_list);
+          }
         }
       });
     } else if (chooseType === chooseTypeEnum.area) getMeterCommucateData(nodeId);
@@ -429,13 +431,15 @@ $(function () {
       esdpec.framework.core.getJsonResult('health/getmeterhealth?' + urlPara, function (response) {
         if (response.IsSuccess && response.Content) {
           // console.log(response.Content);
-          let rtnContent = response.Content;
-          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
-          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
-          cycleloader('#health-detail-cycle', 160, 160, score);
-          renderMeterInfo(rtnContent);
-          renderTableList(activeHealthType, rtnContent.mfid_list);
+          if (chooseId === response.Content.meterId) {
+            let rtnContent = response.Content;
+            let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+            $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+            let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+            cycleloader('#health-detail-cycle', 160, 160, score);
+            renderMeterInfo(rtnContent);
+            renderTableList(activeHealthType, rtnContent.mfid_list);
+          }
         }
       });
     }
@@ -445,13 +449,15 @@ $(function () {
       let urlPara = getUrlPara('areaId');
       esdpec.framework.core.getJsonResult('health/getareahealth?' + urlPara, function (response) {
         if (response.IsSuccess && response.Content) {
-          let rtnContent = response.Content;
-          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-          $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
-          let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
-          cycleloader('#health-detail-cycle', 160, 160, score);
-          renderMeterInfo(rtnContent);
-          renderTableList(activeHealthType, rtnContent.list);
+          if (chooseId === response.Content.areaId) {
+            let rtnContent = response.Content;
+            let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+            $('#watch-name').text(_.find(meterTree, a => a.id === chooseId).text);
+            let score = rtnContent.score ? parseFloat((rtnContent.score / 100.0).toFixed(2)) : 0;
+            cycleloader('#health-detail-cycle', 160, 160, score);
+            renderMeterInfo(rtnContent);
+            renderTableList(activeHealthType, rtnContent.list);
+          }
         }
       });
     } else getMeterOverRunData();
