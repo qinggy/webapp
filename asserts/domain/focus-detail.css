@@ -696,3 +696,31 @@
   transition: .3s;
   transform: rotate(270deg) !important;
 }
+
+.add-shortcut-li {
+  height: 2rem !important;
+  line-height: 2rem;
+  text-align: center;
+}
+
+.add-shortcut-li a {
+  height: 2rem;
+  line-height: 2rem;
+  min-height: 2rem !important;
+  text-align: center;
+  display: block !important;
+  font-size: 0.85rem;
+}
+
+.add-focus__container {
+  position: relative;
+  color: #aaa;
+}
+
+.add-focus {
+  position: absolute;
+  font-size: 1rem;
+  right: calc(50% + 2rem);
+  top: 0.4rem;
+  color: #aaa;
+}

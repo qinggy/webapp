@@ -1655,19 +1655,21 @@ $(function () {
   });
   $('#datatab').on('click', '.tree-menu', function (e) {
     e.stopPropagation();
-    $.allowPanelOpen = true;
-    $.openPanel('#tree-panel');
-    $('.meter-list li.meter-item').each(function (i, dom) {
-      $(dom).removeClass('showCheckBox');
-    });
+    // $.allowPanelOpen = true;
+    // $.openPanel('#tree-panel');
+    // $('.meter-list li.meter-item').each(function (i, dom) {
+    //   $(dom).removeClass('showCheckBox');
+    // });
+    $.popup('.popup-meter-tree');
   });
   $('.bar-nav').on('click', '.tree-menu', function (e) {
     e.stopPropagation();
-    $.allowPanelOpen = true;
-    $.openPanel('#tree-panel');
-    $('.meter-list li.meter-item').each(function (i, dom) {
-      $(dom).removeClass('showCheckBox');
-    });
+    $.popup('.popup-meter-tree');
+    // $.allowPanelOpen = true;
+    // $.openPanel('#tree-panel');
+    // $('.meter-list li.meter-item').each(function (i, dom) {
+    //   $(dom).removeClass('showCheckBox');
+    // });
   });
   $('.page-group').on('click', '#page-focus', function (e) {
     e.stopPropagation();
