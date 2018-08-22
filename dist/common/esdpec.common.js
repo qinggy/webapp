@@ -71,9 +71,9 @@ esdpec.framework.core.getRequestRandom = function (url) {
 
 esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCallBack) {
   $.showPreloader('Please Wait ...');
-  setTimeout(function () {
-    $.hidePreloader();
-  }, 5000);
+  // setTimeout(function () {
+  //   $.hidePreloader();
+  // }, 5000);
   $jQuery.ajaxSetup({
     beforeSend: function (xhr) {
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
@@ -166,9 +166,9 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
     },
     beforeSend: function (xhr) {
       $.showPreloader('Please Wait ...');
-      setTimeout(function () {
-        $.hidePreloader();
-      }, 5000);
+      // setTimeout(function () {
+      //   $.hidePreloader();
+      // }, 5000);
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {

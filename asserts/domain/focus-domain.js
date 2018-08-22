@@ -449,13 +449,13 @@ $(function () {
       }
       let currentNodeIndex = _.findIndex(globalFocusList.focusList, a => a.id === focusId);
       if (currentNodeIndex === 0) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       let currentNode = _.find(globalFocusList.focusList, a => a.id === focusId);
       let preNode = globalFocusList.focusList[currentNodeIndex - 1];
       if (preNode.is_index) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       let para = {
@@ -463,7 +463,7 @@ $(function () {
         index: currentNode.index
       };
       if (currentNode.index <= 0) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       para.new_index = parseInt(para.index) - 1;
@@ -539,18 +539,37 @@ $(function () {
       let meterJson = sessionStorage.getItem('meter_tree');
       let meterTree = null;
       if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
-        esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+        esdpec.framework.core.getJsonResult("common/gettree", function (response) {
           if (response.IsSuccess) {
-            sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
             meterTree = response.Content;
-            currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+            _.forEach(meterTree, a => {
+              if (a.text.length > 7) {
+                a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
+              } else {
+                a.displayText = a.text;
+              }
+            });
+            let mIds = _.split(homePage.slist, ',');
+            currentClickMeters = _.concat([], _.filter(meterTree, a => _.includes(mIds, a.id)));
+            let mPmap = JSON.parse(homePage.sId);
+            _.forEach(currentClickMeters, a => {
+              let mMap = _.find(mPmap, m => m.m === a.id);
+              a.checkedMfIds = !!mMap ? mMap.plist : [];
+            });
+            sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
             sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             $.router.load("#focus-detail-page", true);
           }
         });
       } else {
         meterTree = JSON.parse(meterJson);
-        currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
+        let mIds = _.split(homePage.slist, ',');
+        currentClickMeters = _.concat([], _.filter(meterTree, a => _.includes(mIds, a.id)));
+        let mPmap = JSON.parse(homePage.sId);
+        _.forEach(currentClickMeters, a => {
+          let mMap = _.find(mPmap, m => m.m === a.id);
+          a.checkedMfIds = !!mMap ? mMap.plist : [];
+        });
         sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
         $.router.load("#focus-detail-page", true);
       }
@@ -571,7 +590,23 @@ $(function () {
         let isFirstLogin = sessionStorage.getItem("first_login");
         if (isFirstLogin === '1') {
           sessionStorage.setItem("first_login", '0');
-          leadToHomePage(data.focusList);
+          let homePage = _.find(data.focusList, a => a.is_index);
+          if (homePage) {
+            switch (homePage.stype) {
+              case 1:
+              case 2:
+                leadToHomePage(data.focusList);
+                break;
+              case 3:
+              case 4:
+              case 5:
+              case 6:
+                sessionStorage.setItem('current_health', JSON.stringify(homePage));
+                sessionStorage.setItem('if-goback', '2');
+                window.location.href = '../health/index.html#page-health-detail';
+                break;
+            }
+          }
         }
       }
       if (!!type) {
