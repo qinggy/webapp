@@ -337,7 +337,7 @@ $(function () {
     globalFocusList = sortedData;
     let focusHtml = template('focus-list-template', sortedData);
     $('#focus-list-container').html(focusHtml);
-    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.delete-action', function (deleteItem) {
+    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.subscribe-action', function (deleteItem) {
       esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + deleteItem, {}, function (response) {
         if (response.IsSuccess) {
           _.remove(globalFocusList.focusList, a => a.id === deleteItem);
@@ -348,50 +348,7 @@ $(function () {
         }
       });
     });
-    $('.focus-list').on('click', 'li.focus-item', function (e) {
-      e.stopPropagation();
-      let focusId = $(e.currentTarget).attr('id');
-      globalFocusId = focusId;
-      sessionStorage.setItem('current_focus_id', globalFocusId);
-      let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
-      currentClickMeters = [];
-      sessionStorage.setItem('current_select_meters', '[]');
-      switch (clickFocus.stype) {
-        case 1:
-        case 2:
-          let mIds = clickFocus.slist.split(',');
-          let mfIdJson = JSON.parse(clickFocus.sId);
-          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-          currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
-          _.forEach(currentClickMeters, m => {
-            m.checked = false;
-            let mfids = _.find(mfIdJson, a => a.m === m.id);
-            m.checkedMfIds = mfids.plist;
-            if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
-          });
-          globalDataType = clickFocus.data_type;
-          globalDateType = clickFocus.date_type;
-          globalsTime = clickFocus.stime;
-          globaleTime = clickFocus.etime;
-          globalQueryType = clickFocus.query_type;
-          sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
-          $.router.load('#focus-detail-page');
-          break;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-          sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
-          sessionStorage.setItem('if-goback', '2');
-          window.location.href = '../health/index.html#page-health-detail';
-          break;
-      }
-    });
-    $('.focus-item').on('click', '.set-home', function (e) {
-      e.stopPropagation();
-      let currentDom = $(e.currentTarget);
-      let focusId = currentDom.attr('data-id');
-      // let isHome = currentDom.attr('data-value');
+    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.home-action', function (focusId) {
       if (_.isEqual(focusId, '')) {
         $.toast('请刷新列表后，再重试');
         return;
@@ -443,6 +400,45 @@ $(function () {
             renderFocusList(globalFocusList);
           }
         });
+      }
+    });
+    $('.focus-list').on('click', 'li.focus-item', function (e) {
+      e.stopPropagation();
+      let focusId = $(e.currentTarget).attr('id');
+      globalFocusId = focusId;
+      sessionStorage.setItem('current_focus_id', globalFocusId);
+      let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
+      currentClickMeters = [];
+      sessionStorage.setItem('current_select_meters', '[]');
+      switch (clickFocus.stype) {
+        case 1:
+        case 2:
+          let mIds = clickFocus.slist.split(',');
+          let mfIdJson = JSON.parse(clickFocus.sId);
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+          currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
+          _.forEach(currentClickMeters, m => {
+            m.checked = false;
+            let mfids = _.find(mfIdJson, a => a.m === m.id);
+            m.checkedMfIds = mfids.plist;
+            if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
+          });
+          globalDataType = clickFocus.data_type;
+          globalDateType = clickFocus.date_type;
+          globalsTime = clickFocus.stime;
+          globaleTime = clickFocus.etime;
+          globalQueryType = clickFocus.query_type;
+          sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
+          $.router.load('#focus-detail-page');
+          break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+          sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
+          sessionStorage.setItem('if-goback', '2');
+          window.location.href = '../health/index.html#page-health-detail';
+          break;
       }
     });
     $('.focus-item').on('click', '.set-index', function (e) {

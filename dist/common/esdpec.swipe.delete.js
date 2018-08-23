@@ -17,7 +17,7 @@ esdpec.framework.core.swipeDelete = function (select, deleteBtn, deleteAction) {
     }
 
     function boxTouchEnd(e) {
-      if (startX - endX >= 60) {
+      if (startX - endX >= 100) {
         this.classList.add("active");
       } else {
         this.classList.remove("active");

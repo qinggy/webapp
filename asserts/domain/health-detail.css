@@ -320,3 +320,12 @@ li.item-content {
 .click-item-style:after {
   transform: rotate(270deg) !important;
 }
+
+.blankspan {
+  display: inline-block;
+  width: 0.25rem;
+  height: 0.8rem;
+  background-color: #fff;
+  margin-right: 0.3rem;
+  margin-bottom: -0.08rem;
+}
