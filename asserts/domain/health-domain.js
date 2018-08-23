@@ -46,7 +46,7 @@ $(function () {
     return _.head(_.filter(meterTree, a => a.parent === '#'));
   };
   let getChooseId = () => _.isEqual(chooseId, '') ? topNode().id : chooseId;
-  let getUrlPara = (paraName) => `${paraName}=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
+  let getUrlPara = paraName => `${paraName}=${getChooseId()}&healthtype=${activeHealthType}&sTime=${globalSTime}&eTime=${globalETime}`;
   let getWeek = () => {
     let weekOfday = parseInt(moment().format('E'));
     let last_monday = moment().subtract(weekOfday - 1, 'days').format('YYYY-MM-DD 00:00:00');
@@ -509,11 +509,16 @@ $(function () {
       } else {
         let node = _.find(meterNodes, a => a.id === nodeId);
         if (node.modeltype === 'vmeter' || node.modeltype === 'meter' || node.modeltype === 'hmeter') {
+          chooseType = chooseTypeEnum.meter;
           sessionStorage.setItem('current_health', JSON.stringify({
-            activeId: nodeId
+            activeId: nodeId,
+            query_type: chooseType,
+            date_type: activeHealthType,
+            data_type: globalDataType,
+            stime: globalSTime,
+            etime: globalETime
           }));
           chooseId = nodeId;
-          chooseType = chooseTypeEnum.meter;
           changePageTitle();
           getChooseObjHealthData();
           setTimeout(() => $.closePanel(), 300);
@@ -554,6 +559,13 @@ $(function () {
   let operateMeterTreeAjaxResult = function (response) {
     if (response.IsSuccess && response.Content.length > 0) {
       let meterList = response.Content;
+      _.forEach(meterList, a => {
+        if (a.text.length > 7) {
+          a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
+        } else {
+          a.displayText = a.text;
+        }
+      });
       sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
       sessionStorage.setItem('current_health', '');
       renderMeterTree(meterList, '#', 'forward');
@@ -758,6 +770,7 @@ $(function () {
   $('.list-block').on('click', '.list li', function (e) {
     e.stopPropagation();
     let node = $(e.currentTarget);
+    let nodeId = node.attr('data-id');
     let nodeType = node.attr('data-type');
     if (nodeType === '0') {
       sessionStorage.setItem('health_parent_node', JSON.stringify({
@@ -776,9 +789,14 @@ $(function () {
         getMeterOverRunData();
       } else {
         getMeterOverRunData(node.attr('data-id'));
+        let childrenNode = $('#showMeterInfo_' + nodeId);
+        if (childrenNode.attr('data-toggle') === 'open') {
+          $(node).addClass('click-item-style');
+        } else {
+          $(node).removeClass('click-item-style');
+        }
       }
     } else {
-      let nodeId = node.attr('data-id');
       let childrenNode = $('#showChildren_' + nodeId);
       let fixedHtml = childrenNode.html();
       if (_.isEqual(fixedHtml, '')) {

@@ -115,6 +115,14 @@
   height: 100%;
   width: 100%;
   padding: 0 0.5rem;
+  position: relative;
+}
+
+.clear-input {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.35rem;
+  font-size: 0.65rem;
 }
 
 .search-data-type {

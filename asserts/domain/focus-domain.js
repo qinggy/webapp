@@ -17,6 +17,7 @@ $(function () {
     globalLineDataSource = null,
     globalPieDataSource = null,
     globalCurrentPage = null,
+    globalCurrentChartType = 0,
     presentType = 'd';
   let chart = null;
   let focusEnum = {
@@ -161,6 +162,7 @@ $(function () {
             onclick: function () {
               if (chart) chart.clear();
               if (!globalLineDataSource) return;
+              globalCurrentChartType = 0;
               generateChart(document.getElementById('echarts'), globalLineDataSource, true);
             }
           }
@@ -367,8 +369,12 @@ $(function () {
             m.checkedMfIds = mfids.plist;
             if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
           });
+          globalDataType = clickFocus.data_type;
+          globalDateType = clickFocus.date_type;
+          globalsTime = clickFocus.stime;
+          globaleTime = clickFocus.etime;
+          globalQueryType = clickFocus.query_type;
           sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
-          // loadFocusDetailPage();
           $.router.load('#focus-detail-page');
           break;
         case 3:
@@ -505,7 +511,37 @@ $(function () {
     bindTabClick();
     loadMeterTree(0);
     renderFocusMeter();
-    getMeterFocusData('init');
+    if (currentClickMeters.length === 1) {
+      getMeterFocusData('init');
+    } else {
+      let node = _.head(currentClickMeters);
+      let mfIds = [];
+      _.forEach(currentClickMeters, m => {
+        mfIds = _.concat(mfIds, m.checkedMfIds);
+      });
+      esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + node.id, function (response) {
+        if (response.IsSuccess) {
+          node.parameters = response.Content;
+          let unit = '',
+            parameterType,
+            name;
+          _.map(node.parameters, a => {
+            if (_.includes(node.checkedMfIds, a.id)) {
+              a.checked = "checked";
+              unit = a.unit;
+              parameterType = a.type;
+              name = a.name;
+            };
+          });
+          $('#current-unit').text(unit);
+          let parameterHtml = template('parameter-template', {
+            parameterList: node.parameters
+          });
+          $('#parameter-container').html(parameterHtml);
+          getComparsionInitData(node, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds, parameterType, name);
+        }
+      });
+    }
   };
   let loadMeterTree = function (type) {
     let meterJson = sessionStorage.getItem('meter_tree');
@@ -661,9 +697,9 @@ $(function () {
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
               if (currentClickMeters.length > 1) {
-                setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+                setTimeout(() => loadComparisonData(node, ifAdd), 100);
               } else {
-                setTimeout(_ => getMeterFocusData(), 100);
+                setTimeout(() => getMeterFocusData(), 100);
               }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
@@ -791,6 +827,7 @@ $(function () {
             onclick: function () {
               if (chart) chart.clear();
               if (!globalPieDataSource) return;
+              globalCurrentChartType = 1;
               let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
               chart = echarts.init(document.getElementById('echarts'), e_macarons);
               chart.setOption(option, true);
@@ -933,6 +970,26 @@ $(function () {
   let getInstantanousSeriesPara = (response, legendTitle) => {
     let seriesParas = [];
     if (ifComparsion()) {
+      _.forEach(response, a => {
+        let mp = _.find(legendTitle, l => l.id === a.mfid);
+        seriesParas.push({
+          data: a.data_list,
+          name: mp.mName + '-' + mp.name
+        });
+      });
+      return seriesParas;
+    }
+    _.forEach(response, a => {
+      seriesParas.push({
+        data: a.now_data_list,
+        name: _.find(legendTitle, l => l.id === a.mfid).name
+      });
+    });
+    return seriesParas;
+  };
+  let getSeriesParas = (response, legendTitle, ids) => {
+    let seriesParas = [];
+    if (ids.length > 1) {
       _.forEach(response, a => {
         let mp = _.find(legendTitle, l => l.id === a.mfid);
         seriesParas.push({
@@ -1234,7 +1291,6 @@ $(function () {
       sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
       $('#parameter-container').empty();
       renderFocusMeter();
-      // getMeterFocusData();
       removeSearchMeter(removeItem);
     });
   };
@@ -1296,6 +1352,7 @@ $(function () {
         e.stopPropagation();
         let currentDom = e.currentTarget;
         let mfId = $(currentDom).attr('data-id');
+        let unit = $(currentDom).attr('data-unit');
         let fixedParaDom = $('#showParamMore_' + mfId);
         let fixedHtml = fixedParaDom.html();
         if (_.isEqual(fixedHtml, '')) {
@@ -1320,7 +1377,10 @@ $(function () {
                 esdpec.framework.core.getJsonResult('dataanalysis/getdatafromdevice?mfid=' + mfId + '&timeout=' + timeout, function (response) {
                   if (response.IsSuccess && response.Content != null) {
                     let lastData = {
-                      lastDataList: response.Content.last_datas
+                      lastDataList: _.map(response.Content.last_datas, a => {
+                        a.unit = unit;
+                        return a;
+                      })
                     };
                     _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
                     let lastDataHtml = template('last-data-template', lastData);
@@ -1331,7 +1391,10 @@ $(function () {
               fixedParaDom.attr('data-toggle', 'open');
               $(currentDom).addClass('item-click-style');
               let lastData = {
-                lastDataList: response.Content.last_datas
+                lastDataList: _.map(response.Content.last_datas, a => {
+                  a.unit = unit;
+                  return a;
+                })
               };
               _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
               let lastDataHtml = template('last-data-template', lastData);
@@ -1434,7 +1497,7 @@ $(function () {
     mfIds = _.map(mfObjs, a => a.id);
     if (mfIds.length > 0) {
       let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
-      esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
+      esdpec.framework.core.getJsonResult("dataanalysis/getcomparedata?" + urlParam, function (response) {
         if (response.IsSuccess) {
           let summaryDataList = [];
           let sumValList = [];
@@ -1486,7 +1549,13 @@ $(function () {
             x: _.filter(summaryDataList, a => a.name),
             y: sumValList
           };
-          generateChart(document.getElementById('echarts'), data, true);
+          if (globalCurrentChartType === 0)
+            generateChart(document.getElementById('echarts'), data, true);
+          else {
+            let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
+            chart = echarts.init(document.getElementById('echarts'), e_macarons);
+            chart.setOption(option, true);
+          }
         }
       });
     } else {
@@ -1497,6 +1566,66 @@ $(function () {
       let summaryDataHtml = template('summary-data-template', data);
       $('#summary-data-container').html(summaryDataHtml);
     }
+  };
+  let getComparsionInitData = (node, searchType, paraType, dateType, sTime, eTime, mfIds, type, name) => {
+    $('#single').addClass('hidden');
+    $('#multiple').removeClass('hidden');
+    let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
+    esdpec.framework.core.getJsonResult("dataanalysis/getcomparedata?" + urlParam, function (response) {
+      if (response.IsSuccess) {
+        let summaryDataList = [];
+        let sumValList = [];
+        let parameters = [];
+        _.forEach(mfIds, mfId => {
+          let meter = _.find(currentClickMeters, m => _.includes(m.checkedMfIds, mfId));
+          parameters.push({
+            id: mfId,
+            mName: meter.text,
+            type,
+            name
+          });
+        });
+        _.forEach(response.Content, a => {
+          let para = _.find(parameters, p => p.id === a.mfid);
+          let summaryData = {
+            name: para ? para.mName : '--',
+            avg_val: a.avg_val ? a.avg_val.toFixed(2) : '--',
+            max_val: a.max_val ? a.max_val.toFixed(2) : '--',
+            min_val: a.min_val ? a.min_val.toFixed(2) : '--',
+            upper_limit: a.rule ? a.rule.UpperLimit ? a.rule.UpperLimit.toFixed(2) : '--' : '--',
+            lower_limit: a.rule ? a.rule.LowerLimit ? a.rule.LowerLimit.toFixed(2) : '--' : '--',
+            lower_wave: a.rule ? a.rule.LowerWave ? a.rule.LowerWave.toFixed(2) : '--' : '--',
+            upper_wave: a.rule ? a.rule.UpperWave ? a.rule.UpperWave.toFixed(2) : '--' : '--',
+            type: globalDataType //para.type
+          };
+          if (para.type === 0) {
+            summaryData.sum_val = a.sum_val ? a.sum_val.toFixed(2) : '--';
+            summaryData.sum_per = a.sum_per ? (a.sum_per * 100).toFixed(2) : '--';
+            summaryData.avg_per = a.avg_per ? (a.avg_per * 100).toFixed(2) : '--';
+          }
+          let sumVal = {
+            name: para.mName,
+            value: a.sum_val ? a.sum_val.toFixed(2) : 0
+          };
+          summaryDataList.push(summaryData);
+          sumValList.push(sumVal);
+        });
+        $('#summary-data-container').html(generateSummaryTable(globalDataType, summaryDataList));
+        let legendTitle = _.filter(parameters, a => {
+          return {
+            id: a.id,
+            name: a.mName + '-' + a.name
+          };
+        });
+        let data = getComparsionChartInitData(dateType, searchType, response.Content, legendTitle, mfIds);
+        globalLineDataSource = data;
+        globalPieDataSource = {
+          x: _.filter(summaryDataList, a => a.name),
+          y: sumValList
+        };
+        generateChart(document.getElementById('echarts'), data, true);
+      }
+    });
   };
   let getChartData = (dateType, searchType, sTime, eTime, content, rule) => {
     let data = {};
@@ -1542,6 +1671,23 @@ $(function () {
     xData = _.uniq(xData);
     data.xAxisData = xData;
     data.series = getInstantanousSeries(getInstantanousSeriesPara(dataList, legendTitle), data.xAxisData, dateType, searchType);
+    return data;
+  };
+  let getComparsionChartInitData = (dateType, searchType, dataList, legendTitle, ids) => {
+    let data = {};
+    data.legend = {
+      data: _.map(legendTitle, a => a.mName + '-' + a.name)
+    };
+    let xData = [];
+    _.forEach(dataList, paras => {
+      _.forEach(paras.data_list, a => {
+        a.date = a.date;
+        xData.push(a.date);
+      });
+    });
+    xData = _.uniq(xData);
+    data.xAxisData = xData;
+    data.series = getInstantanousSeries(getSeriesParas(dataList, legendTitle, ids), data.xAxisData, dateType, searchType);
     return data;
   };
   let getFocusMeterData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
@@ -1873,6 +2019,25 @@ $(function () {
       presentType = 'c';
       getFocusMeterData(activeNode, queryType.custom, paraType.instantaneousValue, dateType.day,
         globalsTime, globaleTime, mfIds);
+    }
+  });
+  $('.search-input').on('input', '#search', function (e) {
+    let inputValue = e.currentTarget.value;
+    if (inputValue === '') {
+      $('.clear-input').hide();
+      loadFocusListData(1, '');
+    } else {
+      $('.clear-input').show();
+      let clearEvent = $jQuery._data($('#clearbtn')[0], 'events');
+      if (clearEvent && clearEvent['click']) {} else {
+        $('.search-input #clearbtn').on('click', function (e) {
+          e.stopPropagation();
+          $('#clearbtn').hide();
+          $('#search').val('');
+          $('.search-input #clearbtn').off('click');
+          loadFocusListData(1, '');
+        });
+      }
     }
   });
   $('#showMoreBtn').on("click", function (e) {

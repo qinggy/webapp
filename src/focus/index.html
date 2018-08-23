@@ -58,6 +58,7 @@
           <div class="search-input col-80">
             <label class="icon icon-search" for="search"></label>
             <input type="search" id='search' placeholder='输入关键字...' />
+            <label class="icon-close clear-input hidden" id="clearbtn"></label>
           </div>
           <a class="button button-fill button-primary search-position col-20" id="search-btn">搜索</a>
         </div>
@@ -335,7 +336,7 @@
   <script type="text/html" id="gaugeData-template">
     <ul>
       {{if parameterList.length > 0}}{{each parameterList para index}}
-      <li class="item-content item-link icon-more" data-id="{{para.id}}">
+      <li class="item-content item-link icon-more" data-id="{{para.id}}" data-unit="{{para.unit}}">
         <div class="item-media">
           <i class="icon icon-f7"></i>
         </div>
@@ -407,7 +408,7 @@
       <li class="item-content">
         <div class="item-inner">
           <div class="item-title">{{lastData.Mt}}</div>
-          <div class="item-after">{{lastData.Mv}}</div>
+          <div class="item-after">{{lastData.Mv}}&nbsp;{{lastData.unit}}</div>
         </div>
       </li>
       {{/each}} {{/if}}
@@ -433,11 +434,7 @@
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
   <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150930"></script>
-  <script src="../../asserts/domain/focus-domain.js?_t=201808221425"></script>
-  <!-- <script>
-    document.write('<script src="../../dist/common/esdpec.swipe.delete.js?_t=' + Math.random() +
-      '"><\/script><script src="../../asserts/domain/focus-domain.js?_t=' + Math.random() + '"><\/script>');
-  </script> -->
+  <script src="../../asserts/domain/focus-domain.js?_t=201808231052"></script>
 </body>
 
 </html>
