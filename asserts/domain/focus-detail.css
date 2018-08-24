@@ -534,6 +534,7 @@
 
 .last-data {
   background-color: #f9f9f9;
+  margin-right: 0.5rem !important;
 }
 
 .last-data-ul {
@@ -561,6 +562,7 @@
 .rule-container {
   background-color: #f9f9f9;
   padding: 0.5rem;
+  padding-right: 1rem;
 }
 
 .rule-table-header {
