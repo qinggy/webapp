@@ -778,3 +778,11 @@
 .first-ul>li {
   padding-left: 1.3rem !important;
 }
+
+.norecord {
+  text-align: center;
+  font-size: 0.65rem;
+  color: #ccc;
+  width: 100%;
+  display: inline-block;
+}

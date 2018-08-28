@@ -46,7 +46,8 @@ esdpec.framework.core.Config = {
   // BaseWebSiteUrl: 'http://cloud.esdgd.com/',
   BaseSiteRoot: 'webapp/',
   ajaxProcessingText: "加载中....",
-  ajaxProcessedText: "完成"
+  ajaxProcessedText: "完成",
+  dismissTime: 6000
 }
 
 esdpec.framework.core.BaseWeb = esdpec.framework.core.Config.BaseWebSiteUrl + esdpec.framework.core.Config.BaseSiteRoot;
@@ -71,9 +72,9 @@ esdpec.framework.core.getRequestRandom = function (url) {
 
 esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCallBack) {
   $.showPreloader('Please Wait ...');
-  // setTimeout(function () {
-  //   $.hidePreloader();
-  // }, 5000);
+  setTimeout(function () {
+    $.hidePreloader();
+  }, esdpec.framework.core.Config.dismissTime);
   $jQuery.ajaxSetup({
     beforeSend: function (xhr) {
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
@@ -166,9 +167,9 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
     },
     beforeSend: function (xhr) {
       $.showPreloader('Please Wait ...');
-      // setTimeout(function () {
-      //   $.hidePreloader();
-      // }, 5000);
+      setTimeout(function () {
+        $.hidePreloader();
+      }, esdpec.framework.core.Config.dismissTime);
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {
