@@ -1914,6 +1914,27 @@ $(function () {
             globalsTime, globaleTime, mfIds);
           return;
         }
+        if (globalDataType === paraType.instantaneousValue) {
+          $('#aggregateValue-container').addClass('hidden');
+          $('#instantanousValue-container').removeClass('hidden');
+          $('#datePicker').datePicker({
+            value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+          }, 'd');
+          $('#showWeek').css('color', '#ddd !important');
+          $('#showMonth').css('color', '#ddd !important');
+          $('#showYear').css('color', '#ddd !important');
+          toggleActive();
+          $('#showDay').addClass('active');
+          globalDateType = dateType.day;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+        } else {
+          document.getElementById('showWeek').style = '';
+          document.getElementById('showMonth').style = '';
+          document.getElementById('showYear').style = '';
+          $('#aggregateValue-container').removeClass('hidden');
+          $('#instantanousValue-container').addClass('hidden');
+        }
         if ((getDType === '6' || getDType === 6)) {
           globalQueryType = queryType.custom;
           let type = $('#dataTypePicker').val();
