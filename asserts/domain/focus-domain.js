@@ -468,8 +468,29 @@ $(function () {
             m.checkedMfIds = mfids.plist;
             if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
           });
-          globalDataType = paraType.aggregateValue;
+          globalDataType = clickFocus.data_type; // paraType.aggregateValue;
           globalDateType = dateType.day;
+          if (globalDataType === paraType.aggregateValue) {
+            document.getElementById('showWeek').style = '';
+            document.getElementById('showMonth').style = '';
+            document.getElementById('showYear').style = '';
+            $('#aggregateValue-container').removeClass('hidden');
+            $('#instantanousValue-container').addClass('hidden');
+          } else {
+            $('#aggregateValue-container').addClass('hidden');
+            $('#instantanousValue-container').removeClass('hidden');
+            $('#datePicker').datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+            }, 'd');
+            $('#showWeek').css('color', '#ddd !important');
+            $('#showMonth').css('color', '#ddd !important');
+            $('#showYear').css('color', '#ddd !important');
+            // toggleActive();
+            // $('#showDay').addClass('active');
+            // globalDateType = dateType.day;
+            // globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+            // globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+          }
           toggleActive();
           $('#showDay').addClass('active');
           globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
@@ -775,6 +796,12 @@ $(function () {
           _.forEach(currentClickMeters, m => {
             mfIds = _.concat(mfIds, m.checkedMfIds);
           });
+          globalQueryType = !globalQueryType ? queryType.convenient : globalQueryType;
+          globalDateType = !globalDateType ? dateType.day : globalDateType;
+          globalDataType = !globalDataType ? parameterType : globalDataType;
+          globalsTime = globalsTime === '' ? new Date().format('yyyy-MM-dd 00:00:00') : globalsTime;
+          globaleTime = globaleTime === '' ? new Date().format('yyyy-MM-dd 23:59:59') : globaleTime;
+
           getComparsionInitData(node, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds, parameterType, name);
         }
       });
@@ -1332,7 +1359,7 @@ $(function () {
       }
       let removeItem = _.remove(currentClickMeters, a => a.checked);
       sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-      $('#parameter-container').empty();
+      $('#parameter-container').attr('data-toggle', 'close').empty();
       renderFocusMeter();
       removeSearchMeter(removeItem);
     });
@@ -1592,12 +1619,12 @@ $(function () {
             x: _.filter(summaryDataList, a => a.name),
             y: sumValList
           };
-          if (globalCurrentChartType === 0)
-            generateChart(document.getElementById('echarts'), data, true);
-          else {
+          if (globalCurrentChartType === 1 && paraType === 0) {
             let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
             chart = echarts.init(document.getElementById('echarts'), e_macarons);
             chart.setOption(option, true);
+          } else {
+            generateChart(document.getElementById('echarts'), data, paraType === 0);
           }
         }
       });
@@ -1857,6 +1884,7 @@ $(function () {
         let parameterHtml = template('parameter-template', {
           parameterList: activeNode.parameters
         });
+        globalDataType = parameterType;
         $('#parameter-container').html(parameterHtml);
         if (type === 'init') {
           // globalsTime = !globalsTime ? new Date().format('yyyy-MM-dd 00:00:00') : globalsTime;
@@ -2290,8 +2318,8 @@ $(function () {
         $('#showYear').css('color', '#ddd !important');
         if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
           globalDateType = dateType.day;
-          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');;
-          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
           $('.focus-detail-header_tab a.active').removeClass('active');
           $('#showDay').addClass('active');
         }
@@ -2309,6 +2337,8 @@ $(function () {
       }
     } else {
       let flag = true;
+      globalUnit = unit;
+      $('#current-unit').text(unit);
       globalDataType = parseInt(chooseType);
       if (globalDataType === paraType.instantaneousValue) {
         $('#aggregateValue-container').addClass('hidden');
@@ -2319,6 +2349,11 @@ $(function () {
         $('#showWeek').css('color', '#ddd !important');
         $('#showMonth').css('color', '#ddd !important');
         $('#showYear').css('color', '#ddd !important');
+        toggleActive();
+        $('#showDay').addClass('active');
+        globalDateType = dateType.day;
+        globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
       } else {
         document.getElementById('showWeek').style = '';
         document.getElementById('showMonth').style = '';

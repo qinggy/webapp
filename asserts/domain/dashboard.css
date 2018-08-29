@@ -277,8 +277,9 @@
 
 .health-contain {
   display: flex;
-  height: 80%;
+  height: 90%;
   padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
 }
 
 .health-overrun {
@@ -327,7 +328,7 @@
   color: #666;
   font-size: 0.7rem;
   margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .overrun-data div span:nth-child(2),
