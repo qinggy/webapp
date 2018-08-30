@@ -683,6 +683,7 @@ $(function () {
       };
       if (response.IsSuccess && response.Content.datas.length > 0) {
         data.focusList = response.Content.datas;
+        totalPage = response.Content.total_page;
         $jQuery.each(data.focusList, function (index, item) {
           item.focusType = getFocusType(item.stype);
           if (item.is_index) item.isHomePage = 'home-page-color';
@@ -710,7 +711,6 @@ $(function () {
         }
       }
       if (!!type && type === 'append') {
-        totalPage = response.Content.total_page;
         let totalList = _.concat(globalFocusList.focusList || [], data.focusList);
         renderFocusList({
           focusList: totalList
@@ -742,6 +742,7 @@ $(function () {
   };
   let pullToLoadFocusList = function (page) {
     let $content = $(page).find(".content").on('refresh', function (e) {
+      e.stopPropagation();
       let pageNum = parseFloat(currentPage) + 1;
       if (pageNum <= parseInt(totalPage))
         loadFocusListData(pageNum, '', 'append');
