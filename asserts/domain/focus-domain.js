@@ -2030,6 +2030,7 @@ $(function () {
   $('.page-group').on('click', '#page-focus', function (e) {
     e.stopPropagation();
     $.closePanel();
+    $('.focus-list .focus-item').removeClass('active');
   });
   $('.page-group').on('click', '#focus-detail-page', function (e) {
     e.stopPropagation();
