@@ -1,5 +1,6 @@
 $(function () {
   'use strict';
+  //#region 参数块
   let lastclicktime = null;
   let currentUnit = null;
   let globalsTime = '',
@@ -17,19 +18,10 @@ $(function () {
     globalLineDataSource = null,
     globalPieDataSource = null,
     globalCurrentPage = null,
+    globalCurrentChartType = 0,
     presentType = 'd';
   let chart = null;
   let focusEnum = {
-    // 'commnunicate': 'icon-commnunicate',
-    // 'electronicMeter': 'icon-electronic-meter',
-    // 'electronicPk': 'icon-electronic-pk',
-    // 'energyEfficient': 'icon-energy-efficient',
-    // 'gasMeter': 'icon-gas-meter',
-    // 'gasPk': 'icon-gas-pk',
-    // 'overRun': 'icon-over-run',
-    // 'waterMeter': 'icon-water-meter',
-    // 'waterPk': 'icon-water-pk',
-    // 'other': 'icon-focus-other'    
     0: 'icon-focus-other',
     1: 'icon-electronic-meter',
     2: 'icon-electronic-pk',
@@ -69,6 +61,9 @@ $(function () {
     year: 5,
     more: 6
   };
+  //#endregion
+
+  //#region 公共属性块
   let getPlaceHolder = () => '                                                            ';
   let getXAxisData = function (type) {
     switch (type) {
@@ -161,6 +156,7 @@ $(function () {
             onclick: function () {
               if (chart) chart.clear();
               if (!globalLineDataSource) return;
+              globalCurrentChartType = 0;
               generateChart(document.getElementById('echarts'), globalLineDataSource, true);
             }
           }
@@ -327,6 +323,57 @@ $(function () {
     var d = new Date(year, month, 0);
     return d.getDate();
   };
+  //#endregion
+
+  //#region focus-list Page
+  let leadToHomePage = function (focusList) {
+    let homePage = _.find(focusList, a => a.is_index);
+    if (homePage) {
+      globalDataType = homePage.data_type;
+      globalDateType = homePage.date_type;
+      globalsTime = homePage.stime;
+      globaleTime = homePage.etime;
+      globalQueryType = homePage.query_type;
+      currentClickMeters = [];
+      let meterJson = sessionStorage.getItem('meter_tree');
+      let meterTree = null;
+      if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
+        esdpec.framework.core.getJsonResult('common/gettree', function (response) {
+          if (response.IsSuccess) {
+            meterTree = response.Content;
+            _.forEach(meterTree, a => {
+              if (a.text.length > 7) {
+                a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
+              } else {
+                a.displayText = a.text;
+              }
+            });
+            let mIds = _.split(homePage.slist, ',');
+            currentClickMeters = _.concat([], _.filter(meterTree, a => _.includes(mIds, a.id)));
+            let mPmap = JSON.parse(homePage.sId);
+            _.forEach(currentClickMeters, a => {
+              let mMap = _.find(mPmap, m => m.m === a.id);
+              a.checkedMfIds = !!mMap ? mMap.plist : [];
+            });
+            sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
+            sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+            $.router.load("#focus-detail-page", true);
+          }
+        });
+      } else {
+        meterTree = JSON.parse(meterJson);
+        let mIds = _.split(homePage.slist, ',');
+        currentClickMeters = _.concat([], _.filter(meterTree, a => _.includes(mIds, a.id)));
+        let mPmap = JSON.parse(homePage.sId);
+        _.forEach(currentClickMeters, a => {
+          let mMap = _.find(mPmap, m => m.m === a.id);
+          a.checkedMfIds = !!mMap ? mMap.plist : [];
+        });
+        sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
+        $.router.load("#focus-detail-page", true);
+      }
+    }
+  };
   let renderFocusList = function (data) {
     let sortedData = {};
     let homeList = _.filter(data.focusList, a => a.is_index);
@@ -335,7 +382,7 @@ $(function () {
     globalFocusList = sortedData;
     let focusHtml = template('focus-list-template', sortedData);
     $('#focus-list-container').html(focusHtml);
-    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.delete-action', function (deleteItem) {
+    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.subscribe-action', function (deleteItem) {
       esdpec.framework.core.doDeleteOperation('subscribe/unsubscribe?id=' + deleteItem, {}, function (response) {
         if (response.IsSuccess) {
           _.remove(globalFocusList.focusList, a => a.id === deleteItem);
@@ -346,47 +393,7 @@ $(function () {
         }
       });
     });
-    $('.focus-list').on('click', 'li.focus-item', function (e) {
-      e.stopPropagation();
-      let focusId = $(e.currentTarget).attr('id');
-      globalFocusId = focusId;
-      sessionStorage.setItem('current_focus_id', globalFocusId);
-      let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
-      currentClickMeters = [];
-      sessionStorage.setItem('current_select_meters', '[]');
-      switch (clickFocus.stype) {
-        case 1:
-        case 2:
-          let mIds = clickFocus.slist.split(',');
-          let mfIdJson = JSON.parse(clickFocus.sId);
-          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-          currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
-          _.forEach(currentClickMeters, m => {
-            m.checked = false;
-            let mfids = _.find(mfIdJson, a => a.m === m.id);
-            m.checkedMfIds = mfids.plist;
-            if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
-          });
-          sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
-          // loadFocusDetailPage();
-          $.router.load('#focus-detail-page');
-          break;
-        case 3:
-        case 4:
-          sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
-          sessionStorage.setItem('if-goback', '2');
-          window.location.href = '../health/index.html#page-health-detail';
-          break;
-        case 5:
-        case 6:
-          break;
-      }
-    });
-    $('.focus-item').on('click', '.set-home', function (e) {
-      e.stopPropagation();
-      let currentDom = $(e.currentTarget);
-      let focusId = currentDom.attr('data-id');
-      // let isHome = currentDom.attr('data-value');
+    esdpec.framework.core.swipeDelete('.focus-list .focus-item', '.home-action', function (focusId) {
       if (_.isEqual(focusId, '')) {
         $.toast('请刷新列表后，再重试');
         return;
@@ -440,6 +447,68 @@ $(function () {
         });
       }
     });
+    $('.focus-list').on('click', 'li.focus-item', function (e) {
+      e.stopPropagation();
+      let focusId = $(e.currentTarget).attr('id');
+      globalFocusId = focusId;
+      sessionStorage.setItem('current_focus_id', globalFocusId);
+      let clickFocus = _.find(globalFocusList.focusList, a => a.id === focusId);
+      currentClickMeters = [];
+      sessionStorage.setItem('current_select_meters', '[]');
+      switch (clickFocus.stype) {
+        case 1:
+        case 2:
+          let mIds = clickFocus.slist.split(',');
+          let mfIdJson = JSON.parse(clickFocus.sId);
+          let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+          currentClickMeters = _.filter(meterTree, a => _.includes(mIds, a.id));
+          _.forEach(currentClickMeters, m => {
+            m.checked = false;
+            let mfids = _.find(mfIdJson, a => a.m === m.id);
+            m.checkedMfIds = mfids.plist;
+            if (_.isEqual(m.id, clickFocus.activeId)) m.checked = true;
+          });
+          globalDataType = clickFocus.data_type; // paraType.aggregateValue;
+          globalDateType = dateType.day;
+          if (globalDataType === paraType.aggregateValue) {
+            document.getElementById('showWeek').style = '';
+            document.getElementById('showMonth').style = '';
+            document.getElementById('showYear').style = '';
+            $('#aggregateValue-container').removeClass('hidden');
+            $('#instantanousValue-container').addClass('hidden');
+          } else {
+            $('#aggregateValue-container').addClass('hidden');
+            $('#instantanousValue-container').removeClass('hidden');
+            $('#datePicker').datePicker({
+              value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+            }, 'd');
+            $('#showWeek').css('color', '#ddd !important');
+            $('#showMonth').css('color', '#ddd !important');
+            $('#showYear').css('color', '#ddd !important');
+            // toggleActive();
+            // $('#showDay').addClass('active');
+            // globalDateType = dateType.day;
+            // globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+            // globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+          }
+          toggleActive();
+          $('#showDay').addClass('active');
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+          globalQueryType = queryType.convenient;
+          sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters)); // 修复bug引入
+          $.router.load('#focus-detail-page');
+          break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+          sessionStorage.setItem('current_health', JSON.stringify(clickFocus));
+          sessionStorage.setItem('if-goback', '2');
+          window.location.href = '../health/index.html#page-health-detail';
+          break;
+      }
+    });
     $('.focus-item').on('click', '.set-index', function (e) {
       e.stopPropagation();
       let currentDom = $(e.currentTarget);
@@ -450,13 +519,13 @@ $(function () {
       }
       let currentNodeIndex = _.findIndex(globalFocusList.focusList, a => a.id === focusId);
       if (currentNodeIndex === 0) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       let currentNode = _.find(globalFocusList.focusList, a => a.id === focusId);
       let preNode = globalFocusList.focusList[currentNodeIndex - 1];
       if (preNode.is_index) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       let para = {
@@ -464,7 +533,7 @@ $(function () {
         index: currentNode.index
       };
       if (currentNode.index <= 0) {
-        $.toast('已在置顶位置，不可再往前');
+        $.toast('位置不可再往前调整');
         return;
       }
       para.new_index = parseInt(para.index) - 1;
@@ -478,105 +547,27 @@ $(function () {
         }
       });
     });
-  };
-  let operateMeterTreeAjaxResult = function (response) {
-    if (response.IsSuccess && response.Content.length > 0) {
-      let meterList = response.Content;
-      _.forEach(meterList, a => {
-        if (a.text.length > 7) {
-          a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
-        } else {
-          a.displayText = a.text;
-        }
-      });
-      sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
-      renderMeterTree(meterList, '#', 'forward');
-    }
-  };
-  let loadFocusDetailPage = () => {
-    isComparsionStatus = false;
-    globalCurrentPage = 'focus-detail-page';
-    if (!currentClickMeters || currentClickMeters.length === 0) {
-      let selectMetersJson = sessionStorage.getItem('current_select_meters');
-      currentClickMeters = JSON.parse(selectMetersJson) || [];
-      sessionStorage.setItem('current_select_meters', '[]');
-      globalFocusId = sessionStorage.getItem('current_focus_id');
-      sessionStorage.setItem('current_focus_id', -1);
-    }
-    bindTabClick();
-    loadMeterTree(0);
-    renderFocusMeter();
-    getMeterFocusData();
-  };
-  let loadMeterTree = function (type) {
-    let meterJson = sessionStorage.getItem('meter_tree');
-    if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
-      switch (type) {
-        case 0:
-          esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
-            operateMeterTreeAjaxResult(response);
-          });
-          break;
-        case 1:
-          esdpec.framework.core.getJsonResult("common/gettree", function (response) {
-            operateMeterTreeAjaxResult(response);
-          });
-          break;
+    $('.focus-item').on('click', '.set-home', function (e) {
+      e.stopPropagation();
+      let focusId = $(e.currentTarget).attr('data-id');
+      if (_.isEqual(focusId, '')) {
+        $.toast('请刷新列表后，再重试');
+        return;
       }
-    } else {
-      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
-      renderMeterTree(meterTree, '#', 'forward');
-    }
-  };
-  let leadToHomePage = function (focusList) {
-    let homePage = _.find(focusList, a => a.is_index);
-    if (homePage) {
-      globalDataType = homePage.data_type;
-      globalDateType = homePage.date_type;
-      globalsTime = homePage.stime;
-      globaleTime = homePage.etime;
-      globalQueryType = homePage.query_type;
-      currentClickMeters = [];
-      let meterJson = sessionStorage.getItem('meter_tree');
-      let meterTree = null;
-      if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
-        esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+      let currentHome = _.find(globalFocusList.focusList, a => a.is_index);
+      if (currentHome && currentHome.id === focusId) {
+        esdpec.framework.core.doPutOperation('subscribe/unsetindex?id=' + focusId, {}, function (response) {
           if (response.IsSuccess) {
-            sessionStorage.setItem('meter_tree', JSON.stringify(response.Content));
-            meterTree = response.Content;
-            currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
-            sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-            $.router.load("#focus-detail-page", true);
+            _.forEach(globalFocusList.focusList, a => {
+              if (a.id === focusId) {
+                a.is_index = false;
+                a.isHomePage = '';
+              }
+            });
+            renderFocusList(globalFocusList);
           }
         });
-      } else {
-        meterTree = JSON.parse(meterJson);
-        currentClickMeters.push(_.find(meterTree, a => a.id === homePage.activeId));
-        sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-        $.router.load("#focus-detail-page", true);
       }
-    }
-  };
-  let loadFocusListData = function (pageNum, keyword) {
-    currentPage = pageNum;
-    esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
-      let data = {
-        focusList: []
-      };
-      if (response.IsSuccess && response.Content.datas.length > 0) {
-        data.focusList = response.Content.datas;
-        $jQuery.each(data.focusList, function (index, item) {
-          item.focusType = getFocusType(item.stype);
-          if (item.is_index) item.isHomePage = 'home-page-color';
-        });
-        let isFirstLogin = sessionStorage.getItem("first_login");
-        if (isFirstLogin === '1') {
-          sessionStorage.setItem("first_login", '0');
-          leadToHomePage(data.focusList);
-        }
-      }
-      totalPage = response.Content.total_page;
-      renderFocusList(data);
     });
   };
   let renderMeterTree = function (list, parent, type) {
@@ -586,8 +577,8 @@ $(function () {
     }
     let children = _.filter(list, a => a.parent === parent);
     _.map(children, a => {
-      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter') ? 'isBasic-instrument' : '';
-      a.showChecked = (isComparsionStatus && (a.modeltype === 'meter' || a.modeltype === 'vmeter')) ? 'showCheckBox' : '';
+      a.baseInstrument = (a.modeltype === 'meter' || a.modeltype === 'vmeter' || a.modeltype === 'hmeter') ? 'isBasic-instrument' : '';
+      a.showChecked = (isComparsionStatus && (a.modeltype === 'meter' || a.modeltype === 'vmeter' || a.modeltype === 'hmeter')) ? 'showCheckBox' : '';
       a.hasChecked = _.find(currentClickMeters, m => m.id === a.id) ? 'comparsionchecked' : '';
     });
     let data = {
@@ -607,7 +598,7 @@ $(function () {
         renderMeterTree(children, meterId, 'forward');
       else {
         let node = _.find(meterNodes, a => a.id === meterId);
-        if (node.modeltype === 'vmeter' || node.modeltype === 'meter') {
+        if (node.modeltype === 'vmeter' || node.modeltype === 'meter' || node.modeltype === 'hmeter') {
           if (isComparsionStatus) {
             let ifAdd = true;
             if (currentClickMeters.length === 0) {
@@ -619,7 +610,11 @@ $(function () {
                 ifAdd = false;
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
-              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              if (currentClickMeters.length > 1) {
+                setTimeout(() => loadComparisonData(node, ifAdd), 100);
+              } else {
+                setTimeout(() => getMeterFocusData(), 100);
+              }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             } else {
               clickNode.toggleClass('comparsionchecked');
@@ -639,7 +634,11 @@ $(function () {
                 ifAdd = false;
                 _.remove(currentClickMeters, a => a.id === meterId);
               }
-              setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              if (currentClickMeters.length > 1) {
+                setTimeout(_ => loadComparisonData(node, ifAdd), 100);
+              } else {
+                setTimeout(_ => removeSearchMeter(), 100);
+              }
               sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
             }
           } else {
@@ -661,6 +660,153 @@ $(function () {
       if (!operateBefore()) return;
       backNavigate();
     });
+  };
+  let operateMeterTreeAjaxResult = function (response) {
+    if (response.IsSuccess && response.Content.length > 0) {
+      let meterList = response.Content;
+      _.forEach(meterList, a => {
+        if (a.text.length > 7) {
+          a.displayText = a.text.substring(0, 4) + '...' + a.text.substring(a.text.length - 5);
+        } else {
+          a.displayText = a.text;
+        }
+      });
+      sessionStorage.setItem('meter_tree', JSON.stringify(meterList));
+      renderMeterTree(meterList, '#', 'forward');
+    }
+  };
+  let loadFocusListData = function (pageNum, keyword, type) {
+    currentPage = pageNum;
+    esdpec.framework.core.getJsonResult("subscribe/getlist?pageNum=" + pageNum + "&keyword=" + keyword, function (response) {
+      let data = {
+        focusList: []
+      };
+      if (response.IsSuccess && response.Content.datas.length > 0) {
+        data.focusList = response.Content.datas;
+        totalPage = response.Content.total_page;
+        $jQuery.each(data.focusList, function (index, item) {
+          item.focusType = getFocusType(item.stype);
+          if (item.is_index) item.isHomePage = 'home-page-color';
+        });
+        let isFirstLogin = sessionStorage.getItem("first_login");
+        if (isFirstLogin === '1') {
+          sessionStorage.setItem("first_login", '0');
+          let homePage = _.find(data.focusList, a => a.is_index);
+          if (homePage) {
+            switch (homePage.stype) {
+              case 1:
+              case 2:
+                leadToHomePage(data.focusList);
+                break;
+              case 3:
+              case 4:
+              case 5:
+              case 6:
+                sessionStorage.setItem('current_health', JSON.stringify(homePage));
+                sessionStorage.setItem('if-goback', '2');
+                window.location.href = '../health/index.html#page-health-detail';
+                break;
+            }
+          }
+        }
+      }
+      if (!!type && type === 'append') {
+        let totalList = _.concat(globalFocusList.focusList || [], data.focusList);
+        renderFocusList({
+          focusList: totalList
+        });
+      } else if (data.focusList.length <= 0 && !!type && type === 'search') {
+        $('#focus-list-container').html('<span class="norecord">没有找到相关数据</span>');
+      } else renderFocusList(data);
+    });
+  };
+  let loadMeterTree = function (type) {
+    let meterJson = sessionStorage.getItem('meter_tree');
+    if (!meterJson || !JSON.parse(sessionStorage.getItem('meter_tree'))) {
+      switch (type) {
+        case 0:
+          esdpec.framework.core.getJsonResultSilent("common/gettree", function (response) {
+            operateMeterTreeAjaxResult(response);
+          });
+          break;
+        case 1:
+          esdpec.framework.core.getJsonResult("common/gettree", function (response) {
+            operateMeterTreeAjaxResult(response);
+          });
+          break;
+      }
+    } else {
+      let meterTree = JSON.parse(sessionStorage.getItem('meter_tree'));
+      renderMeterTree(meterTree, '#', 'forward');
+    }
+  };
+  let pullToLoadFocusList = function (page) {
+    let $content = $(page).find(".content").on('refresh', function (e) {
+      e.stopPropagation();
+      let pageNum = parseFloat(currentPage) + 1;
+      if (pageNum <= parseInt(totalPage))
+        loadFocusListData(pageNum, '', 'append');
+      setTimeout(() => $.pullToRefreshDone($content), 1000);
+    });
+  };
+  //#endregion
+
+  //#region focus-detail Page
+  let loadFocusDetailPage = () => {
+    isComparsionStatus = false;
+    globalCurrentPage = 'focus-detail-page';
+    if (!currentClickMeters || currentClickMeters.length === 0) {
+      let selectMetersJson = sessionStorage.getItem('current_select_meters');
+      currentClickMeters = JSON.parse(selectMetersJson) || [];
+      sessionStorage.setItem('current_select_meters', '[]');
+      globalFocusId = sessionStorage.getItem('current_focus_id');
+      sessionStorage.setItem('current_focus_id', -1);
+    }
+    bindTabClick();
+    loadMeterTree(0);
+    renderFocusMeter();
+    if (currentClickMeters.length === 1) {
+      getMeterFocusData('init');
+    } else {
+      let mIds = _.map(currentClickMeters, a => a.id);
+      esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterids?meterIds=" + _.join(mIds, ','), function (response) {
+        if (response.IsSuccess) {
+          let mParas = response.Content;
+          let unit = '',
+            parameterType,
+            name;
+          _.forEach(currentClickMeters, m => {
+            let parameter = _.find(mParas, o => o.meterId === m.id);
+            m.parameters = parameter.mfList;
+            _.forEach(m.parameters, p => {
+              if (_.includes(m.checkedMfIds, p.id)) {
+                p.checked = "checked";
+                unit = p.unit;
+                parameterType = p.type;
+                name = p.name;
+              };
+            });
+          });
+          let node = _.head(currentClickMeters);
+          $('#current-unit').text(unit);
+          let parameterHtml = template('parameter-template', {
+            parameterList: node.parameters
+          });
+          $('#parameter-container').html(parameterHtml);
+          let mfIds = [];
+          _.forEach(currentClickMeters, m => {
+            mfIds = _.concat(mfIds, m.checkedMfIds);
+          });
+          globalQueryType = !globalQueryType ? queryType.convenient : globalQueryType;
+          globalDateType = !globalDateType ? dateType.day : globalDateType;
+          globalDataType = !globalDataType ? parameterType : globalDataType;
+          globalsTime = globalsTime === '' ? new Date().format('yyyy-MM-dd 00:00:00') : globalsTime;
+          globaleTime = globaleTime === '' ? new Date().format('yyyy-MM-dd 23:59:59') : globaleTime;
+
+          getComparsionInitData(node, globalQueryType, globalDataType, globalDateType, globalsTime, globaleTime, mfIds, parameterType, name);
+        }
+      });
+    }
   };
   let loadComparisonData = function (node, ifNeedLoad) {
     if (currentClickMeters.length === 0) return;
@@ -742,6 +888,7 @@ $(function () {
             onclick: function () {
               if (chart) chart.clear();
               if (!globalPieDataSource) return;
+              globalCurrentChartType = 1;
               let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
               chart = echarts.init(document.getElementById('echarts'), e_macarons);
               chart.setOption(option, true);
@@ -855,20 +1002,33 @@ $(function () {
         }
       }
     });
-    $("#startDatePicker").datePicker({
-      value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-    }, 'd');
-    $("#endDatePicker").datePicker({
-      value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
-    }, 'd');
-  };
-  let pullToLoadFocusList = function (page) {
-    let $content = $(page).find(".content").on('refresh', function (e) {
-      let pageNum = parseFloat(currentPage) + 1;
-      if (pageNum <= parseInt(totalPage))
-        loadFocusListData(pageNum, '');
-      setTimeout(() => $.pullToRefreshDone($content), 2000);
-    });
+    let type = $("#dataTypePicker").val();
+    switch (type) {
+      case '日':
+        $("#startDatePicker").datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+        }, 'd');
+        $("#endDatePicker").datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+        }, 'd');
+        break;
+      case '月':
+        $("#startDatePicker").datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1)],
+        }, 'm');
+        $("#endDatePicker").datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1)],
+        }, 'm');
+        break;
+      case '年':
+        $("#startDatePicker").datePicker({
+          value: [new Date().getFullYear()],
+        }, 'y');
+        $("#endDatePicker").datePicker({
+          value: [new Date().getFullYear()],
+        }, 'y');
+        break;
+    }
   };
   let getSeriesPara = (response, searchType, legendTitle) =>
     !ifComparsion() ? searchType === queryType.convenient ? [{
@@ -884,6 +1044,26 @@ $(function () {
   let getInstantanousSeriesPara = (response, legendTitle) => {
     let seriesParas = [];
     if (ifComparsion()) {
+      _.forEach(response, a => {
+        let mp = _.find(legendTitle, l => l.id === a.mfid);
+        seriesParas.push({
+          data: a.data_list,
+          name: mp.mName + '-' + mp.name
+        });
+      });
+      return seriesParas;
+    }
+    _.forEach(response, a => {
+      seriesParas.push({
+        data: a.now_data_list,
+        name: _.find(legendTitle, l => l.id === a.mfid).name
+      });
+    });
+    return seriesParas;
+  };
+  let getSeriesParas = (response, legendTitle, ids) => {
+    let seriesParas = [];
+    if (ids.length > 1) {
       _.forEach(response, a => {
         let mp = _.find(legendTitle, l => l.id === a.mfid);
         seriesParas.push({
@@ -1085,14 +1265,9 @@ $(function () {
     return urlPara;
   };
   let renderFocusMeter = function () {
-    let checkedNode = _.find(currentClickMeters, a => a.checked);
-    if (!checkedNode) {
-      checkedNode = _.head(currentClickMeters);
-      if (checkedNode)
-        checkedNode.checked = true;
-    }
+    let checkedNodes = _.map(currentClickMeters, a => a.id);
     let stype = currentClickMeters.length > 1 ? 2 : 1;
-    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + checkedNode.id + '&stype=' + stype, function (response) {
+    esdpec.framework.core.getJsonResult('subscribe/issubscribe?slist=' + _.join(checkedNodes, ',') + '&stype=' + stype, function (response) {
       if (response.IsSuccess && response.Content) {
         //globalIfFocus = response.Content.state;
         if (response.Content.state) {
@@ -1108,6 +1283,8 @@ $(function () {
       globalFocusId = -1;
       $('#subscribe').text('关注');
     });
+    let node = _.find(currentClickMeters, a => a.checked);
+    if (!node) currentClickMeters[0].checked = true;
     _.forEach(currentClickMeters, a => a.checked ? a.activeClass = 'current-active' : '');
     sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
     let meterHeaderData = {
@@ -1117,6 +1294,7 @@ $(function () {
     $('#headerContainer').html(meterNameTemplate);
     $('#headerContainer').on('click', 'span', function (e) {
       e.stopPropagation();
+      if (!operateBefore()) return;
       let meterId = $(e.currentTarget).attr('data-id');
       _.forEach(currentClickMeters, a => {
         if (a.id === meterId)
@@ -1141,8 +1319,9 @@ $(function () {
         }
       });
     });
-    $('#headerContainer').on('click', '#add_comparsion', function (e) {
+    $('#addcomparsion').on('click', '#add_comparsion', function (e) {
       e.stopPropagation();
+      if (!operateBefore()) return;
       let flag = true;
       _.forEach(currentClickMeters, m => {
         let checkedParas = _.filter(m.parameters, a => a.checked === 'checked');
@@ -1162,7 +1341,7 @@ $(function () {
       $('.meter-list li.meter-item').each(function (i, dom) {
         let type = $(dom).attr('data-type');
         let id = $(dom).attr('data-id');
-        if (!_.isEqual(type, 'meter') && !_.isEqual(type, 'vmeter'))
+        if (!_.isEqual(type, 'meter') && !_.isEqual(type, 'vmeter') && !_.isEqual(type, 'hmeter'))
           $(dom).removeClass('showCheckBox');
         else $(dom).addClass('showCheckBox');
         let meter = _.find(currentClickMeters, a => a.id === id);
@@ -1171,7 +1350,7 @@ $(function () {
         } else $(dom).removeClass('comparsionchecked');
       });
     });
-    $('#headerContainer').on('click', '#remove_comparsion', function (e) {
+    $('#removecomparsion').on('click', '#remove_comparsion', function (e) {
       e.stopPropagation();
       if (!operateBefore()) return;
       let activeNode = _.find(currentClickMeters, a => a.checked);
@@ -1179,12 +1358,24 @@ $(function () {
         $.toast('请选择要删除的仪表');
         return;
       }
-      _.remove(currentClickMeters, a => a.checked);
+      let removeItem = _.remove(currentClickMeters, a => a.checked);
       sessionStorage.setItem('current_select_meters', JSON.stringify(currentClickMeters));
-      $('#parameter-container').empty();
+      $('#parameter-container').attr('data-toggle', 'close').empty();
       renderFocusMeter();
-      getMeterFocusData();
+      removeSearchMeter(removeItem);
     });
+  };
+  let removeSearchMeter = removeItem => {
+    if (currentClickMeters.length <= 0) return;
+    let activeNodeId = getActiveMeterId();
+    let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
+    let mfIds = [];
+    _.forEach(currentClickMeters, a => {
+      let params = _.filter(a.parameters, p => p.checked === 'checked');
+      mfIds = _.concat(mfIds, params);
+    });
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, _.uniq(_.map(mfIds, a => a.id)));
   };
   let renderAggregateData = function (data) {
     if (data.avg_val < 1000) data.avg_font_size = '1.25rem';
@@ -1227,10 +1418,12 @@ $(function () {
       };
       let gaugeDataHtml = template('gaugeData-template', data);
       $('#gaugeDataContainer').html(gaugeDataHtml);
-      $('#gaugeDataContainer').on('click', 'li.item-content', function (e) {
+      $('#gaugeDataContainer .item-content').off('click');
+      $('#gaugeDataContainer .item-content').on('click', function (e) {
         e.stopPropagation();
         let currentDom = e.currentTarget;
         let mfId = $(currentDom).attr('data-id');
+        let unit = $(currentDom).attr('data-unit');
         let fixedParaDom = $('#showParamMore_' + mfId);
         let fixedHtml = fixedParaDom.html();
         if (_.isEqual(fixedHtml, '')) {
@@ -1255,7 +1448,10 @@ $(function () {
                 esdpec.framework.core.getJsonResult('dataanalysis/getdatafromdevice?mfid=' + mfId + '&timeout=' + timeout, function (response) {
                   if (response.IsSuccess && response.Content != null) {
                     let lastData = {
-                      lastDataList: response.Content.last_datas
+                      lastDataList: _.map(response.Content.last_datas, a => {
+                        a.unit = unit;
+                        return a;
+                      })
                     };
                     _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
                     let lastDataHtml = template('last-data-template', lastData);
@@ -1266,7 +1462,10 @@ $(function () {
               fixedParaDom.attr('data-toggle', 'open');
               $(currentDom).addClass('item-click-style');
               let lastData = {
-                lastDataList: response.Content.last_datas
+                lastDataList: _.map(response.Content.last_datas, a => {
+                  a.unit = unit;
+                  return a;
+                })
               };
               _.forEach(lastData.lastDataList, a => a.Mt = _.replace(a.Mt.substring(0, a.Mt.length - 6), 'T', ' '));
               let lastDataHtml = template('last-data-template', lastData);
@@ -1285,13 +1484,23 @@ $(function () {
       });
     }
   };
+  let getLabel = () => {
+    if (globalQueryType === queryType.convenient)
+      return ['日总量', '周总量', '月总量', '年总量', '总量'][parseInt(globalDateType) - 2];
+    return ['总量'];
+  };
+  let getValue = () => {
+    if (globalQueryType === queryType.convenient)
+      return ['昨日同期', '上周同期', '上月同期', '去年同期', '同期'][parseInt(globalDateType) - 2];
+    return ['同期'];
+  };
   let generateSummaryTable = (type, dataList) => {
     let rowNames = [{
       id: 'sum_val',
-      name: '日总量'
+      name: getLabel()
     }, {
       id: 'sum_per',
-      name: '昨日同期'
+      name: getValue()
     }, {
       id: 'avg_per',
       name: '同期平均'
@@ -1359,7 +1568,7 @@ $(function () {
     mfIds = _.map(mfObjs, a => a.id);
     if (mfIds.length > 0) {
       let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
-      esdpec.framework.core.getJsonResultSilent("dataanalysis/getcomparedata?" + urlParam, function (response) {
+      esdpec.framework.core.getJsonResult("dataanalysis/getcomparedata?" + urlParam, function (response) {
         if (response.IsSuccess) {
           let summaryDataList = [];
           let sumValList = [];
@@ -1411,7 +1620,13 @@ $(function () {
             x: _.filter(summaryDataList, a => a.name),
             y: sumValList
           };
-          generateChart(document.getElementById('echarts'), data, true);
+          if (globalCurrentChartType === 1 && paraType === 0) {
+            let option = generatePieForAggregateData(globalPieDataSource.x, globalPieDataSource.y);
+            chart = echarts.init(document.getElementById('echarts'), e_macarons);
+            chart.setOption(option, true);
+          } else {
+            generateChart(document.getElementById('echarts'), data, paraType === 0);
+          }
         }
       });
     } else {
@@ -1422,6 +1637,66 @@ $(function () {
       let summaryDataHtml = template('summary-data-template', data);
       $('#summary-data-container').html(summaryDataHtml);
     }
+  };
+  let getComparsionInitData = (node, searchType, paraType, dateType, sTime, eTime, mfIds, type, name) => {
+    $('#single').addClass('hidden');
+    $('#multiple').removeClass('hidden');
+    let urlParam = generateUrlPara(node.id, searchType, paraType, dateType, sTime, eTime, mfIds);
+    esdpec.framework.core.getJsonResult("dataanalysis/getcomparedata?" + urlParam, function (response) {
+      if (response.IsSuccess) {
+        let summaryDataList = [];
+        let sumValList = [];
+        let parameters = [];
+        _.forEach(mfIds, mfId => {
+          let meter = _.find(currentClickMeters, m => _.includes(m.checkedMfIds, mfId));
+          parameters.push({
+            id: mfId,
+            mName: meter.text,
+            type,
+            name
+          });
+        });
+        _.forEach(response.Content, a => {
+          let para = _.find(parameters, p => p.id === a.mfid);
+          let summaryData = {
+            name: para ? para.mName : '--',
+            avg_val: a.avg_val ? a.avg_val.toFixed(2) : '--',
+            max_val: a.max_val ? a.max_val.toFixed(2) : '--',
+            min_val: a.min_val ? a.min_val.toFixed(2) : '--',
+            upper_limit: a.rule ? a.rule.UpperLimit ? a.rule.UpperLimit.toFixed(2) : '--' : '--',
+            lower_limit: a.rule ? a.rule.LowerLimit ? a.rule.LowerLimit.toFixed(2) : '--' : '--',
+            lower_wave: a.rule ? a.rule.LowerWave ? a.rule.LowerWave.toFixed(2) : '--' : '--',
+            upper_wave: a.rule ? a.rule.UpperWave ? a.rule.UpperWave.toFixed(2) : '--' : '--',
+            type: globalDataType //para.type
+          };
+          if (para.type === 0) {
+            summaryData.sum_val = a.sum_val ? a.sum_val.toFixed(2) : '--';
+            summaryData.sum_per = a.sum_per ? (a.sum_per * 100).toFixed(2) : '--';
+            summaryData.avg_per = a.avg_per ? (a.avg_per * 100).toFixed(2) : '--';
+          }
+          let sumVal = {
+            name: para.mName,
+            value: a.sum_val ? a.sum_val.toFixed(2) : 0
+          };
+          summaryDataList.push(summaryData);
+          sumValList.push(sumVal);
+        });
+        $('#summary-data-container').html(generateSummaryTable(globalDataType, summaryDataList));
+        let legendTitle = _.filter(parameters, a => {
+          return {
+            id: a.id,
+            name: a.mName + '-' + a.name
+          };
+        });
+        let data = getComparsionChartInitData(dateType, searchType, response.Content, legendTitle, mfIds);
+        globalLineDataSource = data;
+        globalPieDataSource = {
+          x: _.filter(summaryDataList, a => a.name),
+          y: sumValList
+        };
+        generateChart(document.getElementById('echarts'), data, true);
+      }
+    });
   };
   let getChartData = (dateType, searchType, sTime, eTime, content, rule) => {
     let data = {};
@@ -1467,6 +1742,23 @@ $(function () {
     xData = _.uniq(xData);
     data.xAxisData = xData;
     data.series = getInstantanousSeries(getInstantanousSeriesPara(dataList, legendTitle), data.xAxisData, dateType, searchType);
+    return data;
+  };
+  let getComparsionChartInitData = (dateType, searchType, dataList, legendTitle, ids) => {
+    let data = {};
+    data.legend = {
+      data: _.map(legendTitle, a => a.mName + '-' + a.name)
+    };
+    let xData = [];
+    _.forEach(dataList, paras => {
+      _.forEach(paras.data_list, a => {
+        a.date = a.date;
+        xData.push(a.date);
+      });
+    });
+    xData = _.uniq(xData);
+    data.xAxisData = xData;
+    data.series = getInstantanousSeries(getSeriesParas(dataList, legendTitle, ids), data.xAxisData, dateType, searchType);
     return data;
   };
   let getFocusMeterData = function (node, searchType, paraType, dateType, sTime, eTime, mfIds) {
@@ -1561,11 +1853,11 @@ $(function () {
       }
     } else getComparsionData(node, searchType, paraType, dateType, sTime, eTime, mfIds);
   };
-  let getMeterFocusData = function () {
+  let getMeterFocusData = function (type) {
     if (currentClickMeters.length <= 0) return;
     let activeNodeId = getActiveMeterId();
     let activeNode = _.find(currentClickMeters, a => a.id === activeNodeId);
-    var dateType = getDateType();
+    var getDType = getDateType();
     /*new Promise*/
     esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + activeNodeId, function (response) {
       if (response.IsSuccess) {
@@ -1593,14 +1885,77 @@ $(function () {
         let parameterHtml = template('parameter-template', {
           parameterList: activeNode.parameters
         });
-        $('#parameter-container').html(parameterHtml);
-        globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
-        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
-        globalQueryType = queryType.convenient;
         globalDataType = parameterType;
-        globalDateType = dateType;
-        globalUnit = unit;
-        getFocusMeterData(activeNode, queryType.convenient, parameterType, dateType,
+        $('#parameter-container').html(parameterHtml);
+        if (type === 'init') {
+          // globalsTime = !globalsTime ? new Date().format('yyyy-MM-dd 00:00:00') : globalsTime;
+          // globaleTime = !globaleTime ? new Date().format('yyyy-MM-dd 23:59:59') : globaleTime;
+          // globalQueryType = !globalQueryType ? queryType.convenient : globalQueryType;
+          // globalDataType = !globalDataType ? parameterType : globalDataType;
+          // globalDateType = !globalDateType ? getDType : globalDateType;
+          globalUnit = !globalUnit ? unit : globalUnit;
+          toggleActive();
+          $jQuery('#showDay').addClass('active');
+          ifShowSearch(false);
+          $('#moreexpand').removeClass('i-expand');
+          let params = getActiveParameters();
+          if (params.type === -1) {
+            $.toast('请选择查询参数');
+            return;
+          }
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+          globalQueryType = queryType.convenient;
+          globalDataType = params.type;
+          globalDateType = dateType.day;
+          let mfIds = _.map(params.parameterList, a => a.id);
+          let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
+          presentType = 'd';
+          getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+            globalsTime, globaleTime, mfIds);
+          return;
+        }
+        if (globalDataType === paraType.instantaneousValue) {
+          $('#aggregateValue-container').addClass('hidden');
+          $('#instantanousValue-container').removeClass('hidden');
+          $('#datePicker').datePicker({
+            value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+          }, 'd');
+          $('#showWeek').css('color', '#ddd !important');
+          $('#showMonth').css('color', '#ddd !important');
+          $('#showYear').css('color', '#ddd !important');
+          toggleActive();
+          $('#showDay').addClass('active');
+          globalDateType = dateType.day;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+        } else {
+          document.getElementById('showWeek').style = '';
+          document.getElementById('showMonth').style = '';
+          document.getElementById('showYear').style = '';
+          $('#aggregateValue-container').removeClass('hidden');
+          $('#instantanousValue-container').addClass('hidden');
+        }
+        if ((getDType === '6' || getDType === 6)) {
+          globalQueryType = queryType.custom;
+          let type = $('#dataTypePicker').val();
+          if (type === '日') {
+            globalDateType = 2;
+            globalsTime = $('#startDatePicker').val() + ' 00:00:00';
+            globaleTime = $('#endDatePicker').val() + ' 23:59:59';
+          } else if (type === '月') {
+            globalDateType = 4;
+            let etime = $('#endDatePicker').val();
+            let days = getDaysOfMonth(etime.split('-')[0], etime.split('-')[1]);
+            globalsTime = $('#startDatePicker').val() + '-01 00:00:00';
+            globaleTime = etime + '-' + days + ' 23:59:59';
+          } else {
+            globalDateType = 5;
+            globalsTime = $('#startDatePicker').val() + '-01-01 00:00:00';
+            globaleTime = $('#endDatePicker').val() + '-12-31 23:59:59';
+          }
+        }
+        getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
           globalsTime, globaleTime, activeNode.checkedMfIds);
       }
     });
@@ -1633,6 +1988,9 @@ $(function () {
       $('#total-title').text('年总量');
     }
   };
+  //#endregion
+
+  //#region 元素绑定
   $('#alert-data-container').on('click', '.alert-data-item', function (e) {
     e.stopPropagation();
     let node = $(e.currentTarget);
@@ -1674,6 +2032,7 @@ $(function () {
   $('.page-group').on('click', '#page-focus', function (e) {
     e.stopPropagation();
     $.closePanel();
+    $('.focus-list .focus-item').removeClass('active');
   });
   $('.page-group').on('click', '#focus-detail-page', function (e) {
     e.stopPropagation();
@@ -1713,6 +2072,23 @@ $(function () {
   });
   $('.focus-div').on('click', '#param-switch', function (e) {
     e.stopPropagation();
+    if ($('#parameter-container').html() === '') {
+      let meterId = getActiveMeterId();
+      let activeNode = _.find(currentClickMeters, a => a.id === meterId);
+      esdpec.framework.core.getJsonResult("dataanalysis/getparasbymeterid?meterId=" + meterId, function (response) {
+        if (response.IsSuccess) {
+          _.map(response.Content, p => {
+            let existP = _.find(activeNode.parameters, a => a.id === p.id);
+            _.assign(p, existP);
+          })
+          activeNode.parameters = response.Content;
+          let parameterHtml = template('parameter-template', {
+            parameterList: activeNode.parameters
+          });
+          $('#parameter-container').html(parameterHtml);
+        }
+      });
+    }
     let toggleStatus = $('#parameter-container').attr('data-toggle');
     if (toggleStatus === 'open') {
       $jQuery('#parameter-container').attr('data-toggle', 'close').slideUp(300);
@@ -1723,7 +2099,7 @@ $(function () {
   $('.searchbar').on('click', '#search-btn', function (e) {
     e.stopPropagation();
     let keyword = $jQuery('#search').val();
-    loadFocusListData(1, keyword);
+    loadFocusListData(1, keyword, 'search');
   });
   $('#search-container').on("click", '#searchmorebtn', function (e) {
     e.stopPropagation();
@@ -1783,6 +2159,25 @@ $(function () {
         globalsTime, globaleTime, mfIds);
     }
   });
+  $('.search-input').on('input', '#search', function (e) {
+    let inputValue = e.currentTarget.value;
+    if (inputValue === '') {
+      $('.clear-input').hide();
+      loadFocusListData(1, '');
+    } else {
+      $('.clear-input').show();
+      let clearEvent = $jQuery._data($('#clearbtn')[0], 'events');
+      if (clearEvent && clearEvent['click']) {} else {
+        $('.search-input #clearbtn').on('click', function (e) {
+          e.stopPropagation();
+          $('#clearbtn').hide();
+          $('#search').val('');
+          $('.search-input #clearbtn').off('click');
+          loadFocusListData(1, '');
+        });
+      }
+    }
+  });
   $('#showMoreBtn').on("click", function (e) {
     e.stopPropagation();
     if (!operateBefore()) return;
@@ -1824,7 +2219,7 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'd';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.day,
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
       globalsTime, globaleTime, mfIds);
   });
   $('#showWeek').on("click", function (e) {
@@ -1849,8 +2244,8 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'w';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.week,
-      week.monday, week.sunday, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#showMonth').on("click", function (e) {
     e.stopPropagation();
@@ -1866,17 +2261,17 @@ $(function () {
       return;
     }
     let today = new Date().format('yyyy-MM-dd');
-    globalsTime = today.firstDay;
-    globaleTime = today.lastDay;
+    let month = getMonth(today);
+    globalsTime = month.firstDay;
+    globaleTime = month.lastDay;
     globalQueryType = queryType.convenient;
     globalDataType = params.type;
     globalDateType = dateType.month;
-    let month = getMonth(today);
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'm';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.month,
-      month.firstDay, month.lastDay, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#showYear').on("click", function (e) {
     e.stopPropagation();
@@ -1901,8 +2296,8 @@ $(function () {
     let mfIds = _.map(params.parameterList, a => a.id);
     let activeNode = _.find(currentClickMeters, a => a.id === getActiveMeterId());
     presentType = 'y';
-    getFocusMeterData(activeNode, queryType.convenient, params.type, dateType.year,
-      year.firstDay, year.lastDay, mfIds);
+    getFocusMeterData(activeNode, globalQueryType, globalDataType, globalDateType,
+      globalsTime, globaleTime, mfIds);
   });
   $('#parameter-container').on('click', 'a', function (e) {
     e.stopPropagation();
@@ -1948,8 +2343,8 @@ $(function () {
         $('#showYear').css('color', '#ddd !important');
         if (globalDateType !== dateType.day && globalDateType !== dateType.more) {
           globalDateType = dateType.day;
-          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');;
-          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');;
+          globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+          globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
           $('.focus-detail-header_tab a.active').removeClass('active');
           $('#showDay').addClass('active');
         }
@@ -1967,6 +2362,30 @@ $(function () {
       }
     } else {
       let flag = true;
+      globalUnit = unit;
+      $('#current-unit').text(unit);
+      globalDataType = parseInt(chooseType);
+      if (globalDataType === paraType.instantaneousValue) {
+        $('#aggregateValue-container').addClass('hidden');
+        $('#instantanousValue-container').removeClass('hidden');
+        $('#datePicker').datePicker({
+          value: [new Date().getFullYear(), formatNumber(new Date().getMonth() + 1), formatNumber(new Date().getDate())],
+        }, 'd');
+        $('#showWeek').css('color', '#ddd !important');
+        $('#showMonth').css('color', '#ddd !important');
+        $('#showYear').css('color', '#ddd !important');
+        toggleActive();
+        $('#showDay').addClass('active');
+        globalDateType = dateType.day;
+        globalsTime = new Date().format('yyyy-MM-dd 00:00:00');
+        globaleTime = new Date().format('yyyy-MM-dd 23:59:59');
+      } else {
+        document.getElementById('showWeek').style = '';
+        document.getElementById('showMonth').style = '';
+        document.getElementById('showYear').style = '';
+        $('#aggregateValue-container').removeClass('hidden');
+        $('#instantanousValue-container').addClass('hidden');
+      }
       _.forEach(currentClickMeters, m => {
         _.map(m.parameters, a => a.checked = '');
         let willChecked = _.filter(m.parameters, a => _.toLower(a.name) === _.toLower(text));
@@ -1983,7 +2402,6 @@ $(function () {
           willChecked[0].checked = 'checked';
         }
       });
-      globalDataType = parseInt(chooseType);
       $('#parameter-container > a').removeClass('checked');
       currentDom.toggleClass('checked');
       if (!flag) return;
@@ -2070,12 +2488,14 @@ $(function () {
       });
     }
   });
+  //#endregion
+
   $(document).on("pageInit", "#page-focus", function (e, id, page) {
     globalFocusId = -1;
     sessionStorage.setItem('current_focus_id', globalFocusId);
     globalCurrentPage = 'page-focus';
-    loadFocusListData(1, '');
     loadMeterTree(0);
+    loadFocusListData(1, '');
     pullToLoadFocusList(page);
   });
   $(document).on("pageInit", "#focus-detail-page", function (e, id, page) {

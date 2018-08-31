@@ -44,9 +44,10 @@ esdpec.framework.core.Config = {
   BaseWebSiteUrl: 'http://172.17.0.48/',
   // APIBaseUrl: 'http://120.76.22.80:8089/api/',
   // BaseWebSiteUrl: 'http://cloud.esdgd.com/',
-  BaseSiteRoot: 'webapp/',
+  BaseSiteRoot: 'webapp-dev/',
   ajaxProcessingText: "加载中....",
-  ajaxProcessedText: "完成"
+  ajaxProcessedText: "完成",
+  dismissTime: 6000
 }
 
 esdpec.framework.core.BaseWeb = esdpec.framework.core.Config.BaseWebSiteUrl + esdpec.framework.core.Config.BaseSiteRoot;
@@ -73,7 +74,7 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
   $.showPreloader('Please Wait ...');
   setTimeout(function () {
     $.hidePreloader();
-  }, 5000);
+  }, esdpec.framework.core.Config.dismissTime);
   $jQuery.ajaxSetup({
     beforeSend: function (xhr) {
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
@@ -168,7 +169,7 @@ esdpec.framework.core.doPostOperation = function (url, object, successCallBack, 
       $.showPreloader('Please Wait ...');
       setTimeout(function () {
         $.hidePreloader();
-      }, 5000);
+      }, esdpec.framework.core.Config.dismissTime);
       xhr.setRequestHeader("Authorization", "BasicAuth " + esdpec.framework.core.user_token());
     },
     complete: function (XMLHttpRequest, textStatus) {

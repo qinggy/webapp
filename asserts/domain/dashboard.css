@@ -23,8 +23,8 @@
 
 .focus-description {
   margin-bottom: 0.2rem;
-  font-size: 0.65rem;
-  color: #666;
+  font-size: 0.7rem;
+  color: #888;
   width: 90%;
 }
 
@@ -59,7 +59,7 @@
 
 .home-position {
   position: absolute;
-  right: 0.5rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.2rem;
@@ -68,7 +68,7 @@
 
 .top-position {
   position: absolute;
-  right: 2.4rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.7rem;
@@ -91,7 +91,7 @@
 }
 
 .focus-item.active {
-  transform: translateX(-4.25rem);
+  transform: translateX(-8.5rem);
   transition: all .3s;
 }
 
@@ -99,13 +99,18 @@
   background-color: red;
   color: #fff;
   height: 3.25rem;
-  width: 4.25rem;
+  width: 8.5rem;
   line-height: 3.25rem;
   text-align: center;
-  right: -4.25rem;
-  top: 0;
+  right: -8.5rem;
+  top: 0.13rem;
   position: absolute;
   display: inline-block;
+  font-size: 0.7rem;
+}
+
+.homebtn {
+  background-color: #4291e5;
 }
 
 .panel {
@@ -154,6 +159,7 @@
 
 .search-position {
   top: 0 !important;
+  background: #4291e5 !important;
 }
 
 .detail-open-tree {
@@ -170,6 +176,18 @@
 /* end focus module */
 
 /* start login module */
+
+.wechat {
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+  vertical-align: middle;
+  display: inline-block;
+  margin-top: -0.2rem;
+}
+
+.wechat:before {
+  color: #fff !important;
+}
 
 .input-contain {
   position: absolute;
@@ -239,9 +257,9 @@
 /* start health module */
 
 #page-health .content {
-  background-image: -moz-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
-  background-image: -webkit-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
-  background-image: -ms-linear-gradient( 90deg, rgb(176, 221, 255) 0%, rgb(0, 146, 255) 100%);
+  background-image: -moz-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
+  background-image: -webkit-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
+  background-image: -ms-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
 }
 
 #page-health .content-inner {
@@ -252,7 +270,7 @@
   height: 3.1rem;
   vertical-align: middle;
   color: #fff;
-  text-align: center;
+  padding-left: 1rem;
 }
 
 .health-company span {
@@ -271,12 +289,17 @@
 
 .health-contain {
   display: flex;
-  height: 80%;
+  height: 90%;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
 }
 
 .health-overrun {
   flex: 1;
   position: relative;
+  border-radius: 0.5rem;
+  background-color: #f9f9f9;
+  margin-right: 0.25rem;
 }
 
 .health-vertical-divide {
@@ -290,6 +313,9 @@
 .health-communication {
   flex: 1;
   position: relative;
+  border-radius: 0.5rem;
+  background-color: #f9f9f9;
+  margin-left: 0.25rem;
 }
 
 .overrun-header,
@@ -297,7 +323,8 @@
   text-align: center;
   height: 3.25rem;
   line-height: 3.25rem;
-  color: #fff;
+  color: #333;
+  font-size: 0.8rem;
 }
 
 .health-cycle {
@@ -310,50 +337,61 @@
 
 .overrun-data,
 .communication-data {
-  color: #fff;
-  font-size: 0.75rem;
+  color: #666;
+  font-size: 0.7rem;
   margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .overrun-data div span:nth-child(2),
 .communication-data div span:nth-child(2) {
   font-weight: bold;
+  color: #333;
 }
 
 .health-data-margin {
   margin-bottom: 0.75rem;
-  margin-left: 20%;
+  margin-left: 10%;
 }
 
 .health-data-last-margin {
-  margin-left: 20%;
+  margin-left: 10%;
 }
 
 .health-more {
-  color: #fff;
-  margin-left: 20%;
+  color: #4291e5;
+  border: 0.05rem solid #4291e5;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  vertical-align: middle;
+  width: 78%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-top: 0.1rem;
 }
 
 .health-more a {
-  color: #fff;
+  color: #4291e5;
   text-decoration: none;
+  font-size: 0.7rem;
 }
 
 .health-data-score {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   display: inline-block;
-  margin-top: -0.7rem;
-  color: #fff;
+  font-weight: bold;
+  color: #333;
 }
 
 .score-fail {
-  color: #fffc00;
+  color: #e6312c;
 }
 
 .health-data-unit {
-  font-size: 0.75rem;
-  color: #fff;
+  font-size: 0.8rem;
+  color: #333;
 }
 
 .health-detail-nav {
@@ -370,6 +408,15 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#offline-meter,
+#overrun {
+  color: red;
+}
+
+.htmlpoint {
+  color: #4291e5;
 }
 
 /* end health module */

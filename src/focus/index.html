@@ -58,6 +58,7 @@
           <div class="search-input col-80">
             <label class="icon icon-search" for="search"></label>
             <input type="search" id='search' placeholder='输入关键字...' />
+            <label class="icon-close clear-input hidden" id="clearbtn"></label>
           </div>
           <a class="button button-fill button-primary search-position col-20" id="search-btn">搜索</a>
         </div>
@@ -115,16 +116,16 @@
               <input type="text" id="dataTypePicker" class="search-input" value="日" readonly>
             </div>
             <div class="search-date">
-              <input type="text" id="startDatePicker" class="search-input" placeholder="起始时间" readonly>
+              <input type="text" id="startDatePicker" class="search-input input-center" placeholder="起始时间" readonly>
             </div>
             <span class="search-data-span">至</span>
             <div class="search-date">
-              <input type="text" id="endDatePicker" class="search-input" placeholder="终止时间" readonly>
+              <input type="text" id="endDatePicker" class="search-input input-center" placeholder="终止时间" readonly>
             </div>
           </div>
           <div class="condition-row hidden" id="instantanousValue-container">
             <div class="search-date instantanous-value-date" style="width: 100%">
-              <input type="text" id="datePicker" class="search-input" placeholder="查询时间" readonly>
+              <input type="text" id="datePicker" class="search-input input-center" placeholder="查询时间" readonly>
             </div>
           </div>
           <div>
@@ -151,6 +152,16 @@
           <div class="focus-charts" id="echarts"></div>
         </div>
         <div class="multiple hidden" id="multiple">
+          <div class="alert-container">
+            <div class="alert-header">
+              <span>参数详情对比</span>
+            </div>
+          </div>
+          <!-- <div class="scroll-more">
+            <div class="">
+              <span>滑动查看更多</span>
+            </div>
+          </div> -->
           <div class="multiple-margin" id="summary-data-container"></div>
         </div>
         <div id="single">
@@ -161,7 +172,6 @@
               </div>
               <div class="summary-total-data" id="summary-total-data"></div>
             </div>
-            <div class="summary-vertical-divide"></div>
             <div class="summary-average">
               <div class="summary-header-container">
                 <span>平均值</span>
@@ -240,10 +250,14 @@
             <div class="item-title focus-description">{{focus.description}}</div>
           </div>
         </a>
-        <i class="icon-home home-position set-home {{focus.isHomePage}}" data-id="{{focus.id}}"></i>
+        {{if focus.is_index}}
+        <i class="icon-home home-position set-home home-page-color" data-id="{{focus.id}}"></i>
+        {{else}}
         <div class="icon-arrow top-position set-index" data-id="{{focus.id}}" data-value="{{focus.is_index}}"></div>
-        <div class="delete-action" id="delete-action" data-id="{{focus.id}}">
-          <span style="color:#fff!important">取消关注</span>
+        {{/if}}
+        <div class="delete-action" id="delete-action">
+          <span class="subscribe-action" data-id="{{focus.id}}">取消关注</span>
+          <span id="home-action" class="home-action" data-id="{{focus.id}}">设为主页</span>
         </div>
       </li>
       {{/each}} {{else}}
@@ -286,9 +300,13 @@
     {{if focusMeterList.length > 0}} {{each focusMeterList meter index}}
     <span class="{{meter.activeClass}}" id="meter_{{meter.id}}" data-id="{{meter.id}}">{{meter.displayText}}</span>
     {{/each}} {{/if}}
-    <div class="icon-add_to operate-icon" id="add_comparsion"></div>
+    <div id="addcomparsion">
+      <div class="icon-add_to operate-icon" id="add_comparsion"></div>
+    </div>
     {{if focusMeterList.length > 1}}
-    <div class="icon-reduce operate-icon" id="remove_comparsion"></div>
+    <div id="removecomparsion">
+      <div class="icon-reduce operate-icon" id="remove_comparsion"></div>
+    </div>
     {{/if}}
   </script>
   <script type="text/html" id="parameter-template">
@@ -297,29 +315,29 @@
     {{/each}}{{/if}}
   </script>
   <script type="text/html" id="data-template">
-    <div class="summary-cycle">
+    <div class="summary-cycle" style="background-color:#fc7c66">
       <span style="font-size: {{sum_font_size}}">{{sum_val}}</span>
       <span>{{unit}}</span>
     </div>
     <div class="summary-prompt">
+      <div class="data-prompt" id="data-prompt">昨日同期</div>
       <div class="data-container">
         <span class="{{if summargyClass}}warn{{else}}great{{/if}} data-container">{{sum_per}}%</span>
-        <div class="{{if summargyClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
+        <div class="{{if summargyClass}}icon-focus-up{{else}}icon-focus-down{{/if}} lineup"></div>
       </div>
-      <div class="data-prompt" id="data-prompt">昨日同期</div>
     </div>
   </script>
   <script type="text/html" id="avg-data-template">
-    <div class="summary-cycle">
+    <div class="summary-cycle" style="background-color:#5d8af0">
       <span style="font-size: {{avg_font_size}}">{{avg_val}}</span>
       <span>{{unit}}</span>
     </div>
     <div class="summary-prompt">
+      <div class="data-prompt">同期平均</div>
       <div class="data-container">
         <span class="{{if avgClass}}warn{{else}}great{{/if}} data-container">{{avg_per}}%</span>
-        <div class="{{if avgClass}}icon-focus-up{{else}}icon-focus-down{{/if}}"></div>
+        <div class="{{if avgClass}}icon-focus-up{{else}}icon-focus-down{{/if}} lineup"></div>
       </div>
-      <div class="data-prompt">同期平均</div>
     </div>
   </script>
   <script type="text/html" id="rule-container-tbody-template">
@@ -339,14 +357,16 @@
     <div class="alert-data-item">
       <span class="item-name ellipsisTitle">{{meter.text}}</span>
       <span class="item-data">{{meter.alert_count}}次</span>
-      <span class="item-more" data-id="{{meter.id}}" data-type="{{meter.vtype}}">查看详情</span>
+      <span class="item-more" data-id="{{meter.id}}" data-type="{{meter.vtype}}">查看详情&nbsp;
+        <span>&gt;</span>
+      </span>
     </div>
     {{/each}} {{/if}}
   </script>
   <script type="text/html" id="gaugeData-template">
-    <ul>
+    <ul class="first-ul">
       {{if parameterList.length > 0}}{{each parameterList para index}}
-      <li class="item-content item-link icon-more" data-id="{{para.id}}">
+      <li class="item-content item-link icon-more" data-id="{{para.id}}" data-unit="{{para.unit}}">
         <div class="item-media">
           <i class="icon icon-f7"></i>
         </div>
@@ -402,11 +422,11 @@
         </div>
         <div class="item-inner">
           <div class="item-title">查询超时</div>
-          <div style="display: flex">
+          <div style="display: flex;height: 1.5rem !important;min-height: 1.5rem !important;">
             <input type="text" id="seachBox_{{mfId}}" style="font-size:0.65rem;" value=5 class="search-overrun-input" placeholder="5S 请输入超限时间">
-            <span style="margin-left:0.2rem">S</span>
+            <span style="margin-left:0.2rem;margin-top: -0.5rem;">S</span>
           </div>
-          <div class="item-after search-more" id="seachbtn_{{mfId}}">查询</div>
+          <span class="item-after search-more" id="seachbtn_{{mfId}}">查询</span>
         </div>
       </li>
       <div class="list-block last-data" id="last-data-container_{{mfId}}"></div>
@@ -418,7 +438,7 @@
       <li class="item-content">
         <div class="item-inner">
           <div class="item-title">{{lastData.Mt}}</div>
-          <div class="item-after">{{lastData.Mv}}</div>
+          <div class="item-after">{{lastData.Mv}}&nbsp;{{lastData.unit}}</div>
         </div>
       </li>
       {{/each}} {{/if}}
@@ -443,12 +463,8 @@
   </script>
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
-  <!-- <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808150930"></script>
-  <script src="../../asserts/domain/focus-domain.js?_t=201808150942"></script> -->
-  <script>
-    document.write('<script src="../../dist/common/esdpec.swipe.delete.js?_t=' + Math.random() +
-      '"><\/script><script src="../../asserts/domain/focus-domain.js?_t=' + Math.random() + '"><\/script>');
-  </script>
+  <script src="../../dist/common/esdpec.swipe.delete.js?_t=201808280930"></script>
+  <script src="../../asserts/domain/focus-domain.js?_t=201808291052"></script>
 </body>
 
 </html>

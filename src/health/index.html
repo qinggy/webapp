@@ -72,9 +72,10 @@
       <div class="content">
         <div class="content-inner">
           <div class="health-company">
+            <span class="blankspan"></span>
             <span id="companyName"></span>
           </div>
-          <div class="health-horizone-divide"></div>
+          <!-- <div class="health-horizone-divide"></div> -->
           <div class="health-contain">
             <div class="health-overrun">
               <div class="overrun-header">
@@ -83,23 +84,25 @@
               <div class="health-cycle" id='health-cycle'></div>
               <div class="overrun-data">
                 <div class="health-data-margin">
-                  <span>总表数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;总表数:&nbsp;</span>
                   <span id="total_meter">100</span>个
                 </div>
                 <div class="health-data-margin">
-                  <span>正常数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;正常数:&nbsp;</span>
                   <span id="overrun_normal">90</span>个
                 </div>
                 <div class="health-data-last-margin">
-                  <span>超限数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;超限数:&nbsp;</span>
                   <span id="overrun">10</span>个
                 </div>
               </div>
-              <div class="health-more health-data-last-margin">
+              <div class="health-more">
                 <a href="#" data-type="0">更多详情</a>
               </div>
             </div>
-            <div class="health-vertical-divide"></div>
             <div class="health-communication">
               <div class="communication-header">
                 <span>仪表中断评测</span>
@@ -107,19 +110,22 @@
               <div class="health-cycle" id="communication-cycle"></div>
               <div class="communication-data">
                 <div class="health-data-margin">
-                  <span>总表数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;总表数:&nbsp;</span>
                   <span id="comm_total_meter">200</span>个
                 </div>
                 <div class="health-data-margin">
-                  <span>在线数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;在线数:&nbsp;</span>
                   <span id="online_meter">118</span>个
                 </div>
                 <div class="health-data-last-margin">
-                  <span>离线数:&nbsp;</span>
+                  <span>
+                    <span class="htmlpoint">&#8226;</span>&nbsp;离线数:&nbsp;</span>
                   <span id="offline-meter">82</span>个
                 </div>
               </div>
-              <div class="health-more health-data-last-margin">
+              <div class="health-more">
                 <a href="#" data-type="1">更多详情</a>
               </div>
             </div>
@@ -222,7 +228,7 @@
           <i class="icon icon-f7"></i>
         </div>
         <div class="item-inner {{meter.baseInstrument}}">
-          <div class="item-title">{{meter.text}}</div>
+          <div class="item-title">{{meter.displayText}}</div>
         </div>
       </li>
       {{/each}} {{/if}}
@@ -313,13 +319,8 @@
   </script>
   <script src="../../dist/sui/js/sm.js"></script>
   <script src="../../dist/sui/js/sm-extend.js"></script>
-  <!-- <script src="../../asserts/domain/health-domain.js?t=201808131507"></script>
-  <script src="../../dist/percentagecycle/js/angus.percentageloader-0.1.min.js" charset="utf-8"></script> -->
-  <script>
-    document.write('<script src="../../asserts/domain/health-domain.js?t=' + Math.random() +
-      '"><\/script><script src="../../dist/percentagecycle/js/angus.percentageloader-0.1.min.js?t=' + Math.random() +
-      '" charset="utf-8"><\/script>')
-  </script>
+  <script src="../../asserts/domain/health-domain.js?t=201808281052"></script>
+  <script src="../../dist/percentagecycle/js/angus.percentageloader-0.1.min.js?t=20180824142701" charset="utf-8"></script>
 </body>
 
 </html>
