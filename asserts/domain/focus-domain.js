@@ -1084,6 +1084,7 @@ $(function () {
   let getChartSeries = function (SeriesData, xAxis, rule, dateType, searchType) {
     let seriesOption = [];
     let index = 0;
+    let firstNode = _.head(SeriesData);
     _.forEach(SeriesData, s => {
       let formatData = [];
       if (searchType === queryType.convenient) {
@@ -1130,7 +1131,10 @@ $(function () {
         if (!!valueItem) return valueItem.val;
       });
       option.markLine = {
-        data: [{
+        data: []
+      };
+      if (firstNode && firstNode.name === s.name) {
+        option.markLine.data.push({
           type: 'average',
           name: '平均值',
           itemStyle: {
@@ -1140,13 +1144,13 @@ $(function () {
           },
           label: {
             formatter: function (data) {
-              return data.seriesName + "平均值(" + data.value + ")" + getPlaceHolder();
+              return "平均值(" + data.value + ")" + getPlaceHolder();
             },
             position: 'middle',
             color: '#aaa'
           }
-        }]
-      };
+        });
+      }
       if (rule != null) {
         if (rule.LowerLimit != null) {
           option.markLine.data.push({
