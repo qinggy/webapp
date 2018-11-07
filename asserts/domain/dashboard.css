@@ -3,7 +3,6 @@
 }
 
 /* start focus module */
-
 #page-focus .item-inner {
   background-image: none !important;
   display: flex;
@@ -67,14 +66,13 @@
 }
 
 .top-position {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 0.7rem;
   border: 0.06rem solid #bbb;
   padding: 0.1rem;
   border-radius: 1rem;
+  width: 1.0rem;
+  margin-left: 0.5rem;
+  margin-top: 0.6rem;
 }
 
 .home-page-color {
@@ -174,9 +172,7 @@
 }
 
 /* end focus module */
-
 /* start login module */
-
 .wechat {
   margin-left: 0.5rem;
   font-size: 1.2rem;
@@ -253,13 +249,11 @@
 }
 
 /* end login module */
-
 /* start health module */
-
 #page-health .content {
-  background-image: -moz-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
-  background-image: -webkit-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
-  background-image: -ms-linear-gradient( 90deg, #478cfa 0%, #27a6c6 100%);
+  background-image: -moz-linear-gradient(90deg, #478cfa 0%, #27a6c6 100%);
+  background-image: -webkit-linear-gradient(90deg, #478cfa 0%, #27a6c6 100%);
+  background-image: -ms-linear-gradient(90deg, #478cfa 0%, #27a6c6 100%);
 }
 
 #page-health .content-inner {
@@ -282,9 +276,9 @@
 .health-horizone-divide {
   height: 0.05rem;
   border: transparent;
-  background-image: -moz-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
-  background-image: -webkit-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
-  background-image: -ms-linear-gradient( 180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+  background-image: -moz-linear-gradient(180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+  background-image: -webkit-linear-gradient(180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
+  background-image: -ms-linear-gradient(180deg, rgb(32, 157, 250) 0%, rgb(90, 184, 255) 50%, rgb(32, 157, 250) 100%);
 }
 
 .health-contain {
@@ -305,9 +299,9 @@
 .health-vertical-divide {
   width: 0.05rem;
   border: transparent;
-  background-image: -moz-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
-  background-image: -webkit-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
-  background-image: -ms-linear-gradient( -90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+  background-image: -moz-linear-gradient(-90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+  background-image: -webkit-linear-gradient(-90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
+  background-image: -ms-linear-gradient(-90deg, rgb(93, 186, 255) 20%, rgb(151, 211, 255) 90%);
 }
 
 .health-communication {
@@ -420,9 +414,7 @@
 }
 
 /* end health module */
-
 /* start report module */
-
 #page-report ul {
   background: transparent;
 }
@@ -511,15 +503,13 @@
 }
 
 /* end report module */
-
 /* start about module */
-
 #page-about .content-inner {
   height: 100%;
 }
 
 .unbind-contain {
-  background-image: -webkit-linear-gradient( 90deg, rgb(190, 222, 246) 0%, rgb(32, 157, 250) 100%);
+  background-image: -webkit-linear-gradient(90deg, rgb(190, 222, 246) 0%, rgb(32, 157, 250) 100%);
   line-height: 2.2rem;
   width: 54%;
   text-align: center;
@@ -529,7 +519,7 @@
   left: 50%;
   -moz-transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
-  transform: translate( -50%, -50%);
+  transform: translate(-50%, -50%);
   font-size: 0.8rem;
 }
 

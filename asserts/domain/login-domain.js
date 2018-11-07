@@ -27,6 +27,13 @@ $(function () {
     return false;
   }
 
+  let isPageError = () => {
+    let uri = window.location.href;
+    if(_.includes(uri, '_ps'))
+      return true;
+    return false;
+  };
+
   $(document).on("pageInit", "#login-page", function (e, id, page) {
     $(page).on("click", "#login-btn", function (e) {
       //should write the login logic at here
@@ -61,13 +68,15 @@ $(function () {
         $.toast(error.Msg);
       });
     });
-    // let token = localStorage.getItem('user_token');
-    // if (token) {
-    //   sessionStorage.setItem('first_login', '1');
-    //   window.location.href = esdpec.framework.core.BaseWeb + 'src/focus/index.html';
-    // } else if (!hasLogined()) {
-    //   window.location.href = authUri;
-    // }
+    if(!isPageError()){
+      let token = localStorage.getItem('user_token');
+      if (token) {
+        sessionStorage.setItem('first_login', '1');
+        window.location.href = esdpec.framework.core.BaseWeb + 'src/focus/index.html';
+      } else if (!hasLogined()) {
+        window.location.href = authUri;
+      }
+    }    
   });
 
   $.init();

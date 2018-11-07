@@ -58,7 +58,7 @@ esdpec.framework.core.completeRequest = function (XMLHttpRequest, textStatus, on
   var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
   var unauthorize = XMLHttpRequest.getResponseHeader("authorize");
   if (sessionstatus === "timeout" || unauthorize === "unauthorize") {
-    window.location.href = esdpec.framework.core.redirectUrl;
+    window.location.href = esdpec.framework.core.redirectUrl + '?_ps=';
   }
   if (onCompleteCallBack != null) onCompleteCallBack;
 };
@@ -87,13 +87,13 @@ esdpec.framework.core.getJsonResult = function (url, successCallBack, failureCal
     .done(function (data) {
       $.hidePreloader();
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        window.location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl + '?_ps=';
       }
       successCallBack(data);
     })
     .fail(function OnError(xhr, textStatus, err) {
       if (err == "Unauthorized") {
-        window.location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl + '?_ps=';
       }
       if (failureCallBack != null) {
         failureCallBack($jQuery.parseJSON(xhr.responseText));
@@ -113,7 +113,7 @@ esdpec.framework.core.getJsonResultSilent = function (url, successCallBack, fail
   $jQuery.getJSON(this.Config.APIBaseUrl + url + esdpec.framework.core.getRequestRandom(url))
     .done(function (data) {
       if (data.Code != undefined && data.Code != null && data.Code == 401) {
-        window.location.href = esdpec.framework.core.redirectUrl;
+        window.location.href = esdpec.framework.core.redirectUrl + '?_ps=';
       }
       successCallBack(data);
     })

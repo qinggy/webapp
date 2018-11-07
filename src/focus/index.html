@@ -8,8 +8,8 @@
   <title>数聚邦</title>
   <meta name="description" content="能源管理, 在线能源申报, 能管系统建设">
   <meta name="author" content="深圳市拓远能源webapp">
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, user-scalable=no, minimal-ui" name="viewport"
-  />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, user-scalable=no, minimal-ui"
+    name="viewport" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="format-detection" content="telephone=no">
@@ -243,7 +243,9 @@
         {{if focus.is_index}}
         <i class="icon-home home-position set-home home-page-color" data-id="{{focus.id}}"></i>
         {{else}}
-        <div class="icon-arrow top-position set-index" data-id="{{focus.id}}" data-value="{{focus.is_index}}"></div>
+        <div class="index-container set-index" data-id="{{focus.id}}" data-value="{{focus.is_index}}">
+        <div class="icon-arrow top-position"></div>
+        </div>
         {{/if}}
         <div class="delete-action" id="delete-action">
           <span class="subscribe-action" data-id="{{focus.id}}">取消关注</span>
