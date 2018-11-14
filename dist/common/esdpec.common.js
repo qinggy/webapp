@@ -40,10 +40,10 @@ Date.prototype.addDays = function (days) {
 }
 
 esdpec.framework.core.Config = {
-  APIBaseUrl: 'http://172.17.0.21/api/',
-  BaseWebSiteUrl: 'http://172.17.0.48/',
-  // APIBaseUrl: 'http://120.76.22.80:8089/api/',
-  // BaseWebSiteUrl: 'http://cloud.esdgd.com/',
+  // APIBaseUrl: 'http://172.17.0.21/api/',
+  // BaseWebSiteUrl: 'http://172.17.0.48/',
+  APIBaseUrl: 'http://120.76.22.80:8089/api/',
+  BaseWebSiteUrl: 'http://cloud.esdgd.com/',
   BaseSiteRoot: 'webapp/',
   ajaxProcessingText: "加载中....",
   ajaxProcessedText: "完成",

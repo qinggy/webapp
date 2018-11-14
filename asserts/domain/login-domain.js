@@ -6,6 +6,10 @@ $(function () {
     var regex = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/;
     return regex.test(email);
   };
+  let isPhone = function (phoneNo) {
+    var regex = /^1[34578]\d{9}$/;
+    return regex.text(phoneNo);
+  };
   let getQueryString = pName => {
     let url = location.search;
     let theRequest = [];
@@ -26,7 +30,6 @@ $(function () {
     }
     return false;
   }
-
   let isPageError = () => {
     let uri = window.location.href;
     if(_.includes(uri, '_ps'))
@@ -42,8 +45,8 @@ $(function () {
       if (account === '') {
         $.toast('请输入账号');
         return;
-      } else if (!isEmail(account)) {
-        $.toast('账号格式错误，请输入例如xxx@mail.com');
+      } else if (!isEmail(account) && !isPhone(account)) {
+        $.toast('格式错误，请输入邮箱(xxx@xxx.xx)或者手机号(138XXXXXXXX)');
         return;
       }
       if (password === '') {
